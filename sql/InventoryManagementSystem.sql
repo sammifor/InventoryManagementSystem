@@ -236,8 +236,13 @@ CREATE TABLE [ItemLog](
 	[ItemID] INT NOT NULL
 		CONSTRAINT [FK_ItemLog_Item] FOREIGN KEY REFERENCES [Item]([ItemID]),
 
-	[ConditionID] INT NOT NULL
+	[ConditionID] NCHAR(2) NOT NULL
 		CONSTRAINT [FK_ItemLog_Condition] FOREIGN KEY REFERENCES [Condition]([ConditionID]),
+	--	CONSTRAINT [CK_ItemLog_Condition] CHECK (Condition LIKE N'入庫' OR
+	--						 Condition LIKE N'出庫' OR
+	--						 Condition LIKE N'報廢' OR
+	--						 Condition LIKE N'損壞' OR
+	--						 Condition LIKE N'遺失' OR),
 
 	[Description] NVARCHAR(100),
 
