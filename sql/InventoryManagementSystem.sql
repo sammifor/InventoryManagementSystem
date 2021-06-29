@@ -136,8 +136,8 @@ CREATE TABLE [Questionnaire](
 );
 
 CREATE TABLE [PaymentCategory](
-	[PaymentCategoryID] CHAR(1) NOT NULL
-		CONSTRAINT [PK_PaymentCategory] PRIMARY KEy,
+	[PaymentCategoryID] INT IDENTITY(1, 1) NOT NULL
+		CONSTRAINT [PK_PaymentCategory] PRIMARY KEY,
 
 	[PaymentCategoryName] NVARCHAR(50) NOT NULL
 );
@@ -146,7 +146,7 @@ CREATE TABLE [Payment](
 	[PaymentID] INT IDENTITY(1, 1) NOT NULL
 		CONSTRAINT [PK_Payment] PRIMARY KEY,
 
-	[PaymentCategoryID] CHAR(1) NOT NULL
+	[PaymentCategoryID] INT NOT NULL
 		CONSTRAINT [FK_Payment_PaymentCategory] FOREIGN KEY REFERENCES [PaymentCategory]([PaymentCategoryID]),
 
 	[Fee] DECIMAL NOT NULL
