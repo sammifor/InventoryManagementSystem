@@ -236,7 +236,7 @@ CREATE TABLE [ItemLog](
 	[ItemID] INT NOT NULL
 		CONSTRAINT [FK_ItemLog_Item] FOREIGN KEY REFERENCES [Item]([ItemID]),
 
-	[ConditionID] NCHAR(2) NOT NULL
+	[ConditionID] INT NOT NULL
 		CONSTRAINT [FK_ItemLog_Condition] FOREIGN KEY REFERENCES [Condition]([ConditionID]),
 	--	CONSTRAINT [CK_ItemLog_Condition] CHECK (Condition LIKE N'入庫' OR
 	--						 Condition LIKE N'出庫' OR
