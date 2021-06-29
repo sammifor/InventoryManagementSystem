@@ -87,9 +87,24 @@ CREATE TABLE [Equipment](
 
 	[Model] NVARCHAR(50),
 
-	[UnitPrice] DECIMAL
+	[UnitPrice] DECIMAL,
+
+	[Description] NVARCHAR(100)
 );
 
+CREATE TABLE [Item](
+	[ItemID] INT IDENTITY(1, 1) NOT NULL
+		CONSTRAINT [PK_Item] PRIMARY KEY,
+
+
+	[EquipmentID] INT NOT NULL
+		CONSTRAINT [FK_Item_Equipment] FOREIGN KEY REFERENCES [Equipment]([EquipmentID]),
+
+	[ItemSN] VARCHAR(50) NOT NULL
+		CONSTRAINT [UQ_Item_ItemSN] UNIQUE,
+
+	[Description] NVARCHAR(100)
+);
 
 CREATE TABLE [Order](
 	[OrderID] INT IDENTITY(1, 1) NOT NULL 
@@ -173,22 +188,6 @@ CREATE TABLE [PaymentDetail](
 
 	[PayTime] DATETIME
 		CONSTRAINT [DF_PaymentDetail_PayTime] DEFAULT GETDATE()
-);
-
-CREATE TABLE [Item](
-	[ItemID] INT IDENTITY(1, 1) NOT NULL
-		CONSTRAINT [PK_Item] PRIMARY KEY,
-
-	[ItemName] NVARCHAR(50) NOT NULL,
-
-	[EquipmentID] INT NOT NULL
-		CONSTRAINT [FK_Item_Equipment] FOREIGN KEY REFERENCES [Equipment]([EquipmentID]),
-
-	[ItemSN] VARCHAR(50) NOT NULL
-		CONSTRAINT [UQ_Item_ItemSN] UNIQUE,
-
-	[CreateTime] DATETIME
-		CONSTRAINT [DF_Item_CreateTime] DEFAULT GETDATE()
 );
 
 CREATE TABLE [OrderDetail](
