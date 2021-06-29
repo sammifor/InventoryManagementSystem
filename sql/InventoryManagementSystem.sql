@@ -65,7 +65,7 @@ CREATE TABLE [User](
 );
 
 CREATE TABLE [EquipCategory](
-	[EquipCategoryID] INT NOT NULL
+	[EquipCategoryID] INT IDENTITY(1, 1) NOT NULL
 		CONSTRAINT [PK_EquipCategory] PRIMARY KEY,
 
 	[CategoryName] NVARCHAR(50) NOT NULL
