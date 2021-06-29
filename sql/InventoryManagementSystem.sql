@@ -38,7 +38,7 @@ CREATE TABLE [User](
 	[Username] VARCHAR(50) NOT NULL
 		CONSTRAINT [UQ_User_Username] UNIQUE,
 
-	[Email] VARCHAR NOT NULL
+	[Email] VARCHAR(100) NOT NULL
 		CONSTRAINT [UQ_User_Email] UNIQUE,
 
 	[Password] CHAR(64) NOT NULL,
