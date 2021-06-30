@@ -116,6 +116,8 @@ CREATE TABLE [Order](
 	[EquipmentID] INT NOT NULL 
 		CONSTRAINT [FK_Order_Equipment] FOREIGN KEY REFERENCES [Equipment]([EquipmentID]),
 
+	[Quantity] INT NOT NULL,
+
 	[OrderTime] DATETIME 
 		CONSTRAINT [DF_Item_OrderTime] DEFAULT GETDATE() 
 );
@@ -242,7 +244,7 @@ CREATE TABLE [ItemLog](
 	--						 Condition LIKE N'出庫' OR
 	--						 Condition LIKE N'報廢' OR
 	--						 Condition LIKE N'損壞' OR
-	--						 Condition LIKE N'遺失' OR),
+	--						 Condition LIKE N'遺失'),
 
 	[Description] NVARCHAR(100),
 
