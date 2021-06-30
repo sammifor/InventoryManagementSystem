@@ -122,6 +122,20 @@ CREATE TABLE [Order](
 		CONSTRAINT [DF_Item_OrderTime] DEFAULT GETDATE() 
 );
 
+CREATE TABLE [CanceledOrder](
+	[UserID] INT NOT NULL
+		CONSTRAINT [FK_CanceledOrder_User] FOREIGN KEY REFERENCES [User]([UserID]),
+
+	[OrderID] INT NOT NULL
+		CONSTRAINT [FK_CanceledOrder_Order] FOREIGN KEY REFERENCES [Order]([OrderID])
+		CONSTRAINT [UQ_CenceledOrder_OrderID] UNIQUE,
+
+	[CancelTime] DATETIME
+		CONSTRAINT [DF_Item_CancelTime] DEFAULT GETDATE(),
+
+	CONSTRAINT [PK_CanceledOrder] PRIMARY KEY ([UserID], [OrderID])
+);
+
 CREATE TABLE [Response](
 	[ResponseID] INT IDENTITY(1, 1) NOT NULL
 		CONSTRAINT [PK_Response] PRIMARY KEY,
