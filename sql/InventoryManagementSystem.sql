@@ -118,6 +118,10 @@ CREATE TABLE [Order](
 
 	[Quantity] INT NOT NULL,
 
+	[EstimatedPickupTime] DATETIME NOT NULL,
+
+	[Day] INT NOT NULL,
+
 	[OrderTime] DATETIME 
 		CONSTRAINT [DF_Item_OrderTime] DEFAULT GETDATE() 
 );
@@ -129,6 +133,8 @@ CREATE TABLE [CanceledOrder](
 	[OrderID] INT NOT NULL
 		CONSTRAINT [FK_CanceledOrder_Order] FOREIGN KEY REFERENCES [Order]([OrderID])
 		CONSTRAINT [UQ_CenceledOrder_OrderID] UNIQUE,
+
+	[Description] NVARCHAR(100),
 
 	[CancelTime] DATETIME
 		CONSTRAINT [DF_Item_CancelTime] DEFAULT GETDATE(),
