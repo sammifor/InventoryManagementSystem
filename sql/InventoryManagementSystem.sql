@@ -245,6 +245,18 @@ CREATE TABLE [PaymentDetail](
                 CONSTRAINT [DF_PaymentDetail_PayTime] DEFAULT GETDATE()
 );
 
+CREATE TABLE [OrderDetailStatus](
+        [OrderDetailStatusID] CHAR(1) NOT NULL
+                CONSTRAINT [PK_OrderDetailStatus] PRIMARY KEY,
+        -- P for Pending
+        -- T for Taken
+        -- R for Returned
+        -- L for Lost
+
+        [StatusName] NVARCHAR(10) NOT NULL
+                CONSTRAINT [UQ_OrderDetailStatus_StatusName] UNIQUE
+);
+
 CREATE TABLE [OrderDetail](
         [OrderDetailID] INT IDENTITY(1, 1) NOT NULL
                 CONSTRAINT [PK_OrderDetail] PRIMARY KEY,
@@ -257,18 +269,6 @@ CREATE TABLE [OrderDetail](
 
         [OrderDetailStatusID] CHAR(1) NOT NULL
                 CONSTRAINT [FK_OrderDetail_OrderDetailStatus] [OrderDetailStatus]([OrderDetailStatusID])
-);
-
-CREATE TABLE [OrderDetailStatus](
-        [OrderDetailStatusID] CHAR(1) NOT NULL
-                CONSTRAINT [PK_OrderDetailStatus] PRIMARY KEY,
-        -- P for Pending
-        -- T for Taken
-        -- R for Returned
-        -- L for Lost
-
-        [StatusName] NVARCHAR(10) NOT NULL
-                CONSTRAINT [UQ_OrderDetailStatus_StatusName] UNIQUE
 );
 
 CREATE TABLE [Report](
