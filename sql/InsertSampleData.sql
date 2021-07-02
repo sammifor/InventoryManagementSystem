@@ -131,13 +131,13 @@ VALUES
 	(11, 'SN71', N''),
 	(15, 'SN72', N'好啞鈴')
 
-INSERT INTO [Condition](ConditionName)
+INSERT INTO [Condition](ConditionID, ConditionName)
 VALUES
-	(N'入庫'), --1
-	(N'出庫'), --2
-	(N'報廢'), --3
-	(N'損壞'), --4
-	(N'遺失')  --5
+	('I', N'入庫'),
+	('O', N'出庫'),
+	('S', N'報廢'),
+	('F', N'損壞'),
+	('L', N'遺失') 
 
 INSERT INTO [ItemLog](AdminID, ItemID, ConditionID)
 VALUES
@@ -214,3 +214,22 @@ VALUES
 	(1, 71, 1), 
 	(1, 72, 1) 
 
+INSERT INTO [OrderStatus]([OrderStatusID], [StatusName])
+VALUES
+        ('P', N'處理中'),
+        ('A', N'已成立'),
+        ('D', N'不成立'),
+        ('E', N'已結束'),
+        ('C', N'已取消')
+
+INSERT INTO [PaymentCategory]([PaymentCategoryID], [PaymentCategoryName])
+VALUES
+        ('P', '租賃費'),        
+        ('F', '違規費')
+
+INSERT INTO [OrderDetailStatus]([OrderDetailStatusID], [StatusName])
+VALUES
+        ('P', '待領取'),
+        ('T', '已領取'),
+        ('R', '已歸還'),
+        ('L', '遺失')
