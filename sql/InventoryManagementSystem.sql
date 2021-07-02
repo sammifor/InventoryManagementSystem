@@ -320,3 +320,15 @@ CREATE TABLE [ItemLog](
                 CONSTRAINT [DF_ItemLog_CreateTime] DEFAULT GETDATE()
 );
 
+CREATE TABLE [LineNotification](
+        [LineNotificationID] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [PK_LineNotification] PRIMARY KEY,
+
+        [OrderDetailID] INT NOT NULL
+                CONSTRAINT [FK_LineNotification_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
+
+        [CreateTime] DATETIME
+                CONSTRAINT [DF_LineNotification_CreateTime] DEFAULT GETDATE(),
+
+        [Message] NVARCHAR(200) NOT NULL
+);
