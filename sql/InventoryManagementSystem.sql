@@ -102,6 +102,18 @@ CREATE TABLE [Equipment](
         [Description] NVARCHAR(100)
 );
 
+CREATE TABLE [Condition](
+        [ConditionID] CHAR(1) NOT NULL
+                CONSTRAINT [PK_Condition] PRIMARY KEY,
+                --I for StockIn
+                --O for StockOut
+                --S for Scrap
+                --F for Failure
+                --L for Lost
+
+        [ConditionName] NVARCHAR(10) NOT NULL
+);
+
 CREATE TABLE [Item](
         [ItemID] INT IDENTITY(1, 1) NOT NULL
                 CONSTRAINT [PK_Item] PRIMARY KEY,
@@ -109,13 +121,26 @@ CREATE TABLE [Item](
         [EquipmentID] INT NOT NULL
                 CONSTRAINT [FK_Item_Equipment] FOREIGN KEY REFERENCES [Equipment]([EquipmentID]),
 
-        [ConditionID] INT NOT NULL
+        [ConditionID] CHAR(1) NOT NULL
                 CONSTRAINT [FK_Item_Condition] FOREIGN KEY REFERENCES [Condition]([ConditionID]),
 
         [ItemSN] VARCHAR(50) NOT NULL
                 CONSTRAINT [UQ_Item_ItemSN] UNIQUE,
 
         [Description] NVARCHAR(100)
+);
+
+CREATE TABLE [OrderStatus](
+        [OrderStatusID] CHAR(1) NOT NULL
+                CONSTRAINT [PK_OrderStatus] PRIMARY KEY,
+        -- P for Pending
+        -- A for Approved
+        -- D for Denied
+        -- E for Ended
+        -- C for Canceld
+
+    [StatusName] NVARCHAR(10) NOT NULL
+        CONSTRAINT [UQ_OrderStatus_StatusName] UNIQUE
 );
 
 CREATE TABLE [Order](
@@ -139,19 +164,6 @@ CREATE TABLE [Order](
 
         [OrderTime] DATETIME 
                 CONSTRAINT [DF_Item_OrderTime] DEFAULT GETDATE() 
-);
-
-CREATE TABLE [OrderStatus](
-        [OrderStatusID] CHAR(1) NOT NULL
-                CONSTRAINT [PK_OrderStatus] PRIMARY KEY,
-        -- P for Pending
-        -- A for Approved
-        -- D for Denied
-        -- E for Ended
-        -- C for Canceld
-
-    [StatusName] NVARCHAR(10) NOT NULL
-        CONSTRAINT [UQ_OrderStatus_StatusName] UNIQUE
 );
 
 CREATE TABLE [CanceledOrder](
@@ -265,10 +277,10 @@ CREATE TABLE [OrderDetail](
                 CONSTRAINT [FK_OrderDetail_Order] FOREIGN KEY REFERENCES [Order]([OrderID]),
 
         [ItemID] INT NOT NULL
-                CONSTRAINT [FK_OrderDetail_Item] FOREIGN KEY REFERENCES [Item]([ItemID])
+                CONSTRAINT [FK_OrderDetail_Item] FOREIGN KEY REFERENCES [Item]([ItemID]),
 
         [OrderDetailStatusID] CHAR(1) NOT NULL
-                CONSTRAINT [FK_OrderDetail_OrderDetailStatus] [OrderDetailStatus]([OrderDetailStatusID])
+                CONSTRAINT [FK_OrderDetail_OrderDetailStatus] FOREIGN KEY REFERENCES [OrderDetailStatus]([OrderDetailStatusID])
 );
 
 CREATE TABLE [Report](
@@ -284,18 +296,6 @@ CREATE TABLE [Report](
                 CONSTRAINT [DF_Report_ReportTime] DEFAULT GETDATE(),
 
         [CloseTime] DATETIME
-);
-
-CREATE TABLE [Condition](
-        [ConditionID] CHAR(1) NOT NULL
-                CONSTRAINT [PK_Condition] PRIMARY KEY,
-                --I for StockIn
-                --O for StockOut
-                --S for Scrap
-                --F for Failure
-                --L for Lost
-
-        [ConditionName] NVARCHAR(10) NOT NULL
 );
 
 CREATE TABLE [ItemLog](
