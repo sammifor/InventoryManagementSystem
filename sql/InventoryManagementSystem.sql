@@ -160,7 +160,8 @@ CREATE TABLE [Order](
         [Day] INT NOT NULL,
 
         [OrderStatusID] CHAR(1) NOT NULL
-                CONSTRAINT [FK_Order_Status] FOREIGN KEY REFERENCES [OrderStatus]([OrderStatusID]),
+                CONSTRAINT [DF_Order_OrderStatusID] DEFAULT 'P'
+                CONSTRAINT [FK_Order_OrderStatus] FOREIGN KEY REFERENCES [OrderStatus]([OrderStatusID]),
 
         [OrderTime] DATETIME 
                 CONSTRAINT [DF_Item_OrderTime] DEFAULT GETDATE() 
