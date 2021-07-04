@@ -40,9 +40,53 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         /*
+         * EquipApi/GetEquipNamesByCatesId/{EquipCategoryId}
+         */
+        // 設備名稱下拉式選單（名稱不重覆）
+        [HttpGet]
+        [Produces("application/json")]
+        [Route("{id}")]
+        public async Task<string[]> GetEquipNamesByCatesId(int id)
+        {
+            var results = await _dbContext.Equipment
+                .Where(e => e.EquipmentCategoryId == id)
+                .Select(e => e.EquipmentName)
+                .Distinct()
+                .ToArrayAsync();
+
+            return results;
+        }
+
+        /*
+         * EquipApi/GetEquipByEquipName/{EquipmentName}
+         */
+        // 以設備名稱查詢設備（名稱完全一致）
+        [HttpGet]
+        [Produces("application/json")]
+        [Route("{name}")]
+        public async Task<EquipResultModel[]> GetEquipByEquipName(string name)
+        {
+            var results = await _dbContext.Equipment
+                .Where(e => e.EquipmentName == name)
+                .Select(e => new EquipResultModel
+                {
+                    EquipmentId = e.EquipmentId,
+                    EquipmentSn = e.EquipmentSn,
+                    EquipmentName = e.EquipmentName,
+                    Brand = e.Brand,
+                    Model = e.Model,
+                    UnitPrice = e.UnitPrice,
+                    Description = e.Description,
+                    Quantity = e.Items.Count()
+                })
+                .ToArrayAsync();
+            return results;
+        }
+
+        /*
          * EquipApi/GetEquipByCateId/{EquipCategoryId} 
          */
-        //設備名稱下拉式選單
+        // 以設備種類 ID 查詢該種類下的所有設備
         [HttpGet]
         [Produces("application/json")]
         [Route("{id}")]
