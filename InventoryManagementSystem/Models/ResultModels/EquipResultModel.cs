@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Models.ViewModels
 {
-    public class EquipViewModel
+    public class EquipResultModel
     {
         public int EquipmentId { get; set; }
         public string EquipmentSn { get; set; }

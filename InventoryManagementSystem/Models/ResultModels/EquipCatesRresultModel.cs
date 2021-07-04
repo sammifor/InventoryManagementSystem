@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Models.ViewModels {
-    public class EquipCatesViewModel {
+    public class EquipCatesRresultModel {
         public int EquipCategoryId { get; set; }
         public string CategoryName { get; set; }
     }

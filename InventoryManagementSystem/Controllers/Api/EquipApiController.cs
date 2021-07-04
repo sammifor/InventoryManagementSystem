@@ -27,10 +27,10 @@ namespace InventoryManagementSystem.Controllers.Api
         // 設備種類下拉式選單
         [HttpGet]
         [Produces("application/json")]
-        public async Task<EquipCatesViewModel[]> GetCates()
+        public async Task<EquipCatesRresultModel[]> GetCates()
         {
             var results = await _dbContext.EquipCategories
-                .Select(c => new EquipCatesViewModel()
+                .Select(c => new EquipCatesRresultModel()
                 {
                     EquipCategoryId = c.EquipCategoryId,
                     CategoryName = c.CategoryName
@@ -46,11 +46,11 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Produces("application/json")]
         [Route("{id}")]
-        public async Task<EquipViewModel[]> GetEquipByCateId(int id)
+        public async Task<EquipResultModel[]> GetEquipByCateId(int id)
         {
             var results = await _dbContext.Equipment
                 .Where(e => e.EquipmentCategoryId == id)
-                .Select(e => new EquipViewModel
+                .Select(e => new EquipResultModel
                 {
                     EquipmentId = e.EquipmentId,
                     EquipmentSn = e.EquipmentSn,
@@ -72,11 +72,11 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Produces("application/json")]
         [Route("{id}")]
-        public async Task<ItemViewModel[]> GetItemsByEquipId(int id)
+        public async Task<ItemResultModel[]> GetItemsByEquipId(int id)
         {
             var results = await _dbContext.Items
                 .Where(i => i.EquipmentId == id)
-                .Select(i => new ItemViewModel
+                .Select(i => new ItemResultModel
                 {
                     ItemId = i.ItemId,
                     ItemSn = i.ItemSn,
