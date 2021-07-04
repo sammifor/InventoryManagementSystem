@@ -24,7 +24,7 @@ namespace InventoryManagementSystem.Controllers.Api
         /*
          * EquipApi/GetCates 
          */
-        //設備種類下拉式選單
+        // 設備種類下拉式選單
         [HttpGet]
         [Produces("application/json")]
         public async Task<EquipCatesViewModel[]> GetCates()
@@ -65,19 +65,27 @@ namespace InventoryManagementSystem.Controllers.Api
             return results;
         }
 
-        //查詢設備結果(IAN)
+        /*
+         * EquipApi/GetItemsByEquipId/{EquipmentId}
+         */
+        //查詢設備底下Items
         [HttpGet]
-        [Route("/equipsqry/equips/{ename}")]
-        public IActionResult equipsQryName(String ename)
+        [Produces("application/json")]
+        [Route("{id}")]
+        public async Task<ItemViewModel[]> GetItemsByEquipId(int id)
         {
-            var result = _dbContext.Equipment.Where(e => e.EquipmentName == ename).ToList();
-            if(result.Count <= 0)
-            {
-                return BadRequest($"設備名稱{ename} 查無資料");
-            }
-            return this.Ok(result);
+            var results = await _dbContext.Items
+                .Where(i => i.EquipmentId == id)
+                .Select(i => new ItemViewModel
+                {
+                    ItemId = i.ItemId,
+                    ItemSn = i.ItemSn,
+                    Condition = i.Condition.ConditionName,
+                    Description = i.Description
+                })
+                .ToArrayAsync();
+                
+            return results;
         }
-
-
     }
 }
