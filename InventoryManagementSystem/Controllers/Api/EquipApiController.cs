@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Inv.Controllers.Api
+namespace InventoryManagementSystem.Controllers.Api
 {
     [Route("[controller]/[action]")]
     [ApiController]
