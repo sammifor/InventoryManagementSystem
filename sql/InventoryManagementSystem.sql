@@ -137,7 +137,7 @@ CREATE TABLE [OrderStatus](
         -- A for Approved
         -- D for Denied
         -- E for Ended
-        -- C for Canceld
+        -- C for Canceled
 
     [StatusName] NVARCHAR(10) NOT NULL
         CONSTRAINT [UQ_OrderStatus_StatusName] UNIQUE
