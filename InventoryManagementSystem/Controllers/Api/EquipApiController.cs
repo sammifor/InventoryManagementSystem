@@ -84,7 +84,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     Description = i.Description
                 })
                 .ToArrayAsync();
-
+                
             return results;
         }
     }
