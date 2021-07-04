@@ -12,5 +12,10 @@ namespace Inv.Controllers
         {
             return View();
         }
+        
+        public IActionResult equipQryAdmin()
+        {
+            return View();
+        }
     }
 }
