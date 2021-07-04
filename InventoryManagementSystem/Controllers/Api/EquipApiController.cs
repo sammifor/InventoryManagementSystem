@@ -46,15 +46,13 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Produces("application/json")]
         [Route("{id}")]
-        public async Task<string[]> GetEquipNamesByCatesId(int id)
+        public IActionResult GetEquipNamesByCatesId(int id)
         {
-            var results = await _dbContext.Equipment
-                .Where(e => e.EquipmentCategoryId == id)
-                .Select(e => e.EquipmentName)
-                .Distinct()
-                .ToArrayAsync();
-
-            return results;
+            var result = _dbContext.Equipment.Where(e => e.EquipmentCategoryId == id).Select(e =>new {
+                EquipmentName = e.EquipmentName,
+                EquipmentCategoryId = e.EquipmentCategoryId
+            }).Distinct().ToList();
+            return this.Ok(result);
         }
 
         /*

@@ -5,14 +5,14 @@
             <label>設備種類  </label>
             <select class="btn btn-light dropdown-toggle" v-on:change="onCategoryChange($event)">
                 <option disabled selected>請先選擇種類</option>
-                <option v-model="" v-for="cname in category" :value="cname.equipCategoryId">{{cname.categoryName}}</option>
+                <option v-for="cname in category" :value="cname.equipCategoryId">{{cname.categoryName}}</option>
             </select>
         </div>
 
         <div>
             <label>設備名稱  </label>
             <select class="btn btn-light dropdown-toggle" v-model="selectName">
-                <option v-for="item in equips" :value="item.equipmentName">{{item.equipmentName}}</option>
+                <option v-for="ename in equips" :value="ename.equipmentName">{{ename.equipmentName}}</option>
             </select>
         </div>
         
@@ -55,7 +55,7 @@
         var app = new Vue({
             el: '#app',
             data: {
-                equips: '',
+                equips: {},
                 category: {},
                 selectName: ''
             },
@@ -74,7 +74,7 @@
             },
             methods: {
                 onCategoryChange: function (data) {
-                    fetch('/equipapi/GetEquipByCateId/' + data.target.value, { method: 'GET' })
+                    fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
                         .then(response => {
                             if (response.ok) {
                                 return response.json();
@@ -85,7 +85,7 @@
                         })
                 },
                 btnQry: function () {
-                    let url = '/equipsqry/equips/' + this.selectName;
+                    let url = '/EquipApi/GetEquipByEquipName/' + this.selectName;
                     let request = {
                         method: 'GET',
                         headers: { 'content-type': 'application/json' }
