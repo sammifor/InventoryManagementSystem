@@ -1,4 +1,4 @@
-﻿using Inv.Models;
+﻿using InventoryManagementSystem.Models.EF;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -55,7 +55,7 @@ namespace Inv.Controllers.Api
 
         //設備Equipment底下item數量
         [HttpGet]
-        public IActionResult itemsQryEquip(Models.Equipment equipment)
+        public IActionResult itemsQryEquip(Equipment equipment)
         {
             var result = _dbContext.Items.Select(i => i.EquipmentId == equipment.EquipmentId).Count();
             return this.Ok(result);
