@@ -55,23 +55,13 @@
         var app = new Vue({
             el: '#app',
             data: {
-                selectName: '',
-                tempEquips: {},
                 equips: '',
-                category: {}
+                category: {},
+                selectName: ''
             },
 
             beforeCreate: function () {
-                fetch('/equipapi/equips', { method: 'GET' })
-                    .then(response => {
-                        if (response.ok) {
-                            return response.json();
-                        }
-                    })
-                    .then(response => {
-                        this.tempEquips = response;
-                    });
-                fetch('/equipapi/cates', { method: 'GET' })
+                fetch('/equipapi/GetCates', { method: 'GET' })
                     .then(response => {
                         if (response.ok) {
                             return response.json();
@@ -79,9 +69,22 @@
                     })
                     .then(response => {
                         this.category = response;
-                    })
+                    });
+
             },
             methods: {
+                onCategoryChange: function (data) {
+                    console.log(data.target.value);
+                    fetch('/equipapi/GetEquipByCateId/' + data.target.value, { method: 'GET' })
+                        .then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            }
+                        })
+                        .then(response => {
+                            this.equips = response;
+                        })
+                },
                 btnQry: function () {
                     let url = '/equipsqry/equips/' + this.selectName;
                     let request = {
@@ -104,15 +107,6 @@
                             }
                             view.equips = response;
                         })
-                },
-                onCategoryChange: function (data) {
-                    console.log(data.target.value);
-                    //console.log(data.equipCategoryId);
-                    this.equips = this.tempEquips.filter(x => {
-                        if (x.equipmentCategoryId == data.target.value) {
-                            return x;
-                        }
-                    });
                 }
 
             }

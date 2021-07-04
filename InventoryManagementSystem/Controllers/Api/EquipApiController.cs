@@ -78,13 +78,6 @@ namespace InventoryManagementSystem.Controllers.Api
             return this.Ok(result);
         }
 
-        //設備Equipment底下item數量
-        [HttpGet]
-        public IActionResult itemsQryEquip(Equipment equipment)
-        {
-            var result = _dbContext.Items.Select(i => i.EquipmentId == equipment.EquipmentId).Count();
-            return this.Ok(result);
-        }
 
     }
 }
