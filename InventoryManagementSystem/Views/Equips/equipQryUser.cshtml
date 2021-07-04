@@ -74,7 +74,6 @@
             },
             methods: {
                 onCategoryChange: function (data) {
-                    console.log(data.target.value);
                     fetch('/equipapi/GetEquipByCateId/' + data.target.value, { method: 'GET' })
                         .then(response => {
                             if (response.ok) {
