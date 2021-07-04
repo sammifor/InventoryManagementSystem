@@ -8,7 +8,7 @@ namespace Inv.Controllers
 {
     public class EquipsController : Controller
     {
-        public IActionResult equipQry()
+        public IActionResult equipQryUser()
         {
             return View();
         }
