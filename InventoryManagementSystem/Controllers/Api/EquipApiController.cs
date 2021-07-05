@@ -151,9 +151,9 @@ namespace InventoryManagementSystem.Controllers.Api
                     throw new NotImplementedException();
                 }
 
-                if(equip.Items.Count > 0)
+                if(equip.Items.Count(i => i.ConditionId == "O") > 0)
                 {
-                    // 底下有Item，無法刪除
+                    // 底下有 Item 已出庫，無法刪除
                     throw new NotImplementedException();
                 }
 
