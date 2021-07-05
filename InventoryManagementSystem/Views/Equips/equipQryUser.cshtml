@@ -11,8 +11,8 @@
 
         <div>
             <label>設備名稱  </label>
-            <select class="btn btn-light dropdown-toggle" v-model="selectName">
-                <option v-for="ename in equips" :value="ename.equipmentName">{{ename.equipmentName}}</option>
+            <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)">
+                <option v-for="ename in equips" :value="ename">{{ename}}</option>
             </select>
         </div>
         
@@ -34,7 +34,7 @@
                     <td>品牌</td>
                     <td>型號</td>
                     <td>單價</td>
-                    <td>數量</td>
+                    <td>可租借數量</td>
                     <td>描述</td>
                     <td>租借</td>
                 </tr>
@@ -59,7 +59,8 @@
             data: {
                 equips: {},
                 category: {},
-                selectName: ''
+                selectName: '',
+                selectVal: ''
             },
 
             beforeCreate: function () {
@@ -86,8 +87,15 @@
                             this.equips = response;
                         })
                 },
+                onEquipNameChange: function (e) {
+                    // 可以抓到選到的option的value，而不是text
+                    this.selectVal = e.target.value;
+                    /*console.log(this.selectVal);*/
+                },
                 btnQry: function () {
-                    let url = '/EquipApi/GetEquipByEquipName/' + this.selectName;
+                    console.log(this.selectName);
+                    let url = '/EquipApi/GetEquipByEquipName/' + this.selectVal;
+                    
                     let request = {
                         method: 'GET',
                         headers: { 'content-type': 'application/json' }
