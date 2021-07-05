@@ -59,7 +59,6 @@
             data: {
                 equips: '',
                 category: {},
-                selectName: '',
                 selectVal: ''
             },
 
@@ -91,11 +90,9 @@
                 onEquipNameChange: function (e) {
                     // 可以抓到選到的option的value，而不是text
                     this.selectVal = e.target.value;
-                    console.log(this.selectVal);
                 },
                 btnQry: function () {
-                    let url = '/equipsqry/equips/' + this.selectName;
-                    console.log(this.selectName);
+                    let url = '/EquipApi/GetEquipByEquipName/' + this.selectVal;
                     let request = {
                         method: 'GET',
                         headers: { 'content-type': 'application/json' }
