@@ -1,5 +1,5 @@
 ﻿using InventoryManagementSystem.Models.EF;
-using InventoryManagementSystem.Models.ViewModels;
+using InventoryManagementSystem.Models.ResultModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +16,7 @@ namespace InventoryManagementSystem.Controllers.Api
     public class OrderApiController : ControllerBase
     {
 
-        private InventoryManagementSystemContext _dbContext;
+        private readonly InventoryManagementSystemContext _dbContext;
 
         public OrderApiController(InventoryManagementSystemContext dbContext)
         {

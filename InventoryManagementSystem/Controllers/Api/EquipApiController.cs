@@ -14,7 +14,8 @@ namespace InventoryManagementSystem.Controllers.Api
     [ApiController]
     public class EquipApiController : ControllerBase
     {
-        private InventoryManagementSystemContext _dbContext;
+        private readonly InventoryManagementSystemContext _dbContext;
+
         public EquipApiController(InventoryManagementSystemContext dbContext)
         {
             _dbContext = dbContext;
@@ -134,6 +135,30 @@ namespace InventoryManagementSystem.Controllers.Api
             return results;
         }
 
+        /*
+         * EquipApi/InsertEquip
+         */
+        // 新增 Equip
+        [HttpPost]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public async Task<InsertEquipResultModel> InsertEquip(Equipment equip)
+        {
+            await _dbContext.Equipment.AddAsync(equip);
+            InsertEquipResultModel result = null;
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                result = new InsertEquipResultModel(true);
+            }
+            catch(DbUpdateConcurrencyException e)
+            {
+                // 新增失敗
+                result = new InsertEquipResultModel(false);
+            }
+
+            return result;
+        }
 
         /*
          *  EquipApi/RemoveEquipByIds
@@ -156,7 +181,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     throw new NotImplementedException();
                 }
 
-                if(equip.Items.Count(i => i.ConditionId == "O") > 0)
+                if(equip.Items.Any(i => i.ConditionId == "O"))
                 {
                     // 底下有 Item 已出庫，無法刪除
                     throw new NotImplementedException();
