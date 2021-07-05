@@ -134,6 +134,11 @@ namespace InventoryManagementSystem.Controllers.Api
             return results;
         }
 
+
+        /*
+         *  EquipApi/RemoveEquipByIds
+         */
+        // 以 ID 移除 Equip，可一次移除多個 Equip
         [HttpDelete]
         [Produces("application/json")]
         [Consumes("application/json")]
