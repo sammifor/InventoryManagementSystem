@@ -151,7 +151,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 await _dbContext.SaveChangesAsync();
                 result = new InsertEquipResultModel(true);
             }
-            catch(DbUpdateConcurrencyException e)
+            catch(DbUpdateException e)
             {
                 // 新增失敗
                 result = new InsertEquipResultModel(false);
