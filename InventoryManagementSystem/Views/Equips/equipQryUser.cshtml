@@ -11,8 +11,8 @@
 
         <div>
             <label>設備名稱  </label>
-            <select class="btn btn-light dropdown-toggle" v-model="selectName">
-                <option v-for="item in equips" :value="item.equipmentName">{{item.equipmentName}}</option>
+            <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)">
+                <option v-for="item in equips" :value="item">這裡的文字只是顯示用，不重要</option>
             </select>
         </div>
         
@@ -59,7 +59,8 @@
             data: {
                 equips: '',
                 category: {},
-                selectName: ''
+                selectName: '',
+                selectVal: ''
             },
 
             beforeCreate: function () {
@@ -76,18 +77,25 @@
             },
             methods: {
                 onCategoryChange: function (data) {
-                    fetch('/equipapi/GetEquipByCateId/' + data.target.value, { method: 'GET' })
+                    fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
                         .then(response => {
                             if (response.ok) {
                                 return response.json();
                             }
                         })
                         .then(response => {
+                            // 這是一個 array，裡面裝 string
                             this.equips = response;
                         })
                 },
+                onEquipNameChange: function (e) {
+                    // 可以抓到選到的option的value，而不是text
+                    this.selectVal = e.target.value;
+                    console.log(this.selectVal);
+                },
                 btnQry: function () {
                     let url = '/equipsqry/equips/' + this.selectName;
+                    console.log(this.selectName);
                     let request = {
                         method: 'GET',
                         headers: { 'content-type': 'application/json' }
