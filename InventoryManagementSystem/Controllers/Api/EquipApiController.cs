@@ -1,5 +1,5 @@
 ﻿using InventoryManagementSystem.Models.EF;
-using InventoryManagementSystem.Models.ViewModels;
+using InventoryManagementSystem.Models.ResultModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +56,6 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return results;
         }
-
 
         /*
          * EquipApi/GetEquipByEquipName/{EquipmentName}
@@ -131,7 +130,44 @@ namespace InventoryManagementSystem.Controllers.Api
                     Description = i.Description
                 })
                 .ToArrayAsync();
-                
+
+            return results;
+        }
+
+        [HttpDelete]
+        [Produces("application/json")]
+        [Consumes("application/json")]
+        public async Task<RemoveEquipResultModel[]> RemoveEquipByIds(int[] ids)
+        {
+            var results = new RemoveEquipResultModel[ids.Length];
+            for(int i = 0; i < ids.Length; i++)
+            {
+                var equip = await _dbContext.Equipment
+                    .FindAsync(ids[i]);
+
+                if(equip == null)
+                {
+                    // 找不到設備，無法刪除
+                    throw new NotImplementedException();
+                }
+
+                if(equip.Items.Count > 0)
+                {
+                    // 底下有Item，無法刪除
+                    throw new NotImplementedException();
+                }
+
+                _dbContext.Equipment.Remove(equip);
+                try
+                {
+                    await _dbContext.SaveChangesAsync();
+                }
+                catch(DbUpdateConcurrencyException e)
+                {
+                    // 資料庫端發生錯誤，刪除失敗
+                    throw new NotImplementedException();
+                }
+            }
             return results;
         }
     }
