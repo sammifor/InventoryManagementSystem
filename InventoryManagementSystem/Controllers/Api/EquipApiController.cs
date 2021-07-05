@@ -78,7 +78,8 @@ namespace InventoryManagementSystem.Controllers.Api
                     Model = e.Model,
                     UnitPrice = e.UnitPrice,
                     Description = e.Description,
-                    Quantity = e.Items.Count()
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
+                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
                 })
                 .ToArrayAsync();
             return results;
@@ -104,7 +105,8 @@ namespace InventoryManagementSystem.Controllers.Api
                     Model = e.Model,
                     UnitPrice = e.UnitPrice,
                     Description = e.Description,
-                    Quantity = e.Items.Count()
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
+                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
                 })
                 .ToArrayAsync();
             return results;
