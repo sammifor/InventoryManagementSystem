@@ -11,7 +11,7 @@
 
         <div>
             <label>設備名稱  </label>
-            <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)">
+            <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)" v-model="selectName">
                 <option disabled selected>請選擇名稱</option>
                 <option v-for="ename in equips" :value="ename">{{ename}}</option>
             </select>
@@ -166,13 +166,14 @@
                             return response.text();
                         })
                         .then(response => {
-                            if (typeof (response) == typeof ("")) {
+                            if (app.selectName == '') {
                                 //顯示錯誤
                                 alert("請選擇篩選條件!");
                                 view.equips = '';
                                 return;
                             }
                             view.equips = response;
+                            app.selectName = '';
                         })
                 }
 
