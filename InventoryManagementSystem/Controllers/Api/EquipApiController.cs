@@ -160,6 +160,35 @@ namespace InventoryManagementSystem.Controllers.Api
             return result;
         }
 
+
+        /*
+         * EquipApi/EditEquip/{EquipmentId}
+         */
+        // 編輯一筆 Equip 資料
+        [HttpPut]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        [Route("{id}")]
+        public async Task<IActionResult> EditEquip(int id, Equipment equip)
+        {
+            if(equip.EquipmentId != id)
+            {
+                return BadRequest();
+            }
+
+            _dbContext.Entry(equip).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch(DbUpdateException e)
+            {
+                return Conflict();
+            }
+            return NoContent();
+        }
+
         /*
          *  EquipApi/RemoveEquipByIds
          */
