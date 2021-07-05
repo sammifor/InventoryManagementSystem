@@ -57,6 +57,7 @@ namespace InventoryManagementSystem.Controllers.Api
             return results;
         }
 
+
         /*
          * EquipApi/GetEquipByEquipName/{EquipmentName}
          */

@@ -1,0 +1,185 @@
+﻿
+<div id="app">
+    <div class="d-flex justify-content-around">
+        <div>
+            <label>設備種類  </label>
+            <select class="btn btn-light dropdown-toggle" v-on:change="onCategoryChange($event)">
+                <option disabled selected>請先選擇種類</option>
+                <option v-for="cname in category" :value="cname.equipCategoryId">{{cname.categoryName}}</option>
+            </select>
+        </div>
+
+        <div>
+            <label>設備名稱  </label>
+            <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)">
+                <option v-for="ename in equips" :value="ename">{{ename}}</option>
+            </select>
+        </div>
+
+        @*查詢Btn*@
+        <div>
+            <button type="button" class="btn btn-outline-primary" v-on:click="btnQry">查詢 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"></path></svg></button>
+        </div>
+
+        @*管理員btn*@
+        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+            @*新增*@
+            <button type="button" class="btn @*btn-group-toggle*@ btn-success" @*v-on:click="btnAdd"*@ data-toggle="modal" data-target="#addNewModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12.75 7.75a.75.75 0 00-1.5 0v3.5h-3.5a.75.75 0 000 1.5h3.5v3.5a.75.75 0 001.5 0v-3.5h3.5a.75.75 0 000-1.5h-3.5v-3.5z"></path><path fill-rule="evenodd" d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zM2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0z"></path></svg> 新增</button>
+            @*刪除*@
+            <button type="button" class="btn btn-danger" @*v-on:click="btnDel"*@ data-toggle="modal" data-target="#deleteAllModal">刪除 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M16 1.75V3h5.25a.75.75 0 010 1.5H2.75a.75.75 0 010-1.5H8V1.75C8 .784 8.784 0 9.75 0h4.5C15.216 0 16 .784 16 1.75zm-6.5 0a.25.25 0 01.25-.25h4.5a.25.25 0 01.25.25V3h-5V1.75z"></path><path d="M4.997 6.178a.75.75 0 10-1.493.144L4.916 20.92a1.75 1.75 0 001.742 1.58h10.684a1.75 1.75 0 001.742-1.581l1.413-14.597a.75.75 0 00-1.494-.144l-1.412 14.596a.25.25 0 01-.249.226H6.658a.25.25 0 01-.249-.226L4.997 6.178z"></path><path d="M9.206 7.501a.75.75 0 01.793.705l.5 8.5A.75.75 0 119 16.794l-.5-8.5a.75.75 0 01.705-.793zm6.293.793A.75.75 0 1014 8.206l-.5 8.5a.75.75 0 001.498.088l.5-8.5z"></path></svg></button>
+        </div>
+        <!-- addNewModal -->
+        <div class="modal fade" id="addNewModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLongTitle">請選取欲新增之類別</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div><a href="#種類" class="tooltip-test" title="前往新增種">Category</a></div>
+                        <div><a href="#設備" class="tooltip-test" title="前往新增設備">Equipment</a></div>
+                        <div> <a href="#item" class="tooltip-test" title="前往新增物品">Item</a></div>
+                    </div>
+                    @*<div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>
+                    </div>*@
+                </div>
+            </div>
+        </div>
+
+        <!-- DeleteModal -->
+        <div class="modal fade" id="deleteAllModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title font-weight-bold text-danger" id="exampleModalLabel">一鍵刪除</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        確認刪除所有選取設備?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary">確認</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>       
+    
+</div>
+<br />
+    <fieldset class="form-group border" id="view" v-if="equips.length !==0">
+        <legend class="w-auto">設備資料查詢結果 筆數:{{equips.length}}</legend>
+        <table class="table table-hover">
+            <thead class="badge-secondary">
+                <tr>
+                    <td>&#9746;</td>
+                    <td>設備ID</td>
+                    <td>設備序號</td>
+                    <td>設備名稱</td>
+                    <td>品牌</td>
+                    <td>型號</td>
+                    <td>單價</td>
+                    <td>數量</td>
+                    <td>描述</td>
+                    <td>修改</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="equip in equips">
+                    <td><input type="checkbox" aria-label="Checkbox"></td>
+                    <td>{{equip.equipmentId}}</td>
+                    <td>{{equip.equipmentSn}}</td>
+                    <td>{{equip.equipmentName}}</td>
+                    <td>{{equip.brand}}</td>
+                    <td>{{equip.model}}</td>
+                    <td>{{equip.unitPrice}}</td>
+                    <td><a href="前往item明細" title="前往item明細">&#10148; {{equip.quantity}}</a></td>
+                    <td>{{equip.description}}</td>
+                    <td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M17.263 2.177a1.75 1.75 0 012.474 0l2.586 2.586a1.75 1.75 0 010 2.474L19.53 10.03l-.012.013L8.69 20.378a1.75 1.75 0 01-.699.409l-5.523 1.68a.75.75 0 01-.935-.935l1.673-5.5a1.75 1.75 0 01.466-.756L14.476 4.963l2.787-2.786zm-2.275 4.371l-10.28 9.813a.25.25 0 00-.067.108l-1.264 4.154 4.177-1.271a.25.25 0 00.1-.059l10.273-9.806-2.94-2.939zM19 8.44l2.263-2.262a.25.25 0 000-.354l-2.586-2.586a.25.25 0 00-.354 0L16.061 5.5 19 8.44z"></path></svg></td>
+                </tr>
+            </tbody>
+        </table>
+    </fieldset>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                
+                category: {},
+                equips: {},
+                selectName: '',
+                selectVal: ''
+            },
+
+            beforeCreate: function () {
+                fetch('/equipapi/GetCates', { method: 'GET' })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                    })
+                    .then(response => {
+                        this.category = response;
+                    });
+                
+            },
+            methods: {
+                onCategoryChange: function (data) {
+                    /*console.log(data.target.value);*/
+                    fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
+                        .then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            }
+                        })
+                        .then(response => {
+                            this.equips = response;
+                        })
+                },
+                onEquipNameChange: function (e) {
+                    // 可以抓到選到的option的value，而不是text
+                    this.selectVal = e.target.value;
+                    /*console.log(this.selectVal);*/
+                },
+                btnQry: function () {
+                    let url = '/EquipApi/GetEquipByEquipName/' + this.selectVal;
+                    let request = {
+                        method: 'GET',
+                        headers: { 'content-type': 'application/json' }
+                    }
+                    fetch(url, request)
+                        .then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            }
+                            return response.text();
+                        })
+                        .then(response => {
+                            if (typeof (response) == typeof ("")) {
+                                //顯示錯誤
+                                alert("請選擇篩選條件!");
+                                view.equips = '';
+                                return;
+                            }
+                            view.equips = response;
+                        })
+                }
+
+            }
+        })
+        var view = new Vue({
+            el: '#view',
+            data: {
+                equips: ''
+            }
+        })
+    </script>
