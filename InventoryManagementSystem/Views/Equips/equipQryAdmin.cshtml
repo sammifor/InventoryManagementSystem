@@ -12,7 +12,8 @@
         <div>
             <label>設備名稱  </label>
             <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)">
-                <option v-for="ename in equips" :value="ename">{{ename}}</option>
+                <option disabled selected>請選擇名稱</option>
+                <option v-for="ename in equips" :value="ename" selected>{{ename}}</option>
             </select>
         </div>
 
