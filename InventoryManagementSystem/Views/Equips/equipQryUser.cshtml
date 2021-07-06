@@ -11,7 +11,7 @@
 
         <div>
             <label>設備名稱  </label>
-            <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)">
+            <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)" v-model="selectName">
                 <option disabled selected>請選擇名稱</option>
                 <option v-for="ename in equips" :value="ename">{{ename}}</option>
             </select>
@@ -46,7 +46,7 @@
                     <td>{{equip.brand}}</td>
                     <td>{{equip.model}}</td>
                     <td>{{equip.unitPrice}}</td>
-                    <td>{{equip.quantity}}</td>
+                    <td>{{equip.quantityInStock}}</td>
                     <td>{{equip.description}}</td>
                     <td><a href="此為租借連結"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M15.5 2.25a.75.75 0 01.75-.75h5.5a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0V4.06l-6.22 6.22a.75.75 0 11-1.06-1.06L19.94 3h-3.69a.75.75 0 01-.75-.75z"></path><path d="M2.5 4.25c0-.966.784-1.75 1.75-1.75h8.5a.75.75 0 010 1.5h-8.5a.25.25 0 00-.25.25v15.5c0 .138.112.25.25.25h15.5a.25.25 0 00.25-.25v-8.5a.75.75 0 011.5 0v8.5a1.75 1.75 0 01-1.75 1.75H4.25a1.75 1.75 0 01-1.75-1.75V4.25z"></path></svg></a></td>
                 </tr>
@@ -86,7 +86,9 @@
                         })
                         .then(response => {
                             this.equips = response;
+                            
                         })
+                    
                 },
                 onEquipNameChange: function (e) {
                     // 可以抓到選到的option的value，而不是text
@@ -95,6 +97,7 @@
                 },
                 btnQry: function () {
                     console.log(this.selectName);
+                    
                     let url = '/EquipApi/GetEquipByEquipName/' + this.selectVal;
                     
                     let request = {
@@ -109,14 +112,17 @@
                             return response.text();
                         })
                         .then(response => {
-                            if (typeof (response) == typeof ("")) {
+                            if (app.selectName == '') {
                                 //顯示錯誤
                                 alert("請選擇篩選條件!");
                                 view.equips = '';
                                 return;
                             }
                             view.equips = response;
+                            app.selectName = '';
+
                         })
+                    
                 }
 
             }
