@@ -59,6 +59,41 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         /*
+         * EquipApi/GetEquipById/{EquipmentId}
+         */
+        // 以 equip ID 查詢 equip 的資訊
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<ActionResult<EquipResultModel>> GetEquipById(int id)
+        {
+            var result = await _dbContext.Equipment
+                .Where(e => e.EquipmentId == id)
+                .Select(e => new EquipResultModel
+                {
+                    EquipmentId = e.EquipmentId,
+                    EquipmentSn = e.EquipmentSn,
+                    EquipmentName = e.EquipmentName,
+                    Brand = e.Brand,
+                    Model = e.Model,
+                    UnitPrice = e.UnitPrice,
+                    Description = e.Description,
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
+                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
+                })
+                .FirstOrDefaultAsync();
+
+            if(result == null)
+            {
+                return NotFound();
+            }
+
+
+            return result;
+
+        }
+
+
+        /*
          * EquipApi/GetEquipByEquipName/{EquipmentName}
          */
         // 以設備名稱查詢設備（名稱完全一致）
