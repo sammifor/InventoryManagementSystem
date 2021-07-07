@@ -1,6 +1,6 @@
 ﻿
 <div id="app">
-    <div class="d-flex justify-content-around">
+    <div class="d-flex justify-content-between">
         <div>
             <label>設備種類  </label>
             <select class="btn btn-light dropdown-toggle" v-on:change="onCategoryChange($event)">
@@ -27,202 +27,256 @@
             @*新增*@
             <button type="button" class="btn btn-success" @*v-on:click="btnAdd"*@ data-toggle="modal" data-target="#addNewModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12.75 7.75a.75.75 0 00-1.5 0v3.5h-3.5a.75.75 0 000 1.5h3.5v3.5a.75.75 0 001.5 0v-3.5h3.5a.75.75 0 000-1.5h-3.5v-3.5z"></path><path fill-rule="evenodd" d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zM2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0z"></path></svg> 新增</button>
             @*刪除*@
-            <button type="button" class="btn btn-danger" @*v-on:click="btnDel"*@ data-toggle="modal" data-target="#deleteAllModal">刪除 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M16 1.75V3h5.25a.75.75 0 010 1.5H2.75a.75.75 0 010-1.5H8V1.75C8 .784 8.784 0 9.75 0h4.5C15.216 0 16 .784 16 1.75zm-6.5 0a.25.25 0 01.25-.25h4.5a.25.25 0 01.25.25V3h-5V1.75z"></path><path d="M4.997 6.178a.75.75 0 10-1.493.144L4.916 20.92a1.75 1.75 0 001.742 1.58h10.684a1.75 1.75 0 001.742-1.581l1.413-14.597a.75.75 0 00-1.494-.144l-1.412 14.596a.25.25 0 01-.249.226H6.658a.25.25 0 01-.249-.226L4.997 6.178z"></path><path d="M9.206 7.501a.75.75 0 01.793.705l.5 8.5A.75.75 0 119 16.794l-.5-8.5a.75.75 0 01.705-.793zm6.293.793A.75.75 0 1014 8.206l-.5 8.5a.75.75 0 001.498.088l.5-8.5z"></path></svg></button>
+            <button type="button" class="btn btn-danger" @*v-on:click="btnDel"*@ data-toggle="modal" data-target="#deleteAllEquipModal">刪除 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0zM12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm6.25 11.75a.75.75 0 000-1.5H5.75a.75.75 0 000 1.5h12.5z"></path></svg></button>
         </div>
-        <!-- addNewModal -->
-        <div class="modal fade" id="addNewModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLongTitle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M7.875 2.292a.125.125 0 00-.032.018A7.24 7.24 0 004.75 8.25a7.247 7.247 0 003.654 6.297c.57.327.982.955.941 1.682v.002l-.317 6.058a.75.75 0 11-1.498-.078l.317-6.062v-.004c.006-.09-.047-.215-.188-.296A8.747 8.747 0 013.25 8.25a8.74 8.74 0 013.732-7.169 1.547 1.547 0 011.709-.064c.484.292.809.835.809 1.46v4.714a.25.25 0 00.119.213l2.25 1.385c.08.05.182.05.262 0l2.25-1.385a.25.25 0 00.119-.213V2.478c0-.626.325-1.169.81-1.461a1.547 1.547 0 011.708.064 8.74 8.74 0 013.732 7.17 8.747 8.747 0 01-4.41 7.598c-.14.081-.193.206-.188.296v.004l.318 6.062a.75.75 0 11-1.498.078l-.317-6.058v-.002c-.041-.727.37-1.355.94-1.682A7.247 7.247 0 0019.25 8.25a7.24 7.24 0 00-3.093-5.94.125.125 0 00-.032-.018l-.01-.001c-.003 0-.014 0-.031.01-.036.022-.084.079-.084.177V7.19a1.75 1.75 0 01-.833 1.49l-2.25 1.385a1.75 1.75 0 01-1.834 0l-2.25-1.384A1.75 1.75 0 018 7.192V2.477c0-.098-.048-.155-.084-.176a.062.062 0 00-.031-.011l-.01.001z"></path></svg> 請選取欲新增之類別</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body d-flex justify-content-between">
-                        <div><button class="btn btn-info" title="前往新增種類">種類  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M7.823.177L4.927 3.073a.25.25 0 00.177.427H7.25v5.75a.75.75 0 001.5 0V3.5h2.146a.25.25 0 00.177-.427L8.177.177a.25.25 0 00-.354 0zM3.75 6.5a.25.25 0 00-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 00.25-.25v-6.5a.25.25 0 00-.25-.25h-1a.75.75 0 010-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0112.25 15h-8.5A1.75 1.75 0 012 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 110 1.5h-1z"></path></svg></button></div>
-                        <div><button class="btn btn-info" title="前往新增設備">設備  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M7.823.177L4.927 3.073a.25.25 0 00.177.427H7.25v5.75a.75.75 0 001.5 0V3.5h2.146a.25.25 0 00.177-.427L8.177.177a.25.25 0 00-.354 0zM3.75 6.5a.25.25 0 00-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 00.25-.25v-6.5a.25.25 0 00-.25-.25h-1a.75.75 0 010-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0112.25 15h-8.5A1.75 1.75 0 012 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 110 1.5h-1z"></path></svg></button></div>
-                        <div><button class="btn btn-info" title="前往新增物品">物品  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M7.823.177L4.927 3.073a.25.25 0 00.177.427H7.25v5.75a.75.75 0 001.5 0V3.5h2.146a.25.25 0 00.177-.427L8.177.177a.25.25 0 00-.354 0zM3.75 6.5a.25.25 0 00-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 00.25-.25v-6.5a.25.25 0 00-.25-.25h-1a.75.75 0 010-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0112.25 15h-8.5A1.75 1.75 0 012 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 110 1.5h-1z"></path></svg></button></div>
-                        <div><!--排版用div--></div>
-                    </div>
-                    @*<div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                    </div>*@
-                </div>
-            </div>
-        </div>
-
-        <!-- DeleteModal -->
-        <div class="modal fade" id="deleteAllModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title font-weight-bold text-danger" id="exampleModalLabel">一鍵刪除</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        確認刪除所有選取設備?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary">確認</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>       
-    
+    </div>
 </div>
 <br />
-    <fieldset class="form-group border" id="view" v-if="equips.length !==0">
-        <legend class="w-auto">設備資料查詢結果 筆數:{{equips.length}}</legend>
+<div id="view">
+    <fieldset class="form-group border w-auto" v-if="equips.length !==0">
+        <legend>設備資料查詢結果 筆數:{{equips.length}}</legend>
         <table class="table table-hover">
             <thead class="badge-secondary">
                 <tr>
                     <td>&#9746;</td>
                     <td>設備ID</td>
-                    <td>設備序號</td>
-                    <td>設備名稱</td>
+                    <td>序號</td>
+                    <td>名稱</td>
                     <td>品牌</td>
                     <td>型號</td>
                     <td>單價</td>
                     <td>出租/在庫/總數</td>
                     <td>描述</td>
-                    <td>修改</td>
+                    <td>動作</td>
+                    <td>刪除</td>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="equip in equips">
-                    <td><input type="checkbox" aria-label="Checkbox"></td>
+                    <td><input type="checkbox" aria-label="Checkbox" :value="equip.equipmentId" v-model="checkedEquips"></td>
                     <td>{{equip.equipmentId}}</td>
                     <td>{{equip.equipmentSn}}</td>
                     <td>{{equip.equipmentName}}</td>
                     <td>{{equip.brand}}</td>
                     <td>{{equip.model}}</td>
                     <td>{{equip.unitPrice}}</td>
-                    <td><button type="button" class="btn btn-outline-primary" @*v-on:click="btnItem"*@>&#10148; {{equip.quantityUsable-equip.quantityInStock}} / {{equip.quantityInStock}} / {{equip.quantityUsable}}</button></td>
+                    <td><button type="button" class="btn btn-outline-primary" :value="equip.equipmentId" v-on:click="btnItem">&#10148; {{equip.quantityUsable-equip.quantityInStock}} / {{equip.quantityInStock}} / {{equip.quantityUsable}}</button></td>
                     <td>{{equip.description}}</td>
                     <td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M17.263 2.177a1.75 1.75 0 012.474 0l2.586 2.586a1.75 1.75 0 010 2.474L19.53 10.03l-.012.013L8.69 20.378a1.75 1.75 0 01-.699.409l-5.523 1.68a.75.75 0 01-.935-.935l1.673-5.5a1.75 1.75 0 01.466-.756L14.476 4.963l2.787-2.786zm-2.275 4.371l-10.28 9.813a.25.25 0 00-.067.108l-1.264 4.154 4.177-1.271a.25.25 0 00.1-.059l10.273-9.806-2.94-2.939zM19 8.44l2.263-2.262a.25.25 0 000-.354l-2.586-2.586a.25.25 0 00-.354 0L16.061 5.5 19 8.44z"></path></svg></td>
+                    <td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M16 1.75V3h5.25a.75.75 0 010 1.5H2.75a.75.75 0 010-1.5H8V1.75C8 .784 8.784 0 9.75 0h4.5C15.216 0 16 .784 16 1.75zm-6.5 0a.25.25 0 01.25-.25h4.5a.25.25 0 01.25.25V3h-5V1.75z"></path><path d="M4.997 6.178a.75.75 0 10-1.493.144L4.916 20.92a1.75 1.75 0 001.742 1.58h10.684a1.75 1.75 0 001.742-1.581l1.413-14.597a.75.75 0 00-1.494-.144l-1.412 14.596a.25.25 0 01-.249.226H6.658a.25.25 0 01-.249-.226L4.997 6.178z"></path><path d="M9.206 7.501a.75.75 0 01.793.705l.5 8.5A.75.75 0 119 16.794l-.5-8.5a.75.75 0 01.705-.793zm6.293.793A.75.75 0 1014 8.206l-.5 8.5a.75.75 0 001.498.088l.5-8.5z"></path></svg></td>
                 </tr>
             </tbody>
         </table>
-        
+
     </fieldset>
-<br/>
-    <fieldset class="form-group border" v-if="items.length !==0">
-        <legend class="w-auto" id="itemview">物品明細查詢結果 筆數:{{items.length}}</legend>
+    <br />
+    <fieldset class="form-group border w-auto" v-if="items.length !==0">
+        <legend class="d-flex justify-content-between">
+            物品明細查詢結果 筆數:{{items.length}}
+            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                @*新增*@
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addNewModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12.75 7.75a.75.75 0 00-1.5 0v3.5h-3.5a.75.75 0 000 1.5h3.5v3.5a.75.75 0 001.5 0v-3.5h3.5a.75.75 0 000-1.5h-3.5v-3.5z"></path><path fill-rule="evenodd" d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zM2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0z"></path></svg> 新增</button>
+                @*刪除*@
+                <button type="button" class="btn btn-danger" @*v-on:click="btnDelEquip"*@ data-toggle="modal" data-target="#deleteAllItemModal">刪除 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0zM12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm6.25 11.75a.75.75 0 000-1.5H5.75a.75.75 0 000 1.5h12.5z"></path></svg></button>
+            </div>
+        </legend>
         <table class="table table-hover">
             <thead class="badge-secondary">
                 <tr>
                     <td>&#9746;</td>
-                    <td>ItemId物品ID</td>
-                    <td>ItemSn物品序號</td>
-                    <td>Condition物品狀況</td>
-                    <td>Description描述</td>
+                    <td>物品ID</td>
+                    <td>序號</td>
+                    <td>品名</td>
+                    <td>庫存</td>
                     <td>修改</td>
+                    <td>刪除</td>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="item in items">
-                    <td><input type="checkbox" aria-label="Checkbox"></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td><input type="checkbox" aria-label="Checkbox" :value="item.itemId"></td>
+                    <td>{{item.itemId}}</td>
+                    <td>{{item.itemSn}}</td>
+                    <td>{{item.description}}</td>
+                    <td>{{item.condition}}</td>
                     <td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M17.263 2.177a1.75 1.75 0 012.474 0l2.586 2.586a1.75 1.75 0 010 2.474L19.53 10.03l-.012.013L8.69 20.378a1.75 1.75 0 01-.699.409l-5.523 1.68a.75.75 0 01-.935-.935l1.673-5.5a1.75 1.75 0 01.466-.756L14.476 4.963l2.787-2.786zm-2.275 4.371l-10.28 9.813a.25.25 0 00-.067.108l-1.264 4.154 4.177-1.271a.25.25 0 00.1-.059l10.273-9.806-2.94-2.939zM19 8.44l2.263-2.262a.25.25 0 000-.354l-2.586-2.586a.25.25 0 00-.354 0L16.061 5.5 19 8.44z"></path></svg></td>
+                    <td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M16 1.75V3h5.25a.75.75 0 010 1.5H2.75a.75.75 0 010-1.5H8V1.75C8 .784 8.784 0 9.75 0h4.5C15.216 0 16 .784 16 1.75zm-6.5 0a.25.25 0 01.25-.25h4.5a.25.25 0 01.25.25V3h-5V1.75z"></path><path d="M4.997 6.178a.75.75 0 10-1.493.144L4.916 20.92a1.75 1.75 0 001.742 1.58h10.684a1.75 1.75 0 001.742-1.581l1.413-14.597a.75.75 0 00-1.494-.144l-1.412 14.596a.25.25 0 01-.249.226H6.658a.25.25 0 01-.249-.226L4.997 6.178z"></path><path d="M9.206 7.501a.75.75 0 01.793.705l.5 8.5A.75.75 0 119 16.794l-.5-8.5a.75.75 0 01.705-.793zm6.293.793A.75.75 0 1014 8.206l-.5 8.5a.75.75 0 001.498.088l.5-8.5z"></path></svg></td>
                 </tr>
             </tbody>
         </table>
 
     </fieldset>
+</div>
 
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
 
-    <script>
-        var app = new Vue({
-            el: '#app',
-            data: {
-                
-                category: {},
-                equips: {},
-                selectName: '',
-                selectVal: ''
-            },
+            category: {},
+            equips: {},
+            selectName: '',
+            selectVal: ''
+        },
 
-            beforeCreate: function () {
-                fetch('/equipapi/GetCates', { method: 'GET' })
+        beforeCreate: function () {
+            fetch('/equipapi/GetCates', { method: 'GET' })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                })
+                .then(response => {
+                    this.category = response;
+                });
+
+        },
+        methods: {
+            onCategoryChange: function (data) {
+                /*console.log(data.target.value);*/
+                fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
                     .then(response => {
                         if (response.ok) {
                             return response.json();
                         }
                     })
                     .then(response => {
-                        this.category = response;
-                    });
-                
+                        this.equips = response;
+                    })
             },
-            methods: {
-                onCategoryChange: function (data) {
-                    /*console.log(data.target.value);*/
-                    fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
-                        .then(response => {
-                            if (response.ok) {
-                                return response.json();
-                            }
-                        })
-                        .then(response => {
-                            this.equips = response;
-                        })
-                },
-                onEquipNameChange: function (e) {
-                    // 可以抓到選到的option的value，而不是text
-                    this.selectVal = e.target.value;
-                    /*console.log(this.selectVal);*/
-            
-                },
-                btnQry: function () {
-                    let url = '/EquipApi/GetEquipByEquipName/' + this.selectVal;
-                    let request = {
-                        method: 'GET',
-                        headers: { 'content-type': 'application/json' }
-                    }
-                    fetch(url, request)
-                        .then(response => {
-                            if (response.ok) {
-                                return response.json();
-                            }
-                            return response.text();
-                        })
-                        .then(response => {
-                            if (app.selectName == '') {
-                                //顯示錯誤
-                                alert("請選擇篩選條件!");
-                                view.equips = '';
-                                return;
-                            }
-                            view.equips = response;
-                            app.selectName = '';
-                        })
-                }
-            }
-        })
-        var view = new Vue({
-            el: '#view',
-            data: {
-                equips: ''
-            } 
-        })
+            onEquipNameChange: function (e) {
+                // 可以抓到選到的option的value，而不是text
+                this.selectVal = e.target.value;
+                /*console.log(this.selectVal);*/
 
-        //var itemview = new Vue({
-        //    el: '#itemview',
-        //    data: {
-        //        items:''
-        //    },
-        /*methods: {*/
-                //btnItem: function () {
-                //    let url ='EquipApi/GetItemsByEquipId/'+
-                //}
-        //})
-    </script>
+            },
+            btnQry: function () {
+                let url = '/EquipApi/GetEquipByEquipName/' + this.selectVal;
+                let request = {
+                    method: 'GET',
+                    headers: { 'content-type': 'application/json' }
+                }
+                fetch(url, request)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        return response.text();
+                    })
+                    .then(response => {
+                        if (app.selectName == '') {
+                            //顯示錯誤
+                            alert("請選擇篩選條件!");
+                            view.equips = '';
+                            return;
+                        }
+                        view.equips = response;
+                        app.selectName = '';
+                        view.items = '';
+                    })
+            }
+        }
+    })
+    var view = new Vue({
+        el: '#view',
+        data: {
+            equips: '',
+            eid: '',
+            items: '',
+            checkedEquips: []
+        },
+        methods: {
+            btnItem: function (e) {
+                this.eid = e.target.value;
+                //console.log(e.target.value);
+                //console.log(this.eid);
+
+                let url = '/EquipApi/GetItemsByEquipId/' + this.eid;
+                let request = {
+                    method: 'GET',
+                    headers: { 'content-type': 'application/json' }
+                }
+                fetch(url, request)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        return response.text();
+                    })
+                    .then(response => {
+                        this.items = response;
+                    })
+            },
+            btnDelEquip: function () {
+
+            }
+        }
+    })
+
+
+</script>
+<!-- addNewModal -->
+<div class="modal fade" id="addNewModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M7.875 2.292a.125.125 0 00-.032.018A7.24 7.24 0 004.75 8.25a7.247 7.247 0 003.654 6.297c.57.327.982.955.941 1.682v.002l-.317 6.058a.75.75 0 11-1.498-.078l.317-6.062v-.004c.006-.09-.047-.215-.188-.296A8.747 8.747 0 013.25 8.25a8.74 8.74 0 013.732-7.169 1.547 1.547 0 011.709-.064c.484.292.809.835.809 1.46v4.714a.25.25 0 00.119.213l2.25 1.385c.08.05.182.05.262 0l2.25-1.385a.25.25 0 00.119-.213V2.478c0-.626.325-1.169.81-1.461a1.547 1.547 0 011.708.064 8.74 8.74 0 013.732 7.17 8.747 8.747 0 01-4.41 7.598c-.14.081-.193.206-.188.296v.004l.318 6.062a.75.75 0 11-1.498.078l-.317-6.058v-.002c-.041-.727.37-1.355.94-1.682A7.247 7.247 0 0019.25 8.25a7.24 7.24 0 00-3.093-5.94.125.125 0 00-.032-.018l-.01-.001c-.003 0-.014 0-.031.01-.036.022-.084.079-.084.177V7.19a1.75 1.75 0 01-.833 1.49l-2.25 1.385a1.75 1.75 0 01-1.834 0l-2.25-1.384A1.75 1.75 0 018 7.192V2.477c0-.098-.048-.155-.084-.176a.062.062 0 00-.031-.011l-.01.001z"></path></svg> 請選取欲新增之類別</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body d-flex justify-content-between">
+                <div><button class="btn btn-info" title="前往新增種類">種類  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M7.823.177L4.927 3.073a.25.25 0 00.177.427H7.25v5.75a.75.75 0 001.5 0V3.5h2.146a.25.25 0 00.177-.427L8.177.177a.25.25 0 00-.354 0zM3.75 6.5a.25.25 0 00-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 00.25-.25v-6.5a.25.25 0 00-.25-.25h-1a.75.75 0 010-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0112.25 15h-8.5A1.75 1.75 0 012 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 110 1.5h-1z"></path></svg></button></div>
+                <div><button class="btn btn-info" title="前往新增設備">設備  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M7.823.177L4.927 3.073a.25.25 0 00.177.427H7.25v5.75a.75.75 0 001.5 0V3.5h2.146a.25.25 0 00.177-.427L8.177.177a.25.25 0 00-.354 0zM3.75 6.5a.25.25 0 00-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 00.25-.25v-6.5a.25.25 0 00-.25-.25h-1a.75.75 0 010-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0112.25 15h-8.5A1.75 1.75 0 012 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 110 1.5h-1z"></path></svg></button></div>
+                <div><button class="btn btn-info" title="前往新增物品">物品  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M7.823.177L4.927 3.073a.25.25 0 00.177.427H7.25v5.75a.75.75 0 001.5 0V3.5h2.146a.25.25 0 00.177-.427L8.177.177a.25.25 0 00-.354 0zM3.75 6.5a.25.25 0 00-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 00.25-.25v-6.5a.25.25 0 00-.25-.25h-1a.75.75 0 010-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0112.25 15h-8.5A1.75 1.75 0 012 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 110 1.5h-1z"></path></svg></button></div>
+                <div><!--排版用div--></div>
+            </div>
+            @*<div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>*@
+        </div>
+    </div>
+</div>
+
+<!-- Equip-deleteModal -->
+<div class="modal fade" id="deleteAllEquipModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title font-weight-bold text-danger" id="exampleModalLabel"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M13 17.5a1 1 0 11-2 0 1 1 0 012 0zm-.25-8.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5z"></path><path fill-rule="evenodd" d="M9.836 3.244c.963-1.665 3.365-1.665 4.328 0l8.967 15.504c.963 1.667-.24 3.752-2.165 3.752H3.034c-1.926 0-3.128-2.085-2.165-3.752L9.836 3.244zm3.03.751a1 1 0 00-1.732 0L2.168 19.499A1 1 0 003.034 21h17.932a1 1 0 00.866-1.5L12.866 3.994z"></path></svg> 一鍵刪除</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                確認刪除所有選取『設備』?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">確認</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Item-deleteModal -->
+<div class="modal fade" id="deleteAllItemModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title font-weight-bold text-danger" id="exampleModalLabel"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M13 17.5a1 1 0 11-2 0 1 1 0 012 0zm-.25-8.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5z"></path><path fill-rule="evenodd" d="M9.836 3.244c.963-1.665 3.365-1.665 4.328 0l8.967 15.504c.963 1.667-.24 3.752-2.165 3.752H3.034c-1.926 0-3.128-2.085-2.165-3.752L9.836 3.244zm3.03.751a1 1 0 00-1.732 0L2.168 19.499A1 1 0 003.034 21h17.932a1 1 0 00.866-1.5L12.866 3.994z"></path></svg> 一鍵刪除</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                確認刪除所有選取『物品』?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary">確認</button>
+            </div>
+        </div>
+    </div>
+</div>
