@@ -1,0 +1,54 @@
+﻿
+<form>
+<!-- TODO 使用者要輸入的資料 -->
+<button id="btnOrder" type="button">下訂</button>
+</form>
+
+<script>
+
+    // 拿到 id 為 btnOrder 的 element
+    let btnOrder = document.getElementById("btnOrder");
+    // 當 btnOrder 被按時，觸發 makeOrder（是一個 function，寫在下面）
+    btnOrder.addEventListener("click", makeOrder);
+
+
+    // TODO
+    // 1. 用 js 取得 equipID
+    // 2. 用 fetch，以 equipID 找到 equip 的資訊（EquipApi/GetEquipById/{equiptmentId})
+    // 3. 把拿到的 equip 資訊呈現在頁面
+    // 4. HTML 的 form （數量、預計取貨時間、天數（或結束時間）
+    // 5. 使用者按下 btnOrder （下訂單）時，要拿到使用者輸入的資料
+
+    // 下訂單的 API
+    let url = "/OrderApi/MakeOrder/";
+
+    // 傳給 API 的資料
+    // （這些是範例資料，這些到時候要前端自己根據使用者的輸入取得）
+    let data = {
+        userId: 1,
+        quantity: 1,
+        estimatedPickupTime: new Date().toISOString(),
+        day: 1
+    };
+
+    
+
+    // btnOrder 被按時所觸發的 function
+    // TODO 組裝使用者輸入的資料
+    function makeOrder() {
+        fetch(url, {
+            body: JSON.stringify(data),
+            method: "POST",
+            headers: {
+                "content-type": "application/json"
+            }
+        })
+            .then(r => {
+                if (r.ok) {
+                    return r.json();
+                }
+            })
+            .then(r => console.log(r))
+            .catch(error => console.log(error));
+    }
+</script>

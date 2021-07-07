@@ -33,23 +33,36 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         public async Task<MakeOrderMessageResultModel> MakeOrder(Order order)
         {
+            // TODO 建立下訂單的 ViewModel，防止 overposting
+            int equipId = 0;
+            string cookieKey = "selected-equip";
+            Response.Cookies.Delete(cookieKey);
+            try
+            {
+                // 試著在 cookie 找 equipId
+                equipId = int.Parse(Request.Cookies[cookieKey]);
+            }
+            catch(Exception)
+            {
+                return new MakeOrderMessageResultModel(false);
+            }
+
+            order.EquipmentId = equipId;
             await _dbContext.AddAsync(order);
-            MakeOrderMessageResultModel msg = null;
 
             try
             {
                 await _dbContext.SaveChangesAsync();
 
                 // 下訂單成功
-                msg = new MakeOrderMessageResultModel(true);
+                return new MakeOrderMessageResultModel(true);
             }
             catch(DbUpdateException e)
             {
                 // 下訂單失敗
-                msg = new MakeOrderMessageResultModel(false);
+                return new MakeOrderMessageResultModel(false);
             }
 
-            return msg;
         }
 
         /*
