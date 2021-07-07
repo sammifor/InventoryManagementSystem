@@ -27,7 +27,7 @@
 </div>
 <br />
     <fieldset class="form-group border" id="view" v-if="equips.length !==0">
-        <legend class="w-auto">設備資料查詢結果 筆數:{{equips.length}}</legend>
+        <legend class="w-auto">設備查詢結果 筆數:{{equips.length}}</legend>
         <table class="table table-hover">
             <thead class="badge-secondary">
                 <tr>
@@ -60,6 +60,7 @@
             data: {
                 equips: {},
                 category: {},
+                equipname:'',
                 selectName: '',
                 selectVal: ''
             },
