@@ -25,15 +25,15 @@
         @*管理員btn*@
         <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
             @*新增*@
-            <button type="button" class="btn btn-success" @*v-on:click="btnAdd"*@ data-toggle="modal" data-target="#addNewModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12.75 7.75a.75.75 0 00-1.5 0v3.5h-3.5a.75.75 0 000 1.5h3.5v3.5a.75.75 0 001.5 0v-3.5h3.5a.75.75 0 000-1.5h-3.5v-3.5z"></path><path fill-rule="evenodd" d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zM2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0z"></path></svg> 新增</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addNewModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12.75 7.75a.75.75 0 00-1.5 0v3.5h-3.5a.75.75 0 000 1.5h3.5v3.5a.75.75 0 001.5 0v-3.5h3.5a.75.75 0 000-1.5h-3.5v-3.5z"></path><path fill-rule="evenodd" d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zM2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0z"></path></svg> 新增</button>
             @*刪除*@
-            <button type="button" class="btn btn-danger" @*v-on:click="btnDel"*@ data-toggle="modal" data-target="#deleteAllEquipModal">刪除 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0zM12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm6.25 11.75a.75.75 0 000-1.5H5.75a.75.75 0 000 1.5h12.5z"></path></svg></button>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteAllEquipModal">刪除 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0zM12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm6.25 11.75a.75.75 0 000-1.5H5.75a.75.75 0 000 1.5h12.5z"></path></svg></button>
         </div>
     </div>
 </div>
 <br />
 <div id="view">
-    <fieldset class="form-group border w-auto" v-if="equips.length !==0">
+    <fieldset class="form-group border w-auto">
         <legend>設備資料查詢結果 筆數:{{equips.length}}</legend>
         <table class="table table-hover">
             <thead class="badge-secondary">
@@ -47,13 +47,12 @@
                     <td>單價</td>
                     <td>出租/在庫/總數</td>
                     <td>描述</td>
-                    <td>動作</td>
-                    <td>刪除</td>
+                    <td>修改</td>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="equip in equips">
-                    <td><input type="checkbox" aria-label="Checkbox" :value="equip.equipmentId" v-model="checkedEquips"><p>{{ checkedEquips }}</p></td>
+                <tr v-for="equip in equips" v-if="equips.length !==0">
+                    <td><input type="checkbox" aria-label="Checkbox" :value="equip.equipmentId" v-model="checkedEquips"></td>
                     <td>{{equip.equipmentId}}</td>
                     <td>{{equip.equipmentSn}}</td>
                     <td>{{equip.equipmentName}}</td>
@@ -63,7 +62,7 @@
                     <td><button type="button" class="btn btn-outline-primary" :value="equip.equipmentId" v-on:click="btnItem">&#10148; {{equip.quantityUsable-equip.quantityInStock}} / {{equip.quantityInStock}} / {{equip.quantityUsable}}</button></td>
                     <td>{{equip.description}}</td>
                     <td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M17.263 2.177a1.75 1.75 0 012.474 0l2.586 2.586a1.75 1.75 0 010 2.474L19.53 10.03l-.012.013L8.69 20.378a1.75 1.75 0 01-.699.409l-5.523 1.68a.75.75 0 01-.935-.935l1.673-5.5a1.75 1.75 0 01.466-.756L14.476 4.963l2.787-2.786zm-2.275 4.371l-10.28 9.813a.25.25 0 00-.067.108l-1.264 4.154 4.177-1.271a.25.25 0 00.1-.059l10.273-9.806-2.94-2.939zM19 8.44l2.263-2.262a.25.25 0 000-.354l-2.586-2.586a.25.25 0 00-.354 0L16.061 5.5 19 8.44z"></path></svg></td>
-                    <td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M16 1.75V3h5.25a.75.75 0 010 1.5H2.75a.75.75 0 010-1.5H8V1.75C8 .784 8.784 0 9.75 0h4.5C15.216 0 16 .784 16 1.75zm-6.5 0a.25.25 0 01.25-.25h4.5a.25.25 0 01.25.25V3h-5V1.75z"></path><path d="M4.997 6.178a.75.75 0 10-1.493.144L4.916 20.92a1.75 1.75 0 001.742 1.58h10.684a1.75 1.75 0 001.742-1.581l1.413-14.597a.75.75 0 00-1.494-.144l-1.412 14.596a.25.25 0 01-.249.226H6.658a.25.25 0 01-.249-.226L4.997 6.178z"></path><path d="M9.206 7.501a.75.75 0 01.793.705l.5 8.5A.75.75 0 119 16.794l-.5-8.5a.75.75 0 01.705-.793zm6.293.793A.75.75 0 1014 8.206l-.5 8.5a.75.75 0 001.498.088l.5-8.5z"></path></svg></td>
+
                 </tr>
             </tbody>
         </table>
@@ -77,7 +76,7 @@
                 @*新增*@
                 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addNewModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M12.75 7.75a.75.75 0 00-1.5 0v3.5h-3.5a.75.75 0 000 1.5h3.5v3.5a.75.75 0 001.5 0v-3.5h3.5a.75.75 0 000-1.5h-3.5v-3.5z"></path><path fill-rule="evenodd" d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zM2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0z"></path></svg> 新增</button>
                 @*刪除*@
-                <button type="button" class="btn btn-danger" @*v-on:click="btnDelEquip"*@ data-toggle="modal" data-target="#deleteAllItemModal">刪除 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0zM12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm6.25 11.75a.75.75 0 000-1.5H5.75a.75.75 0 000 1.5h12.5z"></path></svg></button>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteAllItemModal">刪除 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0zM12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm6.25 11.75a.75.75 0 000-1.5H5.75a.75.75 0 000 1.5h12.5z"></path></svg></button>
             </div>
         </legend>
         <table class="table table-hover">
@@ -89,18 +88,18 @@
                     <td>品名</td>
                     <td>庫存</td>
                     <td>修改</td>
-                    <td>刪除</td>
+                    <td>異動明細</td>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="item in items">
-                    <td><input type="checkbox" aria-label="Checkbox" :value="item.itemId"></td>
+                    <td><input type="checkbox" aria-label="Checkbox" :value="item.itemId" v-model="checkedItems"></td>
                     <td>{{item.itemId}}</td>
                     <td>{{item.itemSn}}</td>
                     <td>{{item.description}}</td>
                     <td>{{item.condition}}</td>
-                    <td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M17.263 2.177a1.75 1.75 0 012.474 0l2.586 2.586a1.75 1.75 0 010 2.474L19.53 10.03l-.012.013L8.69 20.378a1.75 1.75 0 01-.699.409l-5.523 1.68a.75.75 0 01-.935-.935l1.673-5.5a1.75 1.75 0 01.466-.756L14.476 4.963l2.787-2.786zm-2.275 4.371l-10.28 9.813a.25.25 0 00-.067.108l-1.264 4.154 4.177-1.271a.25.25 0 00.1-.059l10.273-9.806-2.94-2.939zM19 8.44l2.263-2.262a.25.25 0 000-.354l-2.586-2.586a.25.25 0 00-.354 0L16.061 5.5 19 8.44z"></path></svg></td>
-                    <td><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M16 1.75V3h5.25a.75.75 0 010 1.5H2.75a.75.75 0 010-1.5H8V1.75C8 .784 8.784 0 9.75 0h4.5C15.216 0 16 .784 16 1.75zm-6.5 0a.25.25 0 01.25-.25h4.5a.25.25 0 01.25.25V3h-5V1.75z"></path><path d="M4.997 6.178a.75.75 0 10-1.493.144L4.916 20.92a1.75 1.75 0 001.742 1.58h10.684a1.75 1.75 0 001.742-1.581l1.413-14.597a.75.75 0 00-1.494-.144l-1.412 14.596a.25.25 0 01-.249.226H6.658a.25.25 0 01-.249-.226L4.997 6.178z"></path><path d="M9.206 7.501a.75.75 0 01.793.705l.5 8.5A.75.75 0 119 16.794l-.5-8.5a.75.75 0 01.705-.793zm6.293.793A.75.75 0 1014 8.206l-.5 8.5a.75.75 0 001.498.088l.5-8.5z"></path></svg></td>
+                    <td><a><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M17.263 2.177a1.75 1.75 0 012.474 0l2.586 2.586a1.75 1.75 0 010 2.474L19.53 10.03l-.012.013L8.69 20.378a1.75 1.75 0 01-.699.409l-5.523 1.68a.75.75 0 01-.935-.935l1.673-5.5a1.75 1.75 0 01.466-.756L14.476 4.963l2.787-2.786zm-2.275 4.371l-10.28 9.813a.25.25 0 00-.067.108l-1.264 4.154 4.177-1.271a.25.25 0 00.1-.059l10.273-9.806-2.94-2.939zM19 8.44l2.263-2.262a.25.25 0 000-.354l-2.586-2.586a.25.25 0 00-.354 0L16.061 5.5 19 8.44z"></path></svg></a></td>
+                    <td><a><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M16 1.75V3h5.25a.75.75 0 010 1.5H2.75a.75.75 0 010-1.5H8V1.75C8 .784 8.784 0 9.75 0h4.5C15.216 0 16 .784 16 1.75zm-6.5 0a.25.25 0 01.25-.25h4.5a.25.25 0 01.25.25V3h-5V1.75z"></path><path d="M4.997 6.178a.75.75 0 10-1.493.144L4.916 20.92a1.75 1.75 0 001.742 1.58h10.684a1.75 1.75 0 001.742-1.581l1.413-14.597a.75.75 0 00-1.494-.144l-1.412 14.596a.25.25 0 01-.249.226H6.658a.25.25 0 01-.249-.226L4.997 6.178z"></path><path d="M9.206 7.501a.75.75 0 01.793.705l.5 8.5A.75.75 0 119 16.794l-.5-8.5a.75.75 0 01.705-.793zm6.293.793A.75.75 0 1014 8.206l-.5 8.5a.75.75 0 001.498.088l.5-8.5z"></path></svg></a></td>
                 </tr>
             </tbody>
         </table>
@@ -123,10 +122,6 @@
                     <div><button class="btn btn-info" title="前往新增物品">物品  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><path fill-rule="evenodd" d="M7.823.177L4.927 3.073a.25.25 0 00.177.427H7.25v5.75a.75.75 0 001.5 0V3.5h2.146a.25.25 0 00.177-.427L8.177.177a.25.25 0 00-.354 0zM3.75 6.5a.25.25 0 00-.25.25v6.5c0 .138.112.25.25.25h8.5a.25.25 0 00.25-.25v-6.5a.25.25 0 00-.25-.25h-1a.75.75 0 010-1.5h1c.966 0 1.75.784 1.75 1.75v6.5A1.75 1.75 0 0112.25 15h-8.5A1.75 1.75 0 012 13.25v-6.5C2 5.784 2.784 5 3.75 5h1a.75.75 0 110 1.5h-1z"></path></svg></button></div>
                     <div><!--排版用div--></div>
                 </div>
-                @*<div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Save changes</button>
-                    </div>*@
             </div>
         </div>
     </div>
@@ -143,6 +138,7 @@
                 </div>
                 <div class="modal-body">
                     確認刪除所有選取『設備』?
+                    <p>欲刪除設備ID: <span class="font-weight-bolder">{{checkedEquips}}</span></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
@@ -164,6 +160,7 @@
                 </div>
                 <div class="modal-body">
                     確認刪除所有選取『物品』?
+                    <p>欲刪除物品ID: <span class="font-weight-bolder">{{checkedItems}}</span></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
@@ -172,6 +169,8 @@
             </div>
         </div>
     </div>
+
+    
 </div>
 
 <script>
@@ -214,6 +213,7 @@
                 // 可以抓到選到的option的value，而不是text
                 this.selectVal = e.target.value;
                 /*console.log(this.selectVal);*/
+                view.checkedEquips = [];
 
             },
             btnQry: function () {
@@ -248,8 +248,19 @@
         data: {
             equips: '',
             eid: '',
+            updateEid: '',
+            updateEquip: {},
             items: '',
-            checkedEquips: []
+            checkedEquips: [],
+            checkedItems: [],
+            //equipDetail: {
+            //    equipmentId: '',
+            //    equipmentSn: '',
+            //    equipmentName: '',
+            //    brand: '',
+            //    model: '',
+            //    unitPrice: ''
+            //},
         },
         methods: {
             btnItem: function (e) {
@@ -271,11 +282,57 @@
                     })
                     .then(response => {
                         this.items = response;
+                        this.checkedItems = [];
                     })
             },
             btnDelEquip: function () {
-                
+                let url = '/EquipApi/RemoveEquipByIds/';
+                let request = {
+                    method: 'Delete',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(this.checkedEquips)
+                }
+                fetch(url, request)
+                    .then(response => {
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data); //要做成功與失敗跳alarm
+                    })
+            },
+            btnDelItem: function () {
+                let url = '等ITEM API';
+                let request = {
+                    method: 'Delete',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(this.checkedItems)
+                }
+                fetch(url, request)
+                    .then(response => {
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data); //要做成功與失敗跳alarm
+                    })
+            },
+            aUpdateEquip: function (e) {
+                this.updateEid = e.target.value;
+                let url = '/EquipApi/GetEquipById/' + this.updateEid;
+                let request = {
+                    method: 'GET',
+                    headers: { 'content-type': 'application/json' }
+                }
+                fetch(url, request)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                    })
+                    .then(response => {
+                        this.updateEquip = response;
+                    })
             }
+            
         }
     })
 
