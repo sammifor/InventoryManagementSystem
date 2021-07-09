@@ -9,7 +9,7 @@ namespace InventoryManagementSystem.Controllers
     [Route("[controller]/[action]")]
     public class OrderController : Controller
     {
-        [HttpGet]
+        [HttpPost]
         [Route("{equipId}")]
         public IActionResult NewOrder(int equipId)
         {

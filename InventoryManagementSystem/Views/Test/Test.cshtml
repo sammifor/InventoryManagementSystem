@@ -48,8 +48,8 @@
 
     <div>
         <br />
-        <b-button variant="primary" v-on:click="btnOrder">送出</b-button>
-    </div>
+        <b-button variant ="primary" v-on:click="btnOrder">送出</b-button>
+</div>
 
 </div>
 
@@ -62,7 +62,7 @@
             count: 0,
             equips: {},
             orderDate: "",
-            orderDays: ""
+            orderDays:""
 
         },
 
@@ -78,7 +78,7 @@
                 });
 
         },
-
+        
 
         methods: {
             btnMinus: function (count) {
@@ -102,7 +102,7 @@
 
             btnOrder: function (data) {
                 console.log(this.orderDate);
-
+                
                 let url = "/OrderApi/MakeOrder/";
                 let request = {
                     body: JSON.stringify(data),
@@ -129,7 +129,7 @@
                     .catch(error => console.log(error))
             }
 
-
+            
         }
 
 
