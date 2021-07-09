@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.ResultModels;
+using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -101,6 +102,101 @@ namespace InventoryManagementSystem.Controllers.Api
                 .ToArrayAsync();
 
             return results;
+        }
+
+        [HttpPost]
+        [Produces("application/json")]
+        [Consumes("application/json")]
+        public async Task<IActionResult> RespondOrder(RespondOrderViewModel model)
+        {
+            var order = await _dbContext.Orders
+                .AsNoTracking()
+                .FirstOrDefaultAsync(o => o.OrderId == model.OrderID);
+
+            // 防止同個 item 被分配多次
+            int[] itemIDs = model.ItemIDs.Distinct().ToArray();
+            
+
+            // 找不到訂單
+            if(order == null)
+            {
+                return BadRequest("找不到訂單");
+            }
+
+            Response response = null;
+            int adminID = 1; // For testing
+            if(model.Reply == "N")
+            {
+                //response = new Response
+                //{
+                //    OrderId = model.OrderID,
+                //    AdminId = adminID,
+                //    Reply = model.Reply
+                //};
+
+                return Ok("已拒絕訂單");
+            }
+            else if(model.Reply == "Y")
+            {
+                // 訂單寫的數量與實際分配的數量不一致
+                if(order.Quantity != itemIDs.Length)
+                {
+                    return BadRequest("訂單寫的數量與實際分配的數量不一致");
+                }
+
+                // 存在有分配的設備非訂單所寫的設備
+                bool invalidEquipIdExists = await _dbContext.Items
+                    .AsNoTracking()
+                    .Where(i => itemIDs.Contains(i.ItemId))
+                    .AnyAsync(i => i.EquipmentId != order.EquipmentId);
+                if(invalidEquipIdExists)
+                {
+                    return BadRequest("存在有分配的設備非訂單所寫的設備");
+                }
+
+                // 庫存不夠，無法滿足訂單
+                int inStockNumber = await _dbContext.Items
+                    .AsNoTracking()
+                    .Where(i => i.EquipmentId == order.EquipmentId)
+                    .CountAsync(i => i.ConditionId == "I");
+                if(inStockNumber < order.Quantity)
+                {
+                    return BadRequest("庫存不夠，無法滿足訂單");
+                }
+
+
+
+
+                return Ok("已核可訂單");
+
+            }
+            else
+            {
+                return BadRequest("REPLY 格式不正確");
+            }
+
+            //new Response
+            //{
+            //    AdminId = 1,
+            //    OrderId = model.OrderID,
+            //    Reply = ""
+            //};
+        }
+
+        [HttpGet]
+        [Produces("application/json")]
+        [Consumes("application/json")]
+        public async Task<IActionResult> FindManyItems(int[] ids)
+        {
+            var results = await _dbContext.Items
+                .Where(i => ids.Contains(i.ItemId))
+                .ToArrayAsync();
+            if(results == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(results);
         }
     }
 }
