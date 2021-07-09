@@ -20,8 +20,6 @@
                 <b-button v-on:click="btnAdd()" variant="outline-secondary">+</b-button>
             </b-input-group-append>
             <b-input-group>
-
-
     </div>
     <br />
     <div>
@@ -29,27 +27,25 @@
         <b-form-datepicker id="example-datepicker" v-model="orderDate" class="mb-2"></b-form-datepicker>
     </div>
 
-    <p>租借天數</p>
-    <div class="input-group mb-3">
-        <select class="custom-select" id="inputGroupSelect02" v-model="orderDays">
-            <option selected>選擇</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-        </select>
-        <div class="input-group-append">
-            <label class="input-group-text" for="inputGroupSelect02">天</label>
-        </div>
+    <div>
+        <b-col sm="3">
+            <label>租借天數</label>
+        </b-col>
+        <b-col sm="9">
+            <b-form-input type="number" min="0" v-model="orderDays"></b-form-input>
+        </b-col>
     </div>
 
     <div>
         <br />
         <b-button variant="primary" v-on:click="btnOrder">送出</b-button>
     </div>
+
+    @*<div>
+        <br/>
+        <b-button variant="primary" v-on:click="test">測試</b-button>
+    </div>*@
+
 
 </div>
 
@@ -62,12 +58,23 @@
             count: 0,
             equips: {},
             orderDate: "",
-            orderDays: ""
+            orderDays: "",
+            selectEquipId: ""
 
         },
 
-        beforeCreate() {
-            fetch('/Equipapi/GetEquipById/22', { method: 'GET' })
+
+        beforeCreate: function() {
+            let cookiearr = document.cookie.split(';');
+            console.log(cookiearr);
+
+            let cookiepair = cookiearr[0].split('=');
+
+            console.log(cookiepair)
+            this.selectEquipId = cookiepair[1];
+            console.log(this.selectEquipId);
+
+            fetch('/equipapi/getequipbyid/' + this.selectEquipId, { method: 'get' })
                 .then(response => {
                     if (response.ok) {
                         return response.json();
@@ -76,7 +83,6 @@
                 .then(response => {
                     this.equips = response;
                 });
-
         },
 
 
@@ -100,10 +106,11 @@
             },
 
 
-            btnOrder: function (data) {
-                console.log(this.orderDate);
+            btnOrder: function(data) {
+                console.log("按下按鈕")
 
-                let url = "/OrderApi/MakeOrder/";
+
+                let url = "/OrderApi/MakeOrder";
                 let request = {
                     body: JSON.stringify(data),
                     method: "POST",
@@ -120,14 +127,30 @@
                         console.log("連線失敗");
                     })
                     .then(r => {
-                        console.log(this.count);
-                        console.log(this.orderDate);
-                        console.log(this.orderDays)
-                        console.log(this.equips)
-                        console.log("送出成功")
+                        console.log(this.count, typeof (this.count));
+                        console.log(this.orderDate, typeof (this.orderDate));
+                        console.log(this.orderDays,typeof (this.orderDays));
+                        console.log(this.equips.equipmentId, typeof (this.equips.equipmentId));
+                        console.log("送出成功");
                     })
                     .catch(error => console.log(error))
+            },
+
+            test: function (orderDate, orderDays) {
+
+                var test_date = "2021-07-21";
+                var test_days="4"
+
+           
+                Date.parse(test_date);
+                console.log(test_date, typeof (this.test_date));
+                parseInt(test_days);
+                console.log(test_days, typeof (this.test_days));
             }
+
+
+            
+
 
 
         }
