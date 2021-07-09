@@ -115,43 +115,42 @@ namespace InventoryManagementSystem.Controllers.Api
 
             // 防止同個 item 被分配多次
             int[] itemIDs = model.ItemIDs.Distinct().ToArray();
-            
+
+            Item[] items = await _dbContext.Items
+                .Where(i => itemIDs.Contains(i.ItemId))
+                .ToArrayAsync();
 
             // 找不到訂單
             if(order == null)
             {
-                return BadRequest("找不到訂單");
+                return BadRequest();
             }
 
-            Response response = null;
-            int adminID = 1; // For testing
+            Response response = new Response
+            {
+                OrderId = model.OrderID,
+                AdminId = model.AdminID,
+            };
+
             if(model.Reply == "N")
             {
-                //response = new Response
-                //{
-                //    OrderId = model.OrderID,
-                //    AdminId = adminID,
-                //    Reply = model.Reply
-                //};
-
-                return Ok("已拒絕訂單");
+                response.Reply = "N";
             }
             else if(model.Reply == "Y")
             {
                 // 訂單寫的數量與實際分配的數量不一致
                 if(order.Quantity != itemIDs.Length)
                 {
-                    return BadRequest("訂單寫的數量與實際分配的數量不一致");
+                    return BadRequest();
                 }
 
                 // 存在有分配的設備非訂單所寫的設備
-                bool invalidEquipIdExists = await _dbContext.Items
-                    .AsNoTracking()
-                    .Where(i => itemIDs.Contains(i.ItemId))
-                    .AnyAsync(i => i.EquipmentId != order.EquipmentId);
+                bool invalidEquipIdExists = items
+                    .Any(i => i.EquipmentId != order.EquipmentId);
+                
                 if(invalidEquipIdExists)
                 {
-                    return BadRequest("存在有分配的設備非訂單所寫的設備");
+                    return BadRequest();
                 }
 
                 // 庫存不夠，無法滿足訂單
@@ -161,28 +160,86 @@ namespace InventoryManagementSystem.Controllers.Api
                     .CountAsync(i => i.ConditionId == "I");
                 if(inStockNumber < order.Quantity)
                 {
-                    return BadRequest("庫存不夠，無法滿足訂單");
+                    return BadRequest();
                 }
 
-
-
-
-                return Ok("已核可訂單");
-
+                response.Reply = "Y";
             }
             else
             {
+                // REPLY 格式不正確
                 return BadRequest("REPLY 格式不正確");
             }
 
-            //new Response
-            //{
-            //    AdminId = 1,
-            //    OrderId = model.OrderID,
-            //    Reply = ""
-            //};
+            _dbContext.Responses.Add(response);
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                // 資料庫更新失敗
+                return Conflict();
+            }
+
+            // 這裡 condition 也可以用 itemIDs.length
+            // 因為執行到這邊已經保證 items 跟 itemIDs 長度一樣
+            for(int i = 0; i < items.Length; i++)
+            {
+                items[i].ConditionId = "P";
+            }
+
+            // 每個 item 都要新增一筆 OrderDetail 的記錄
+            OrderDetail[] details = new OrderDetail[items.Length];
+            for(int i = 0; i < items.Length; i++)
+            {
+                details[i] = new OrderDetail
+                {
+                    OrderId = model.OrderID,
+                    ItemId = items[i].ItemId,
+                    OrderDetailStatusId = "P"
+                };
+
+            }
+            _dbContext.OrderDetails.AddRange(details);
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
+
+            ItemLog[] logs = new ItemLog[items.Length];
+            for(int i = 0; i < items.Length; i++)
+            {
+                logs[i] = new ItemLog
+                {
+                    OrderDetailId = details[i].OrderDetailId,
+                    AdminId = model.AdminID,
+                    ItemId = details[i].ItemId,
+                    ConditionId = "P" 
+                };
+            }
+            _dbContext.ItemLogs.AddRange(logs);
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
+            return Ok();
         }
 
+
+        // 測試用
         [HttpGet]
         [Produces("application/json")]
         [Consumes("application/json")]

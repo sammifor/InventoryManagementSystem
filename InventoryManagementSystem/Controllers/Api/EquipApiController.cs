@@ -107,6 +107,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Select(e => new EquipResultModel
                 {
                     EquipmentId = e.EquipmentId,
+                    EquipmentCategoryId = e.EquipmentCategoryId,
                     EquipmentSn = e.EquipmentSn,
                     EquipmentName = e.EquipmentName,
                     Brand = e.Brand,
@@ -134,6 +135,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Select(e => new EquipResultModel
                 {
                     EquipmentId = e.EquipmentId,
+                    EquipmentCategoryId = e.EquipmentCategoryId,
                     EquipmentSn = e.EquipmentSn,
                     EquipmentName = e.EquipmentName,
                     Brand = e.Brand,
