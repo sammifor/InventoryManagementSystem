@@ -228,41 +228,50 @@ namespace InventoryManagementSystem.Controllers.Api
          *  EquipApi/RemoveEquipByIds
          */
         // 以 ID 移除 Equip，可一次移除多個 Equip
+        // Return: 刪除的資料筆數
         [HttpDelete]
         [Produces("application/json")]
         [Consumes("application/json")]
-        public async Task<RemoveEquipResultModel[]> RemoveEquipByIds(int[] ids)
+        public async Task<ActionResult<int>> RemoveEquipByIds(int[] ids)
         {
-            var results = new RemoveEquipResultModel[ids.Length];
-            for(int i = 0; i < ids.Length; i++)
+
+            // 查出所有待刪的 equip
+            var equipPieces = await _dbContext.Equipment
+                .Where(e => ids.Contains(e.EquipmentId))
+                .ToArrayAsync();
+            Console.WriteLine($"可刪除 {equipPieces.Length} 筆資料");
+
+            if(equipPieces.Length == 0)
             {
-                var equip = await _dbContext.Equipment
-                    .FindAsync(ids[i]);
-
-                if(equip == null)
-                {
-                    // 找不到設備，無法刪除
-                    throw new NotImplementedException();
-                }
-
-                if(equip.Items.Any(i => i.ConditionId == "O"))
-                {
-                    // 底下有 Item 已出庫，無法刪除
-                    throw new NotImplementedException();
-                }
-
-                _dbContext.Equipment.Remove(equip);
-                try
-                {
-                    await _dbContext.SaveChangesAsync();
-                }
-                catch(DbUpdateConcurrencyException e)
-                {
-                    // 資料庫端發生錯誤，刪除失敗
-                    throw new NotImplementedException();
-                }
+                // 找不到任何可刪除的設備，無法刪除
+                return NotFound(0);
             }
-            return results;
+
+
+            // 判斷這些 equip 底下有沒有任何 item
+            bool hasItems = await _dbContext.Items
+                .AnyAsync(i => ids.Contains(i.EquipmentId));
+
+            if(hasItems)
+            {
+                // 有 Equip 底下還存在著 Item，無法刪除
+                return BadRequest(0);
+            }
+
+            _dbContext.Equipment.RemoveRange(equipPieces);
+            int rowsAffected = 0;
+            try
+            {
+                rowsAffected = await _dbContext.SaveChangesAsync();
+            }
+            catch(DbUpdateConcurrencyException e)
+            {
+                // 資料庫端發生錯誤，刪除失敗
+                return Conflict(0);
+            }
+
+            // 顯示實際成功刪除的紀錄數
+            return Ok(rowsAffected);
         }
     }
 }
