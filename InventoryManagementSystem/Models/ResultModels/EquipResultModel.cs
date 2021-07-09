@@ -8,6 +8,7 @@ namespace InventoryManagementSystem.Models.ResultModels
     public class EquipResultModel
     {
         public int EquipmentId { get; set; }
+        public int EquipmentCategoryId { get; set; }
         public string EquipmentSn { get; set; }
         public string EquipmentName { get; set; }
         public int QuantityUsable { get; set; }
