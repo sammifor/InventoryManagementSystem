@@ -86,7 +86,7 @@
                     <td>&#9746;</td>
                     <td>物品ID</td>
                     <td>序號</td>
-                    <td>品名</td>
+                    <td>描述</td>
                     <td>庫存</td>
                     <td>修改</td>
                     <td>查看紀錄</td>
@@ -249,7 +249,7 @@
                     <div class="modal-body">
                         <div class="form-row">
                             <div class="form-group col-md-2">
-                                <label class="col-form-label">設備SN</label>
+                                <label class="col-form-label">設備序號</label>
                                 <input type="text" class="form-control" @*v-model="這是設備SN"*@ readonly>
                             </div>
                             <div class="form-group col-md-4">
@@ -267,17 +267,17 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-6">
-                                <label class="col-form-label">物品名稱</label>
+                                <label class="col-form-label">物品描述</label>
                                 <input type="text" class="form-control" v-model="itemDetail.description">
                             </div>
                             <div class="form-group col-md-6">
-                                <label class="col-form-label">物品描述 </label>
+                                <label class="col-form-label">物品狀態 </label>
                                 <input type="text" class="form-control" v-model="itemDetail.condition" readonly>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                            <button type="button" class="btn btn-primary" @*@@click="updateSaveChangeItem"*@>儲存</button>
+                            <button type="button" class="btn btn-primary" @@click="updateSaveChangeItem">儲存</button>
                         </div>
                     </div>
                 </div>
@@ -471,6 +471,27 @@
                             condition: itemData.condition
                         };
                         this.itemDetail = temp;
+                    },
+                    
+                    updateSaveChangeItem: function (itemData) {
+                        let url = '/ItemApi/EditItem/' + this.itemDetail.itemId;
+                        let request = {
+                            method: 'PUT',
+                            headers: { 'content-type': 'application/json' },
+                            body: JSON.stringify(this.itemDetail)
+                        }
+                        fetch(url, request)
+                            .then(response => {
+                                if (response.ok) {
+                                    alert("修改成功,請重新查詢確認資料!!!");
+                                    $("#itemUpdateModal").modal("hide");
+                                    window.location.reload(true);
+                                } else {
+                                    alert("修改失敗");
+                                }
+
+                            })
+
                     },
 
                 }
