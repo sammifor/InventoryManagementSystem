@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.ResultModels;
+using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,25 +20,6 @@ namespace InventoryManagementSystem.Controllers.Api
         public EquipApiController(InventoryManagementSystemContext dbContext)
         {
             _dbContext = dbContext;
-        }
-
-
-        /*
-         * EquipApi/GetCates 
-         */
-        // 設備種類下拉式選單
-        [HttpGet]
-        [Produces("application/json")]
-        public async Task<EquipCatesRresultModel[]> GetCates()
-        {
-            var results = await _dbContext.EquipCategories
-                .Select(c => new EquipCatesRresultModel()
-                {
-                    EquipCategoryId = c.EquipCategoryId,
-                    CategoryName = c.CategoryName
-                })
-                .ToArrayAsync();
-            return results;
         }
 
         /*
@@ -179,22 +161,30 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPost]
         [Consumes("application/json")]
         [Produces("application/json")]
-        public async Task<InsertEquipResultModel> InsertEquip(Equipment equip)
+        public async Task<IActionResult> InsertEquip(InsertEquipViewModel model)
         {
-            await _dbContext.Equipment.AddAsync(equip);
-            InsertEquipResultModel result = null;
+            Equipment equip = new Equipment
+            {
+                EquipmentCategoryId = model.EquipmentCategoryId,
+                EquipmentSn = model.EquipmentSn,
+                EquipmentName = model.EquipmentName,
+                Brand = model.Brand,
+                Model = model.Model,
+                UnitPrice = model.UnitPrice,
+                Description = model.Description
+            };
+
             try
             {
+                _dbContext.Equipment.Add(equip);
                 await _dbContext.SaveChangesAsync();
-                result = new InsertEquipResultModel(true);
             }
-            catch(DbUpdateException e)
+            catch
             {
-                // 新增失敗
-                result = new InsertEquipResultModel(false);
+                return Conflict();
             }
 
-            return result;
+            return Ok();
         }
 
 
