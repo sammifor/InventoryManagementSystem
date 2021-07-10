@@ -142,32 +142,33 @@
     <fieldset>
         <legend>設備查詢</legend>
         <div>
-            <strong>關鍵字搜尋：</strong>
+            <strong>查詢：</strong>
             <input type="text" v-model="search" />
+            <input type="button" value="查詢" v-on:click="btnQry" />
         </div>
     </fieldset>
     <br />
     <table class="table-hover table-bordered" width="100%">
-        <thead class="table-success">
+        <thead class="table-secondary">
             <tr>
-                <th>設備ID</th>
-                <th>類別ID</th>
-                <th>設備Sn</th>
                 <th>設備名稱</th>
                 <th>品牌</th>
                 <th>型號</th>
                 <th>單價</th>
+                <th>可租借數量</th>
+                <th>描述</th>
+                <th>租借</th>
             </tr>
         </thead>
         <tbody>
-            <tr v-for="equipment in equipmentSearch" :key="equipment.equipmentId">
-                <td :td="equipment">{{equipment.equipmentId}}</td>
-                <td>{{equipment.equipmentCategoryId}}</td>
-                <td>{{equipment.equipmentSn}}</td>
-                <td>{{equipment.equipmentName}}</td>
+            <tr v-for="equipment in results" :key="equipment.equipmentName">
+                <td :td="equipment">{{equipment.equipmentName}}</td>
                 <td>{{equipment.brand}}</td>
                 <td>{{equipment.model}}</td>
                 <td>{{equipment.unitPrice}}</td>
+                <td></td>
+                <td>{{equipment.Description}}</td>
+                <td></td>
             </tr>
         </tbody>
     </table>
@@ -178,25 +179,25 @@
         el: '#app1',
         data: {
             equipments: [],
-            search: ''
+            search: '',
+            results: []
         },
 
-        computed: {
-            equipmentSearch() {
-                return this.equipments.filter(equipment => equipment.equipmentName.toLowerCase().includes(this.search));
+        methods: {
+            btnQry: function () {
+                return this.results = this.equipments.filter(equipment => equipment.equipmentName.toLowerCase().includes(this.search));
             }
         },
 
 
         mounted: function () {
-            fetch('/Equipment/equipmentdata', { method: 'GET' })
+            fetch('/EquipApi/GetEquip', { method: 'GET' })
                 .then(response => {
-                    this.equipments = response.data;
-                    console.log(response);
+                    return response.json();
                 })
 
-                .catch(error => {
-                    console.log(error);
+                .then(response => {
+                    this.equipments = response;
                 });
         }
 
