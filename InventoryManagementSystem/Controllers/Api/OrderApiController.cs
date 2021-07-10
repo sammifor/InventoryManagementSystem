@@ -31,38 +31,33 @@ namespace InventoryManagementSystem.Controllers.Api
         // 下訂單
         [HttpPost]
         [Consumes("application/json")]
-        [Produces("application/json")]
-        public async Task<MakeOrderMessageResultModel> MakeOrder(Order order)
+        public async Task<IActionResult> MakeOrder(MakeOrderViewModel model)
         {
-            // TODO 建立下訂單的 ViewModel，防止 overposting
-            int equipId = 0;
-            string cookieKey = "selected-equip";
-            Response.Cookies.Delete(cookieKey);
-            try
+            Order order = new Order
             {
-                // 試著在 cookie 找 equipId
-                equipId = int.Parse(Request.Cookies[cookieKey]);
-            }
-            catch(Exception)
-            {
-                return new MakeOrderMessageResultModel(false);
-            }
+                UserId = model.UserId,
+                EquipmentId = model.EquipmentId,
+                Quantity = model.Quantity,
+                EstimatedPickupTime = model.EstimatedPickupTime,
+                Day = model.Day,
 
-            order.EquipmentId = equipId;
-            await _dbContext.AddAsync(order);
+                // 前端沒權限給的
+                OrderStatusId = "P",
+                OrderTime = DateTime.Now
+            };
+
+            _dbContext.Orders.Add(order);
 
             try
             {
                 await _dbContext.SaveChangesAsync();
-
-                // 下訂單成功
-                return new MakeOrderMessageResultModel(true);
             }
-            catch(DbUpdateException e)
+            catch
             {
-                // 下訂單失敗
-                return new MakeOrderMessageResultModel(false);
+                return Conflict();
             }
+
+            return Ok();
 
         }
 
