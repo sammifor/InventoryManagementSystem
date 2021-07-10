@@ -26,7 +26,7 @@
     
 </div>
 <br />
-    <fieldset class="form-group border" id="view" v-if="equips.length !==0">
+    <fieldset class="form-group border" id="view">
         <legend class="w-auto">設備查詢結果 筆數:{{equips.length}}</legend>
         <table class="table table-hover">
             <thead class="badge-secondary">
@@ -41,7 +41,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="equip in equips">
+                <tr v-for="equip in equips" v-if="equips.length !==0">
                     <td class="font-weight-bold">{{equip.equipmentName}}</td>
                     <td>{{equip.brand}}</td>
                     <td>{{equip.model}}</td>
