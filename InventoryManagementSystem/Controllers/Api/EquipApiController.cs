@@ -21,25 +21,6 @@ namespace InventoryManagementSystem.Controllers.Api
             _dbContext = dbContext;
         }
 
-
-        /*
-         * EquipApi/GetCates 
-         */
-        // 設備種類下拉式選單
-        [HttpGet]
-        [Produces("application/json")]
-        public async Task<EquipCatesRresultModel[]> GetCates()
-        {
-            var results = await _dbContext.EquipCategories
-                .Select(c => new EquipCatesRresultModel()
-                {
-                    EquipCategoryId = c.EquipCategoryId,
-                    CategoryName = c.CategoryName
-                })
-                .ToArrayAsync();
-            return results;
-        }
-
         /*
          * EquipApi/GetEquipNamesByCatesId/{EquipCategoryId}
          */
