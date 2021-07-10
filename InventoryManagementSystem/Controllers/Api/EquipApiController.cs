@@ -181,6 +181,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         public async Task<InsertEquipResultModel> InsertEquip(Equipment equip)
         {
+            // TODO InsertEquipViewModel，防止 overposting
             await _dbContext.Equipment.AddAsync(equip);
             InsertEquipResultModel result = null;
             try
