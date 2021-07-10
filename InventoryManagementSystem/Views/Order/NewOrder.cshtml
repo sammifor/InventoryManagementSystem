@@ -1,45 +1,70 @@
 ﻿
-<div id="order">
+<div id="order" class="mt-4">
+    <b-card img-src="https://image.freepik.com/free-photo/side-view-desk-assortment-white-background_23-2148708032.jpg" img-alt="Rent image" img-left class="mb-3">
+        <b-card-text>
+            <h4>設備租借頁面 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M4.801 3.57A1.75 1.75 0 016.414 2.5h11.174c.702 0 1.337.42 1.611 1.067l3.741 8.828c.04.092.06.192.06.293v7.562A1.75 1.75 0 0121.25 22H2.75A1.75 1.75 0 011 20.25v-7.5c0-.1.02-.199.059-.291L4.8 3.571zM6.414 4a.25.25 0 00-.23.153L2.88 12H8a.75.75 0 01.648.372L10.18 15h3.638l1.533-2.628a.75.75 0 01.64-.372l5.13-.051-3.304-7.797a.25.25 0 00-.23-.152H6.414zM21.5 13.445l-5.067.05-1.535 2.633a.75.75 0 01-.648.372h-4.5a.75.75 0 01-.648-.372L7.57 13.5H2.5v6.75c0 .138.112.25.25.25h18.5a.25.25 0 00.25-.25v-6.805z"></path></svg></h4>
+            <hr>
+            <div>
+                <br />
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M15.146 12.354l-5.792 5.792a.5.5 0 01-.854-.353V6.207a.5.5 0 01.854-.353l5.792 5.792a.5.5 0 010 .708z"></path></svg> 設備名稱:</label>
+                    </div>
+                    <div class="form-group">
+                        <p class="font-weight-bold text-lg-center"> {{equips.equipmentName}}</p>
+                    </div>
+                </div>
+                </br>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M15.146 12.354l-5.792 5.792a.5.5 0 01-.854-.353V6.207a.5.5 0 01.854-.353l5.792 5.792a.5.5 0 010 .708z"></path></svg> 尚有庫存:</label>                        
+                    </div>
+                    <div class="form-group">
+                        <p class="font-weight-bold"> {{equips.quantityInStock}}個</p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="form-group form-row">
+                    <div class="col-md-6">
+                        <label>租借數量:</label>
 
-    <div class="card">
-        <div class="card-body">設備名稱:   {{equips.equipmentName}}</div>
-    </div>
-    <br />
-    <div class="card">
-        <div class="card-body">尚有庫存:   {{equips.quantityInStock}}個</div>
-    </div>
+                        <b-input-group>
+                            <b-input-group-prepend>
+                                <b-button v-on:click="btnMinus()" variant="outline-secondary">-</b-button>
+                            </b-input-group-prepend>
+                            <b-form-input type="text" value="0" v-model="count"></b-form-input>
+                            <b-input-group-append>
+                                <b-button v-on:click="btnAdd()" variant="outline-secondary">+</b-button>
+                            </b-input-group-append>
+                        </b-input-group>
+                    </div>
 
-    <div>
-        <label>租借數量: </label>
-        <b-input-group>
-            <b-input-group-prepend>
-                <b-button v-on:click="btnMinus()" variant="outline-secondary">-</b-button>
-            </b-input-group-prepend>
-            <b-form-input type="text" value="0" v-model="count"></b-form-input>
-            <b-input-group-append>
-                <b-button v-on:click="btnAdd()" variant="outline-secondary">+</b-button>
-            </b-input-group-append>
-            <b-input-group>
-    </div>
-    <br />
-    <div>
-        <label for="example-datepicker">選取租借日期</label>
-        <b-form-datepicker id="example-datepicker" v-model="orderDate" class="mb-2"></b-form-datepicker>
-    </div>
+                    <div class="form-group col-md-6">
+                        <label for="example-datepicker">選取租借日期</label>
+                        <b-form-datepicker id="example-datepicker" v-model="orderDate" class="mb-2"></b-form-datepicker>
+                    </div>
+                </div>
+                </br>
+                <div class="form-group form-row">
+                    <div class="form-group col-md-6">
+                        <label>租借天數</label>
+                        <b-form-input type="number" min="0" max="14" v-model="orderDays"></b-form-input>
+                    </div>
 
-    <div>
-        <b-col sm="3">
-            <label>租借天數</label>
-        </b-col>
-        <b-col sm="9">
-            <b-form-input type="number" min="0" max="14" v-model="orderDays"></b-form-input>
-        </b-col>
-    </div>
+                </div>
+                <div class="form-group form-row float-lg-right">
+                    <b-button variant="primary" size="lg" v-on:click="btnOrder"> 送出</b-button>
+                </div>
+            </div>
+        </b-card-text>
 
-    <div>
-        <br />
-        <b-button variant="primary" v-on:click="btnOrder">送出</b-button>
-    </div>
+        
+
+    </b-card>
+
+    
 
 </div>
 
@@ -100,7 +125,7 @@
 
 
             btnOrder: function () {
- 
+
                 console.log("按下按鈕")
                 let requestData = {
                     equipmentId: this.equips.equipmentId,
@@ -138,4 +163,4 @@
 
 
 
-</script>   
+</script>
