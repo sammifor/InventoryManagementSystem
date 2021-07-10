@@ -64,7 +64,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 })
                 .FirstOrDefaultAsync();
 
-            if(result == null)
+            if (result == null)
             {
                 return NotFound();
             }
@@ -198,7 +198,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Route("{id}")]
         public async Task<IActionResult> EditEquip(int id, Equipment equip)
         {
-            if(equip.EquipmentId != id)
+            if (equip.EquipmentId != id)
             {
                 return BadRequest();
             }
@@ -209,7 +209,7 @@ namespace InventoryManagementSystem.Controllers.Api
             {
                 await _dbContext.SaveChangesAsync();
             }
-            catch(DbUpdateException e)
+            catch (DbUpdateException e)
             {
                 return Conflict();
             }
@@ -233,7 +233,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .ToArrayAsync();
             Console.WriteLine($"可刪除 {equipPieces.Length} 筆資料");
 
-            if(equipPieces.Length == 0)
+            if (equipPieces.Length == 0)
             {
                 // 找不到任何可刪除的設備，無法刪除
                 return NotFound(0);
@@ -244,7 +244,7 @@ namespace InventoryManagementSystem.Controllers.Api
             bool hasItems = await _dbContext.Items
                 .AnyAsync(i => ids.Contains(i.EquipmentId));
 
-            if(hasItems)
+            if (hasItems)
             {
                 // 有 Equip 底下還存在著 Item，無法刪除
                 return BadRequest(0);
@@ -256,7 +256,7 @@ namespace InventoryManagementSystem.Controllers.Api
             {
                 rowsAffected = await _dbContext.SaveChangesAsync();
             }
-            catch(DbUpdateConcurrencyException e)
+            catch (DbUpdateConcurrencyException e)
             {
                 // 資料庫端發生錯誤，刪除失敗
                 return Conflict(0);
@@ -264,6 +264,24 @@ namespace InventoryManagementSystem.Controllers.Api
 
             // 顯示實際成功刪除的紀錄數
             return Ok(rowsAffected);
+        }
+
+        //設備資料
+        [HttpGet]
+        [Produces("application/json")]
+        [Consumes("application/json")]
+        public async Task<EquipResultModel[]> GetEquip()
+        {
+            var results = await _dbContext.Equipment.Select(e => new EquipResultModel()
+            {
+                EquipmentName = e.EquipmentName,
+                Brand = e.Brand,
+                Model = e.Model,
+                UnitPrice = e.UnitPrice,
+                Description = e.Description
+            }).ToArrayAsync();
+
+            return results;
         }
     }
 }
