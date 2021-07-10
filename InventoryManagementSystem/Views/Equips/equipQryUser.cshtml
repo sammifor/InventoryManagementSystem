@@ -66,7 +66,7 @@
         },
 
         beforeCreate: function () {
-            fetch('/equipapi/GetCates', { method: 'GET' })
+            fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
                 .then(response => {
                     if (response.ok) {
                         return response.json();
