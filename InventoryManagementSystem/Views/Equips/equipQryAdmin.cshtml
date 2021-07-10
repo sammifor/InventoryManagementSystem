@@ -78,7 +78,6 @@
                     @*刪除*@
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteAllItemModal">刪除 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M2.5 12a9.5 9.5 0 1119 0 9.5 9.5 0 01-19 0zM12 1C5.925 1 1 5.925 1 12s4.925 11 11 11 11-4.925 11-11S18.075 1 12 1zm6.25 11.75a.75.75 0 000-1.5H5.75a.75.75 0 000 1.5h12.5z"></path></svg></button>
                 </div>
-                <div><label><a href="物品查詢連接">查看物品紀錄 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M3.75 5.5a.75.75 0 000 1.5h10a.75.75 0 000-1.5h-10zm5 6a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H8.75zm0 6a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H8.75zM5 12a1 1 0 11-2 0 1 1 0 012 0zm-1 7a1 1 0 100-2 1 1 0 000 2z"></path><path d="M19.309 7.918l-2.245-2.501A.25.25 0 0117.25 5h4.49a.25.25 0 01.185.417l-2.244 2.5a.25.25 0 01-.372 0z"></path></svg></a></label></div>
             </div>
         </legend>
         <table class="table table-hover">
@@ -90,6 +89,7 @@
                     <td>品名</td>
                     <td>庫存</td>
                     <td>修改</td>
+                    <td>查看紀錄</td>
                 </tr>
             </thead>
             <tbody>
@@ -100,6 +100,7 @@
                     <td>{{item.description}}</td>
                     <td>{{item.condition}}</td>
                     <td><a @@click="updateClickItem(item)" data-toggle="modal" data-target="#itemUpdateModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M17.263 2.177a1.75 1.75 0 012.474 0l2.586 2.586a1.75 1.75 0 010 2.474L19.53 10.03l-.012.013L8.69 20.378a1.75 1.75 0 01-.699.409l-5.523 1.68a.75.75 0 01-.935-.935l1.673-5.5a1.75 1.75 0 01.466-.756L14.476 4.963l2.787-2.786zm-2.275 4.371l-10.28 9.813a.25.25 0 00-.067.108l-1.264 4.154 4.177-1.271a.25.25 0 00.1-.059l10.273-9.806-2.94-2.939zM19 8.44l2.263-2.262a.25.25 0 000-.354l-2.586-2.586a.25.25 0 00-.354 0L16.061 5.5 19 8.44z"></path></svg></a></td>
+                    <td><a href="物品查詢連接"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M3.75 5.5a.75.75 0 000 1.5h10a.75.75 0 000-1.5h-10zm5 6a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H8.75zm0 6a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H8.75zM5 12a1 1 0 11-2 0 1 1 0 012 0zm-1 7a1 1 0 100-2 1 1 0 000 2z"></path><path d="M19.309 7.918l-2.245-2.501A.25.25 0 0117.25 5h4.49a.25.25 0 01.185.417l-2.244 2.5a.25.25 0 01-.372 0z"></path></svg></a></td>
             </tbody>
         </table>
 
@@ -216,11 +217,11 @@
                             <label class="col-form-label">設備型號</label>
                             <input type="text" class="form-control" v-model="tempEquipDetail.model">
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-4">
                             <label class="col-form-label">設備單價</label>
                             <input type="text" class="form-control" v-model="tempEquipDetail.unitPrice">
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-8">
                             <label class="col-form-label">設備描述</label>
                             <input type="text" class="form-control" v-model="tempEquipDetail.description">
                         </div>
