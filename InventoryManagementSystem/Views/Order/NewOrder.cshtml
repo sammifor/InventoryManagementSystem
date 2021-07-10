@@ -32,7 +32,7 @@
             <label>租借天數</label>
         </b-col>
         <b-col sm="9">
-            <b-form-input type="number" min="0" v-model="orderDays"></b-form-input>
+            <b-form-input type="number" min="0" max="14" v-model="orderDays"></b-form-input>
         </b-col>
     </div>
 
@@ -40,12 +40,6 @@
         <br />
         <b-button variant="primary" v-on:click="btnOrder">送出</b-button>
     </div>
-
-    @*<div>
-        <br/>
-        <b-button variant="primary" v-on:click="test">測試</b-button>
-    </div>*@
-
 
 </div>
 
@@ -58,26 +52,25 @@
             count: 0,
             equips: {},
             orderDate: "",
-            orderDays: "",
-            selectEquipId: ""
-
+            orderDays: 0,
+            queries: {}
         },
 
 
-        beforeCreate: function() {
-            let cookiearr = document.cookie.split(';');
-            console.log(cookiearr);
+        created: function () {
 
-            let cookiepair = cookiearr[0].split('=');
-
-            console.log(cookiepair)
-            this.selectEquipId = cookiepair[1];
-            console.log(this.selectEquipId);
-
-            fetch('/equipapi/getequipbyid/' + this.selectEquipId, { method: 'get' })
+            let queryStrArr = window.location.search.slice(1).split("&");
+            for (let i = 0; i < queryStrArr.length; i++) {
+                let keyvaluePair = queryStrArr[i].split("=");
+                this.queries[keyvaluePair[0]] = keyvaluePair[1];
+            }
+            console.log(this.queries);
+            fetch('/equipapi/getequipbyid/' + this.queries.equipId, { method: 'get' })
                 .then(response => {
                     if (response.ok) {
                         return response.json();
+                    } else {
+                        alert("查無資料");
                     }
                 })
                 .then(response => {
@@ -106,13 +99,19 @@
             },
 
 
-            btnOrder: function(data) {
+            btnOrder: function () {
+ 
                 console.log("按下按鈕")
-
-
+                let requestData = {
+                    equipmentId: this.equips.equipmentId,
+                    estimatedPickupTime: this.orderDate,
+                    quantity: this.count,
+                    day: this.orderDays,
+                    userId: 2
+                };
                 let url = "/OrderApi/MakeOrder";
                 let request = {
-                    body: JSON.stringify(data),
+                    body: JSON.stringify(requestData),
                     method: "POST",
                     headers: {
                         "content-type": "application/json"
@@ -121,37 +120,16 @@
                 fetch(url, request)
                     .then(r => {
                         if (r.ok) {
-                            console.log("連線成功");
-                            return r.json();
+                            return r.json(); //To be deleted
                         }
-                        console.log("連線失敗");
                     })
-                    .then(r => {
-                        console.log(this.count, typeof (this.count));
-                        console.log(this.orderDate, typeof (this.orderDate));
-                        console.log(this.orderDays,typeof (this.orderDays));
-                        console.log(this.equips.equipmentId, typeof (this.equips.equipmentId));
-                        console.log("送出成功");
-                    })
+                    .then(
+                        r => {
+                            console.log(r);
+                        }
+                    )
                     .catch(error => console.log(error))
-            },
-
-            test: function (orderDate, orderDays) {
-
-                var test_date = "2021-07-21";
-                var test_days="4"
-
-           
-                Date.parse(test_date);
-                console.log(test_date, typeof (this.test_date));
-                parseInt(test_days);
-                console.log(test_days, typeof (this.test_days));
             }
-
-
-            
-
-
 
         }
 
