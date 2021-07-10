@@ -62,7 +62,8 @@ VALUES
 	('O', N'出庫'),
 	('S', N'報廢'),
 	('F', N'損壞'),
-	('L', N'遺失') 
+	('L', N'遺失'),
+        ('P', N'待領')
 
 INSERT INTO [Item](ConditionID, EquipmentID, ItemSN, [Description])
 VALUES
