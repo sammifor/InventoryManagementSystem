@@ -49,6 +49,24 @@ namespace InventoryManagementSystem.Controllers.Api
                 return Conflict();
             }
 
+            ItemLog log = new ItemLog
+            {
+                AdminId = model.AdminId,
+                ItemId = item.ItemId,
+                ConditionId = item.ConditionId,
+                CreateTime = DateTime.Now
+            };
+
+            try
+            {
+                _dbContext.ItemLogs.Add(log);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
             return Ok(item.ItemId);
         }
 
