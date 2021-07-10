@@ -1,1 +1,26 @@
-﻿
+﻿<div id="add">
+    <div class="d-flex justify-content-between">
+        <div>
+            <label>設備種類  </label>
+            <select class="btn btn-light dropdown-toggle" v-on:change="onCategoryChange($event)">
+                <option disabled selected>請先選擇種類</option>
+                <option v-for="cname in category" :value="cname.equipCategoryId">{{cname.categoryName}}</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        <div>
+            <label>設備名稱  </label>
+            <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)" v-model="selectName">
+                <option disabled selected>請選擇名稱</option>
+                <option v-for="ename in equips" :value="ename">{{ename}}</option>
+            </select>
+        </div>
+
+
+    </div>
+</div>
+
+
+
