@@ -16,124 +16,190 @@
                 <option v-for="ename in equips" :value="ename">{{ename}}</option>
             </select>
         </div>
-        
+
         <div>
             <button type="button" class="btn btn-outline-primary" v-on:click="btnQry">查詢 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"></path></svg></button>
         </div>
-    </div>    
-        
-        
-    
+    </div>
+
+
+
 </div>
 <br />
-    <fieldset class="form-group border" id="view">
-        <legend class="w-auto">設備查詢結果 筆數:{{equips.length}}</legend>
-        <table class="table table-hover">
-            <thead class="badge-secondary">
-                <tr>
-                    <td>設備名稱</td>
-                    <td>品牌</td>
-                    <td>型號</td>
-                    <td>單價</td>
-                    <td>可租借數量</td>
-                    <td>描述</td>
-                    <td>租借</td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="equip in equips" v-if="equips.length !==0">
-                    <td class="font-weight-bold">{{equip.equipmentName}}</td>
-                    <td>{{equip.brand}}</td>
-                    <td>{{equip.model}}</td>
-                    <td>{{equip.unitPrice}}</td>
-                    <td>{{equip.quantityInStock}}</td>
-                    <td>{{equip.description}}</td>
-                    <td><a :href="'/Order/NewOrder/'+equip.equipmentId"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M15.5 2.25a.75.75 0 01.75-.75h5.5a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0V4.06l-6.22 6.22a.75.75 0 11-1.06-1.06L19.94 3h-3.69a.75.75 0 01-.75-.75z"></path><path d="M2.5 4.25c0-.966.784-1.75 1.75-1.75h8.5a.75.75 0 010 1.5h-8.5a.25.25 0 00-.25.25v15.5c0 .138.112.25.25.25h15.5a.25.25 0 00.25-.25v-8.5a.75.75 0 011.5 0v8.5a1.75 1.75 0 01-1.75 1.75H4.25a1.75 1.75 0 01-1.75-1.75V4.25z"></path></svg></a></td>
-                </tr>
-            </tbody>
-        </table>
-    </fieldset>
+<fieldset class="form-group border" id="view">
+    <legend class="w-auto">設備查詢結果 筆數:{{equips.length}}</legend>
+    <table class="table table-hover">
+        <thead class="badge-secondary">
+            <tr>
+                <td>設備名稱</td>
+                <td>品牌</td>
+                <td>型號</td>
+                <td>單價</td>
+                <td>可租借數量</td>
+                <td>描述</td>
+                <td>租借</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="equip in equips" v-if="equips.length !==0">
+                <td class="font-weight-bold">{{equip.equipmentName}}</td>
+                <td>{{equip.brand}}</td>
+                <td>{{equip.model}}</td>
+                <td>{{equip.unitPrice}}</td>
+                <td>{{equip.quantityInStock}}</td>
+                <td>{{equip.description}}</td>
+                <td><a :href="'/Order/NewOrder?=equipId=s'+equip.equipmentId"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M15.5 2.25a.75.75 0 01.75-.75h5.5a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0V4.06l-6.22 6.22a.75.75 0 11-1.06-1.06L19.94 3h-3.69a.75.75 0 01-.75-.75z"></path><path d="M2.5 4.25c0-.966.784-1.75 1.75-1.75h8.5a.75.75 0 010 1.5h-8.5a.25.25 0 00-.25.25v15.5c0 .138.112.25.25.25h15.5a.25.25 0 00.25-.25v-8.5a.75.75 0 011.5 0v8.5a1.75 1.75 0 01-1.75 1.75H4.25a1.75 1.75 0 01-1.75-1.75V4.25z"></path></svg></a></td>
+            </tr>
+        </tbody>
+    </table>
+</fieldset>
 
-    <script>
-        var app = new Vue({
-            el: '#app',
-            data: {
-                equips: {},
-                category: {},
-                equipname:'',
-                selectName: '',
-                selectVal: ''
-            },
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            equips: {},
+            category: {},
+            equipname: '',
+            selectName: '',
+            selectVal: ''
+        },
 
-            beforeCreate: function () {
-                fetch('/equipapi/GetCates', { method: 'GET' })
+        beforeCreate: function () {
+            fetch('/equipapi/GetCates', { method: 'GET' })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                })
+                .then(response => {
+                    this.category = response;
+                });
+
+        },
+        methods: {
+            onCategoryChange: function (data) {
+                fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
                     .then(response => {
                         if (response.ok) {
                             return response.json();
                         }
                     })
                     .then(response => {
-                        this.category = response;
-                    });
+                        this.equips = response;
+
+                    })
 
             },
-            methods: {
-                onCategoryChange: function (data) {
-                    fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
-                        .then(response => {
-                            if (response.ok) {
-                                return response.json();
-                            }
-                        })
-                        .then(response => {
-                            this.equips = response;
-                            
-                        })
-                    
-                },
-                onEquipNameChange: function (e) {
-                    // 可以抓到選到的option的value，而不是text
-                    this.selectVal = e.target.value;
-                    /*console.log(this.selectVal);*/
-                },
-                btnQry: function () {
-                    console.log(this.selectName);
-                    
-                    let url = '/EquipApi/GetEquipByEquipName/' + this.selectVal;
-                    
-                    let request = {
-                        method: 'GET',
-                        headers: { 'content-type': 'application/json' }
-                    }
-                    fetch(url, request)
-                        .then(response => {
-                            if (response.ok) {
-                                return response.json();
-                            }
-                            return response.text();
-                        })
-                        .then(response => {
-                            if (app.selectName == '') {
-                                //顯示錯誤
-                                alert("請選擇篩選條件!");
-                                view.equips = '';
-                                return;
-                            }
-                            view.equips = response;
-                            app.selectName = '';
+            onEquipNameChange: function (e) {
+                // 可以抓到選到的option的value，而不是text
+                this.selectVal = e.target.value;
+                /*console.log(this.selectVal);*/
+            },
+            btnQry: function () {
+                console.log(this.selectName);
 
-                        })
-                    
+                let url = '/EquipApi/GetEquipByEquipName/' + this.selectVal;
+
+                let request = {
+                    method: 'GET',
+                    headers: { 'content-type': 'application/json' }
                 }
+                fetch(url, request)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        return response.text();
+                    })
+                    .then(response => {
+                        if (app.selectName == '') {
+                            //顯示錯誤
+                            alert("請選擇篩選條件!");
+                            view.equips = '';
+                            return;
+                        }
+                        view.equips = response;
+                        app.selectName = '';
+
+                    })
 
             }
-        })
-        var view = new Vue({
-            el: '#view',
-            data: {
-                equips: ''
+
+        }
+    })
+    var view = new Vue({
+        el: '#view',
+        data: {
+            equips: ''
+        }
+
+
+    })
+</script>
+
+<div id="app1">
+    <fieldset>
+        <legend>設備查詢</legend>
+        <div>
+            <strong>關鍵字搜尋：</strong>
+            <input type="text" v-model="search" />
+        </div>
+    </fieldset>
+    <br />
+    <table class="table-hover table-bordered" width="100%">
+        <thead class="table-success">
+            <tr>
+                <th>設備ID</th>
+                <th>類別ID</th>
+                <th>設備Sn</th>
+                <th>設備名稱</th>
+                <th>品牌</th>
+                <th>型號</th>
+                <th>單價</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="equipment in equipmentSearch" :key="equipment.equipmentId">
+                <td :td="equipment">{{equipment.equipmentId}}</td>
+                <td>{{equipment.equipmentCategoryId}}</td>
+                <td>{{equipment.equipmentSn}}</td>
+                <td>{{equipment.equipmentName}}</td>
+                <td>{{equipment.brand}}</td>
+                <td>{{equipment.model}}</td>
+                <td>{{equipment.unitPrice}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#app1',
+        data: {
+            equipments: [],
+            search: ''
+        },
+
+        computed: {
+            equipmentSearch() {
+                return this.equipments.filter(equipment => equipment.equipmentName.toLowerCase().includes(this.search));
             }
-            
-            
-        })
-    </script>
+        },
+
+
+        mounted: function () {
+            fetch('/Equipment/equipmentdata', { method: 'GET' })
+                .then(response => {
+                    this.equipments = response.data;
+                    console.log(response);
+                })
+
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+
+
+    })
+</script>
