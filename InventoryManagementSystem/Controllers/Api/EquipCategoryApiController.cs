@@ -22,7 +22,7 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         /*
-         * EquipApi/GetCates 
+         * EquipCategoryApi/GetCates 
          */
         // 取得所有 EquipCategory 的 id 和 name
         [HttpGet]
@@ -37,6 +37,32 @@ namespace InventoryManagementSystem.Controllers.Api
                 })
                 .ToArrayAsync();
             return Ok(categories);
+        }
+
+        /*
+         * EquipCategoryApi/InsertCate
+         */
+        [HttpPost]
+        public async Task<IActionResult> InsertCate(
+            [FromQuery(Name = "name")] 
+            string categoryName)
+        {
+            EquipCategory category = new EquipCategory
+            {
+                CategoryName = categoryName
+            };
+
+            try
+            {
+                _dbContext.EquipCategories.Add(category);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
+            return Ok(category.EquipCategoryId);
         }
 
     }
