@@ -38,7 +38,10 @@ namespace InventoryManagementSystem.Controllers.Api
                     ItemId = i.ItemId,
                     ItemSn = i.ItemSn,
                     Condition = i.Condition.ConditionName,
-                    Description = i.Description
+                    Description = i.Description,
+
+                    EquipmentSn = i.Equipment.EquipmentSn,
+                    EquipmentName = i.Equipment.EquipmentName
                 })
                 .ToArrayAsync();
 
