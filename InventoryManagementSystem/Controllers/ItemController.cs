@@ -8,7 +8,7 @@ namespace InventoryManagementSystem.Controllers
 {
     public class ItemController : Controller
     {
-        public IActionResult Item()
+        public IActionResult ItemLog()
         {
             return View();
         }
