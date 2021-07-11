@@ -121,7 +121,7 @@
                     addNewItem: function () {
                         console.log("按下按鈕");
                         let requestData = {
-                            adminId: 1,
+                            adminId:1,
                             equipmentId: this.selectEquipId,
                             itemSn: this.addItemSN,
                             description: this.addItemDiscrip
@@ -135,15 +135,16 @@
                             headers: {
                                 "content-type": "application/json"
                             }
-                        }
+                        };
                         fetch(url, request)
                             .then(r => {
                                 if (r.ok) {
-                                    console.log("新增成功");
+                                    
                                     return r.json();//To be deleted
+                                    console.log("新增成功");
 
                                 }
-                                console.log("新增失敗")
+                                console.log("新增失敗");
                             })
                             .then(
                                 r => {
