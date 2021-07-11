@@ -306,7 +306,7 @@ CREATE TABLE [ItemLog](
         [OrderDetailID] INT NULL
                 CONSTRAINT [FK_ItemLog_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
 
-        [AdminID] INT NOT NULL
+        [AdminID] INT NULL
                 CONSTRAINT [FK_ItemLog_Admin] FOREIGN KEY REFERENCES [Admin]([AdminID]),
 
         [ItemID] INT NOT NULL
