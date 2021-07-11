@@ -1,0 +1,103 @@
+﻿<div id="addEquip">
+    <div class="card">
+        <div class="card-header">種類新增</div>
+        <div class="card-body">
+
+            <div class="row">
+                
+                <div class="form-group col-md-2">
+                    <label>種類名稱</label>
+                    <input type="text" class="form-control" v-model="addNewCateName" />
+                </div>
+
+            </div>
+            <button href="#" class="btn btn-primary" v-on:click="addNewEquip">新增</button>
+
+        </div>
+    </div>
+
+    <br />
+    <br />
+    <div class="card">
+        <div class="card-header">種類名稱管理</div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">種類名稱</th>
+                    <th scope="col">修改</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="cname in category">
+                    <td>{{cname.categoryName}}</td>
+                    <td><button class="btn btn-primary">修改</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+
+<script>
+    let addEquip = new Vue({
+        el: '#addEquip',
+        data: {
+            category: {},
+            addNewCateName: {}
+        },
+
+        methods: {
+
+            addNewEquip: function () {
+                console.log("按下按鈕");
+                let requestData = {
+                    equipmentCategoryId: this.equipCategoryId,
+                    equipmentSn: this.addEquipSN,
+                    equipmentName: this.addEquipName,
+                    brand: this.addEquipBrand,
+                    model: this.addEquipModel,
+                    unitPrice: this.addEquipPrice,
+                    description: this.addEquipDiscrip
+
+                };
+                console.log("賦值成功");
+                let url = "/EquipApi/InsertEquip";
+                let request = {
+                    body: JSON.stringify(requestData),
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                }
+                fetch(url, request)
+                    .then(r => {
+                        if (r.ok) {
+                            console.log("新增成功");
+                            return r.json();//To be deleted
+
+                        }
+                        console.log("新增失敗")
+                    })
+                    .then(
+                        r => {
+                            console.log(r);
+                        }
+                    )
+                    .catch(error => console.log(error))
+
+
+
+
+
+            }
+
+
+        }
+    })
+
+
+
+
+</script>
