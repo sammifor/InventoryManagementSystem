@@ -11,11 +11,10 @@
                 </div>
 
             </div>
-            <button href="#" class="btn btn-primary" v-on:click="addNewEquip">新增</button>
+            <button class="btn btn-primary" v-on:click="addNewEquip">新增</button>
 
         </div>
     </div>
-
     <br />
     <br />
     <div class="card">
@@ -28,7 +27,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="cname in category">
+                <tr v-for="cname in currentCateName">
                     <td>{{cname.categoryName}}</td>
                     <td><button class="btn btn-primary">修改</button></td>
                 </tr>
@@ -37,67 +36,57 @@
     </div>
 </div>
 
-
-
-
 <script>
     let addEquip = new Vue({
         el: '#addEquip',
         data: {
-            category: {},
-            addNewCateName: {}
-        },
-
-        methods: {
-
-            addNewEquip: function () {
-                console.log("按下按鈕");
-                let requestData = {
-                    equipmentCategoryId: this.equipCategoryId,
-                    equipmentSn: this.addEquipSN,
-                    equipmentName: this.addEquipName,
-                    brand: this.addEquipBrand,
-                    model: this.addEquipModel,
-                    unitPrice: this.addEquipPrice,
-                    description: this.addEquipDiscrip
-
-                };
-                console.log("賦值成功");
-                let url = "/EquipApi/InsertEquip";
-                let request = {
-                    body: JSON.stringify(requestData),
-                    method: "POST",
-                    headers: {
-                        "content-type": "application/json"
-                    }
-                }
-                fetch(url, request)
-                    .then(r => {
-                        if (r.ok) {
-                            console.log("新增成功");
-                            return r.json();//To be deleted
-
-                        }
-                        console.log("新增失敗")
-                    })
-                    .then(
-                        r => {
-                            console.log(r);
-                        }
-                    )
-                    .catch(error => console.log(error))
-
-
-
-
-
-            }
-
-
+            currentcateName: {},
+            addNewCateName: ""
         }
+
+        //beforeCreate: function () {
+        //    fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
+        //        .then(response => {
+        //            if (response.ok) {
+        //                return response.json();
+        //            }
+        //        })
+        //        .then(response => {
+        //            this.currentcateName = response;
+        //        });
+
+        //},
+
+        //methods: {
+
+        //    addNewEquip: function () {
+        //        console.log("按下按鈕");
+        //        let url = "https://localhost:5001/EquipCategoryApi/InsertCate?Name=" + this.addNewCateName;
+        //        let request = {
+        //            method: "POST"
+        //        };
+                
+        //        fetch(url, request)
+        //            .then(r => {
+        //                if (r.ok) {
+        //                    console.log("新增成功");
+        //                    return r.json();//To be deleted
+
+        //                }
+        //                else {
+        //                    console.log("新增失敗");
+        //                }
+        //            })
+        //            .then(r => {
+        //                console.log(r);
+        //            })
+        //            .catch(error => {
+        //                console.log(error);
+        //            })
+        //    }
+
+
+        //}
     })
-
-
-
 
 </script>
