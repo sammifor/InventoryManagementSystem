@@ -136,7 +136,7 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         /*
-         *  ItemApi/RemoveEquipByIds
+         *  ItemApi/RemoveItemsByIds
          */
         // 以 ID 移除 Item，可一次移除多個 Item
         // Return: 刪除的資料筆數

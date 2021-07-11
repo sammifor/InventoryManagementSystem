@@ -400,7 +400,7 @@
             btnItem: function (e) {
                 this.eid = e.target.value;
 
-                let url = '/EquipApi/GetItemsByEquipId/' + this.eid;
+                let url = '/ItemApi/GetItemsByEquipId/' + this.eid;
                 let request = {
                     method: 'GET',
                     headers: { 'content-type': 'application/json' }
@@ -445,7 +445,7 @@
                     })
             },
             btnDelItem: function () {
-                let url = '等ITEM API';
+                let url = '/ItemApi/RemoveItemsByIds/';
                 let request = {
                     method: 'Delete',
                     headers: { 'content-type': 'application/json' },
@@ -456,7 +456,16 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log(data); //要做成功與失敗跳alarm
+                        if (data === 0) {
+                            alert("刪除失敗!!!");
+                        } else {
+                            alert("刪除" + data + "筆");
+                            $("#deleteAllItemModal").modal("hide");
+                            view.items = view.items.filter((x) => {
+                                return view.checkedItems.indexOf(x.itemId) == -1;
+                            });
+                            view.checkedItems = [];
+                        }
                     })
             },
             updateClickEquip: function (equipmentData) {
@@ -472,7 +481,7 @@
                 fetch(url, request)
                     .then(response => {
                         if (response.ok) {
-                            alert("修改成功,請重新查詢確認資料!!!");
+                            alert("修改成功,請確認資料!!!");
                             $("#equipUpdateModal").modal("hide");
                             for (i = 0; i < view.equips.length; i++)
                             {
@@ -491,10 +500,8 @@
                             //    }
                                 
                             //});
-                            //console.log(data);
-                            //view.equips = data;
+                            
                             console.log(view.equips);
-                            /*window.location.reload(true);*/
                         } else {
                             alert("修改失敗");
                         }
@@ -529,7 +536,7 @@
                 fetch(url, request)
                     .then(response => {
                         if (response.ok) {
-                            alert("修改成功,請重新查詢確認資料!!!");
+                            alert("修改成功,請確認資料!!!");
                             $("#itemUpdateModal").modal("hide");
                             for (i = 0; i < view.items.length; i++) {
                                 if (view.items[i].itemId == this.itemDetail.itemId) {
