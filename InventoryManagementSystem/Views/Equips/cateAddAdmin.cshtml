@@ -70,20 +70,37 @@
                 fetch(url, request)
                     .then(r => {
                         if (r.ok) {
-                            console.log("新增成功");
+                            this.reload();
+                            alert("新增成功");
                             return r.json();//To be deleted
 
                         }
                         else {
-                            console.log("新增失敗");
+                            alert("新增失敗");
                         }
                     })
                     .then(r => {
                         console.log(r);
                     })
                     .catch(error => {
-                        console.log(error);
+                        alert("新增失敗");
                     })
+            },
+
+            reload: function () {
+                fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                    })
+                    .then(response => {
+                        this.currentCateName = response;
+                    });
+
+
+
+
             }
 
 
