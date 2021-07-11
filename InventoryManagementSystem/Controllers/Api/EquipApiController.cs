@@ -132,29 +132,6 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         /*
-         * EquipApi/GetItemsByEquipId/{EquipmentId}
-         */
-        //查詢設備底下Items
-        [HttpGet]
-        [Produces("application/json")]
-        [Route("{id}")]
-        public async Task<ItemResultModel[]> GetItemsByEquipId(int id)
-        {
-            var results = await _dbContext.Items
-                .Where(i => i.EquipmentId == id)
-                .Select(i => new ItemResultModel
-                {
-                    ItemId = i.ItemId,
-                    ItemSn = i.ItemSn,
-                    Condition = i.Condition.ConditionName,
-                    Description = i.Description
-                })
-                .ToArrayAsync();
-
-            return results;
-        }
-
-        /*
          * EquipApi/InsertEquip
          */
         // 新增 Equip
@@ -222,7 +199,6 @@ namespace InventoryManagementSystem.Controllers.Api
         // 以 ID 移除 Equip，可一次移除多個 Equip
         // Return: 刪除的資料筆數
         [HttpDelete]
-        [Produces("application/json")]
         [Consumes("application/json")]
         public async Task<ActionResult<int>> RemoveEquipByIds(int[] ids)
         {
