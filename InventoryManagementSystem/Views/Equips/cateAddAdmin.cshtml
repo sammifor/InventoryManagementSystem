@@ -4,7 +4,7 @@
         <div class="card-body">
 
             <div class="row">
-                
+      
                 <div class="form-group col-md-2">
                     <label>種類名稱</label>
                     <input type="text" class="form-control" v-model="addNewCateName" />
@@ -40,53 +40,54 @@
     let addEquip = new Vue({
         el: '#addEquip',
         data: {
-            currentcateName: {},
+            currentCateName: {},
             addNewCateName: ""
-        }
+        },
 
-        //beforeCreate: function () {
-        //    fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
-        //        .then(response => {
-        //            if (response.ok) {
-        //                return response.json();
-        //            }
-        //        })
-        //        .then(response => {
-        //            this.currentcateName = response;
-        //        });
+        beforeCreate: function() {
+                fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                    })
+                    .then(response => {
+                        this.currentCateName = response;
+                    });
 
-        //},
+            
+        },
 
-        //methods: {
+        methods: {
 
-        //    addNewEquip: function () {
-        //        console.log("按下按鈕");
-        //        let url = "https://localhost:5001/EquipCategoryApi/InsertCate?Name=" + this.addNewCateName;
-        //        let request = {
-        //            method: "POST"
-        //        };
+            addNewEquip: function () {
+                console.log("按下按鈕");
+                let url = "https://localhost:5001/EquipCategoryApi/InsertCate?Name=" + this.addNewCateName;
+                let request = {
+                    method: "POST"
+                };
                 
-        //        fetch(url, request)
-        //            .then(r => {
-        //                if (r.ok) {
-        //                    console.log("新增成功");
-        //                    return r.json();//To be deleted
+                fetch(url, request)
+                    .then(r => {
+                        if (r.ok) {
+                            console.log("新增成功");
+                            return r.json();//To be deleted
 
-        //                }
-        //                else {
-        //                    console.log("新增失敗");
-        //                }
-        //            })
-        //            .then(r => {
-        //                console.log(r);
-        //            })
-        //            .catch(error => {
-        //                console.log(error);
-        //            })
-        //    }
+                        }
+                        else {
+                            console.log("新增失敗");
+                        }
+                    })
+                    .then(r => {
+                        console.log(r);
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
+            }
 
 
-        //}
+        }
     })
 
 </script>
