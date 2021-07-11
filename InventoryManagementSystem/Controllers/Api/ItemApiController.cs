@@ -1,4 +1,5 @@
 ﻿using InventoryManagementSystem.Models.EF;
+using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,32 @@ namespace InventoryManagementSystem.Controllers.Api
         public ItemApiController(InventoryManagementSystemContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        /*
+         * ItemApi/GetItemsByEquipId/{EquipmentId}
+         */
+        //查詢設備底下Items
+        [HttpGet]
+        [Produces("application/json")]
+        [Route("{id}")]
+        public async Task<ItemResultModel[]> GetItemsByEquipId(int id)
+        {
+            var results = await _dbContext.Items
+                .Where(i => i.EquipmentId == id)
+                .Select(i => new ItemResultModel
+                {
+                    ItemId = i.ItemId,
+                    ItemSn = i.ItemSn,
+                    Condition = i.Condition.ConditionName,
+                    Description = i.Description,
+
+                    EquipmentSn = i.Equipment.EquipmentSn,
+                    EquipmentName = i.Equipment.EquipmentName
+                })
+                .ToArrayAsync();
+
+            return results;
         }
 
         /*
