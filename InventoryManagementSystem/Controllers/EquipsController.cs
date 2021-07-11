@@ -30,5 +30,12 @@ namespace InventoryManagementSystem.Controllers
             return View();
 
         }
+
+        public IActionResult itemAddAdmin()
+        {
+
+            return View();
+
+        }
     }
 }

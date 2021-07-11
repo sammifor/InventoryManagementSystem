@@ -1,0 +1,126 @@
+﻿<div id="addItem">
+    <div class="card">
+        <div class="card-header">設備新增</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="form-group col-md-2">
+                    <label>設備種類  </label>
+                    <br />
+                    <select class="btn btn-light dropdown-toggle" v-on:change="onCategoryChange($event)">
+                        <option disabled selected>請先選擇種類</option>
+                        <option v-for="cname in category" :value="cname.equipCategoryId">{{cname.categoryName}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label>設備名稱  </label>
+                    <br />
+                    <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)" v-model="selectName">
+                        <option disabled selected>請選擇名稱</option>
+                        <option v-for="ename in equips" :value="ename">{{ename}}</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-2">
+                    <label>物品序號</label>
+                    <input type="text" class="form-control" v-model="addItemSN" />
+                </div>
+
+
+                <div class="form-group col-md-2">
+                    <label>物品描述</label>
+                    <input type="text" class="form-control" v-model="addItemDiscription" />
+                </div>
+
+            </div>
+            <button class="btn btn-primary">新增</button>
+        </div>
+    </div>
+    <br />
+    <br />
+    <div class="card">
+        <div class="card-header">物品序號管理</div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">編號</th>
+                    <th scope="col">物品名稱</th>
+                    <th scope="col">物品序號</th>
+                    <th scope="col">修改</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="equip in equips">
+                    <td>{{equip.equipmentName}}</td>
+                    <td>{{equip.equipmentSn}}</td>
+                    <td>{{equip.brand}}</td>
+                    <td><button class="btn btn-primary">修改</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+        <script>
+            var addItem = new Vue({
+                el: '#addItem',
+                data: {
+                    equips: {},
+                    category: {},
+                    equipname: '',
+                    selectName: '',
+                    selectVal: '',
+                    addItemSN: "",
+                    addItemDiscription: ""
+                },
+
+                beforeCreate: function () {
+                    fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
+                        .then(response => {
+                            if (response.ok) {
+                                return response.json();
+                            }
+                        })
+                        .then(response => {
+                            this.category = response;
+                        });
+
+                },
+                methods: {
+                    onCategoryChange: function (data) {
+                        fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
+                            .then(response => {
+                                if (response.ok) {
+                                    return response.json();
+                                }
+                            })
+                            .then(response => {
+                                this.equips = response;
+
+                            })
+
+                    },
+
+                    onEquipNameChange: function (e) {
+                        fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
+                            .then(response => {
+                                if (response.ok) {
+                                    return response.json();
+                                }
+                            })
+                            .then(response => {
+                                this.equips = response;
+
+                            })
+                    }
+
+
+                    
+                }
+
+            })
+
+
+
+
+        </script>
