@@ -105,7 +105,6 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> RespondOrder(RespondOrderViewModel model)
         {
             var order = await _dbContext.Orders
-                .AsNoTracking()
                 .FirstOrDefaultAsync(o => o.OrderId == model.OrderID);
 
             // 防止同個 item 被分配多次
@@ -129,7 +128,8 @@ namespace InventoryManagementSystem.Controllers.Api
 
             if(model.Reply == "N")
             {
-                response.Reply = "N";
+                order.OrderStatusId = "D"; // Denied
+                response.Reply = "N"; // No
             }
             else if(model.Reply == "Y")
             {
@@ -158,6 +158,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     return BadRequest();
                 }
 
+
                 response.Reply = "Y";
             }
             else
@@ -181,7 +182,7 @@ namespace InventoryManagementSystem.Controllers.Api
             // 因為執行到這邊已經保證 items 跟 itemIDs 長度一樣
             for(int i = 0; i < items.Length; i++)
             {
-                items[i].ConditionId = "P";
+                items[i].ConditionId = "P"; // Pending
             }
 
             // 每個 item 都要新增一筆 OrderDetail 的記錄
@@ -192,7 +193,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 {
                     OrderId = model.OrderID,
                     ItemId = items[i].ItemId,
-                    OrderDetailStatusId = "P"
+                    OrderDetailStatusId = "P" // Pending
                 };
 
             }
@@ -216,10 +217,12 @@ namespace InventoryManagementSystem.Controllers.Api
                     OrderDetailId = details[i].OrderDetailId,
                     AdminId = model.AdminID,
                     ItemId = details[i].ItemId,
-                    ConditionId = "P" 
+                    ConditionId = "P"  // Pending
                 };
             }
             _dbContext.ItemLogs.AddRange(logs);
+
+            order.OrderStatusId = "A"; // Approved
 
             try
             {
@@ -233,22 +236,101 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok();
         }
 
-
-        // 測試用
-        [HttpGet]
-        [Produces("application/json")]
+        /*
+         * OrderApi/CancelOrder
+         */
+        // 取消 Order
+        [HttpPost]
         [Consumes("application/json")]
-        public async Task<IActionResult> FindManyItems(int[] ids)
+        public async Task<IActionResult> CancelOrder(CancelOrderViewModel model)
         {
-            var results = await _dbContext.Items
-                .Where(i => ids.Contains(i.ItemId))
+            Order order = await _dbContext.Orders
+                .FindAsync(model.OrderID);
+
+
+            if(order == null)
+            {
+                return NotFound();
+            }
+
+
+            OrderDetail[] details = await _dbContext.OrderDetails
+                .Where(od => od.OrderId == order.OrderId)
                 .ToArrayAsync();
-            if(results == null)
+
+            bool itemsTakenUnderTheOrder = details
+                .Any(od => od.OrderDetailStatusId == "T");
+
+            if(itemsTakenUnderTheOrder)
             {
                 return BadRequest();
             }
 
-            return Ok(results);
+            // 訂單改為取消狀態
+            order.OrderStatusId = "C";
+
+            // CanceledOrder 新增一筆紀錄
+            CanceledOrder co = new CanceledOrder
+            {
+                OrderId = order.OrderId,
+                UserId = order.UserId,
+                Description = model.Description,
+                CancelTime = DateTime.Now
+            };
+            _dbContext.CanceledOrders.Add(co);
+
+
+            // 若 admin 已分配 item 給這筆 order
+            // 還要再額外
+            // 1. 把 item 的 condition 改回再庫（ItemLog 也要記錄 item 的改變）
+            // 2. 把 order detail 的 status 改成取消
+            if(details.Length != 0)
+            {
+                int[] itemIDs = details
+                    .Select(od => od.ItemId)
+                    .ToArray();
+
+                Item[] items = await _dbContext.Items
+                    .Where(i => itemIDs.Contains(i.ItemId))
+                    .ToArrayAsync();
+
+                foreach(Item item in items)
+                {
+                    // item 的狀態改成入庫
+                    item.ConditionId = "I";
+                }
+
+                foreach(OrderDetail detail in details)
+                {
+                    // order detail 的狀態改成取消
+                    detail.OrderDetailStatusId = "C";
+
+
+                    // ItemLog 新增一筆資料
+                    ItemLog log = new ItemLog
+                    {
+                        OrderDetailId = detail.OrderDetailId,
+                        AdminId = model.AdminID,
+                        ItemId = detail.ItemId,
+                        ConditionId = "I",
+                        Description = model.Description,
+                        CreateTime = DateTime.Now
+                    };
+
+                    _dbContext.ItemLogs.Add(log);
+                }
+            }
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
+            return Ok();
         }
     }
 }
