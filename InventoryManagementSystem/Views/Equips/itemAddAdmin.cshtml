@@ -1,6 +1,6 @@
 ﻿<div id="addItem">
     <div class="card">
-        <div class="card-header">設備新增</div>
+        <div class="card-header">物品新增</div>
         <div class="card-body">
             <div class="row">
                 <div class="form-group col-md-2">
@@ -12,12 +12,12 @@
                     </select>
                 </div>
 
-                <div class="form-group col-md-2">
+                <div class="form-group col-md-3">
                     <label>設備名稱  </label>
                     <br />
                     <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)" v-model="selectEquipId">
                         <option disabled selected>請選擇名稱</option>
-                        <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}}</option>
+                        <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}}-{{ename.brand}}-{{ename.model}}</option>
                     </select>
                 </div>
 
@@ -121,7 +121,7 @@
                     addNewItem: function () {
                         console.log("按下按鈕");
                         let requestData = {
-                            adminId: 1,
+                            adminId:1,
                             equipmentId: this.selectEquipId,
                             itemSn: this.addItemSN,
                             description: this.addItemDiscrip
@@ -135,15 +135,16 @@
                             headers: {
                                 "content-type": "application/json"
                             }
-                        }
+                        };
                         fetch(url, request)
                             .then(r => {
                                 if (r.ok) {
-                                    console.log("新增成功");
+                                    
                                     return r.json();//To be deleted
+                                    console.log("新增成功");
 
                                 }
-                                console.log("新增失敗")
+                                console.log("新增失敗");
                             })
                             .then(
                                 r => {
