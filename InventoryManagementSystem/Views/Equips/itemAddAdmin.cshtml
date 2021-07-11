@@ -6,7 +6,7 @@
                 <div class="form-group col-md-2">
                     <label>設備種類  </label>
                     <br />
-                    <select class="btn btn-light dropdown-toggle" v-on:change="onCategoryChange($event)">
+                    <select class="btn btn-light dropdown-toggle" v-on:change="onCategoryChange($event)" v-model="selectCateId">
                         <option disabled selected>請先選擇種類</option>
                         <option v-for="cname in category" :value="cname.equipCategoryId">{{cname.categoryName}}</option>
                     </select>
@@ -15,9 +15,9 @@
                 <div class="form-group col-md-2">
                     <label>設備名稱  </label>
                     <br />
-                    <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)" v-model="selectName">
+                    <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)" v-model="selectEquipId">
                         <option disabled selected>請選擇名稱</option>
-                        <option v-for="ename in equips" :value="ename">{{ename}}</option>
+                        <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}}</option>
                     </select>
                 </div>
 
@@ -29,11 +29,11 @@
 
                 <div class="form-group col-md-2">
                     <label>物品描述</label>
-                    <input type="text" class="form-control" v-model="addItemDiscription" />
+                    <input type="text" class="form-control" v-model="addItemDiscrip" />
                 </div>
 
             </div>
-            <button class="btn btn-primary">新增</button>
+            <button class="btn btn-primary" v-on:click="addNewItem">新增</button>
         </div>
     </div>
     <br />
@@ -43,17 +43,19 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">編號</th>
+                    <th scope="col">設備序號</th>
+                    <th scope="col">設備名稱</th>
                     <th scope="col">物品名稱</th>
                     <th scope="col">物品序號</th>
                     <th scope="col">修改</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="equip in equips">
-                    <td>{{equip.equipmentName}}</td>
-                    <td>{{equip.equipmentSn}}</td>
-                    <td>{{equip.brand}}</td>
+                <tr v-for="item in items">
+                    <td>{{item.equipmentSn}}</td>
+                    <td>{{item.equipmentName}}</td>
+                    <td>{{item.itemSn}}</td>
+                    <td>{{item.description}}</td>
                     <td><button class="btn btn-primary">修改</button></td>
                 </tr>
             </tbody>
@@ -67,11 +69,11 @@
                 data: {
                     equips: {},
                     category: {},
-                    equipname: '',
-                    selectName: '',
-                    selectVal: '',
+                    items: {},
+                    selectCateId: '',
+                    selectEquipId: '',
                     addItemSN: "",
-                    addItemDiscription: ""
+                    addItemDiscrip: ""
                 },
 
                 beforeCreate: function () {
@@ -88,7 +90,8 @@
                 },
                 methods: {
                     onCategoryChange: function (data) {
-                        fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
+                        this.selectCateId = data.target.value;
+                        fetch('/equipapi/GetEquipByCateId/' + data.target.value, { method: 'GET' })
                             .then(response => {
                                 if (response.ok) {
                                     return response.json();
@@ -101,17 +104,56 @@
 
                     },
 
-                    onEquipNameChange: function (e) {
-                        fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
+                    onEquipNameChange: function (data) {
+                        this.selectEquipId = data.target.value;
+                        fetch('/ItemApi/GetItemsByEquipId/' + data.target.value, { method: 'GET' })
                             .then(response => {
                                 if (response.ok) {
                                     return response.json();
                                 }
                             })
                             .then(response => {
-                                this.equips = response;
+                                this.items = response;
 
                             })
+                    },
+
+                    addNewItem: function () {
+                        console.log("按下按鈕");
+                        let requestData = {
+                            adminId: 1,
+                            equipmentId: this.selectEquipId,
+                            itemSn: this.addItemSN,
+                            description: this.addItemDiscrip
+
+                        };
+                        console.log("賦值成功");
+                        let url = "/ItemApi/InsertItem";
+                        let request = {
+                            body: JSON.stringify(requestData),
+                            method: "POST",
+                            headers: {
+                                "content-type": "application/json"
+                            }
+                        }
+                        fetch(url, request)
+                            .then(r => {
+                                if (r.ok) {
+                                    console.log("新增成功");
+                                    return r.json();//To be deleted
+
+                                }
+                                console.log("新增失敗")
+                            })
+                            .then(
+                                r => {
+                                    console.log(r);
+                                }
+                            )
+                            .catch(error => console.log(error))
+
+
+
                     }
 
 
