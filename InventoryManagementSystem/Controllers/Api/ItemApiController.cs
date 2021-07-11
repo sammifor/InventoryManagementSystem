@@ -134,5 +134,76 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok();
         }
+
+        /*
+         *  ItemApi/RemoveEquipByIds
+         */
+        // 以 ID 移除 Item，可一次移除多個 Item
+        // Return: 刪除的資料筆數
+        [HttpDelete]
+        [Consumes("application/json")]
+        public async Task<ActionResult<int>> RemoveItemsByIds(int[] ids)
+        {
+
+            // 查出所有待刪的 items
+            var items = await _dbContext.Items
+                .Where(i => ids.Contains(i.ItemId))
+                .ToArrayAsync();
+
+            Console.WriteLine($"可刪除 {items.Length} 筆資料");
+
+            if (items.Length == 0)
+            {
+                // 找不到任何可刪除的 items，無法刪除
+                return NotFound(0);
+            }
+
+
+            // 已借出、待領取、已刪除的 item 無法移除
+            string[] restrictions = { "O", "P", "D" };
+            bool unremovableItemsExist = items
+                .Any(i => restrictions.Contains(i.ConditionId));
+
+            if (unremovableItemsExist)
+            {
+                return BadRequest(0);
+            }
+
+            foreach(Item item in items)
+            {
+                item.ConditionId = "D";
+
+                // 新增刪除紀綠
+                ItemLog log = new ItemLog
+                {
+                    ItemId = item.ItemId,
+                    ConditionId = item.ConditionId,
+                    AdminId = 1, // TODO
+                    CreateTime = DateTime.Now
+                };
+                _dbContext.Add(log);
+            }
+
+
+            int rowsAffected = 0;
+            try
+            {
+                rowsAffected = await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                // 資料庫端發生錯誤，刪除失敗
+                return Conflict(0);
+            }
+
+            // 顯示實際成功刪除的紀錄數
+
+            /* 除以二的原因是：
+             * 若刪除 n 筆，將會更新 2n 個 rows
+             * 因為一筆 Item 就有一筆 ItemLog
+             */
+            return Ok(rowsAffected / 2);
+        }
+
     }
 }

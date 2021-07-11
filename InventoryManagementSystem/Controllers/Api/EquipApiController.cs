@@ -199,7 +199,6 @@ namespace InventoryManagementSystem.Controllers.Api
         // 以 ID 移除 Equip，可一次移除多個 Equip
         // Return: 刪除的資料筆數
         [HttpDelete]
-        [Produces("application/json")]
         [Consumes("application/json")]
         public async Task<ActionResult<int>> RemoveEquipByIds(int[] ids)
         {
