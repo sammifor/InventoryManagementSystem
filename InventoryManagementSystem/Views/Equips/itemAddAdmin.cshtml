@@ -119,7 +119,6 @@
                     },
 
                     addNewItem: function () {
-                        console.log("按下按鈕");
                         let requestData = {
                             adminId:1,
                             equipmentId: this.selectEquipId,
@@ -127,7 +126,6 @@
                             description: this.addItemDiscrip
 
                         };
-                        console.log("賦值成功");
                         let url = "/ItemApi/InsertItem";
                         let request = {
                             body: JSON.stringify(requestData),
@@ -139,19 +137,40 @@
                         fetch(url, request)
                             .then(r => {
                                 if (r.ok) {
-                                    
+                                    this.reload();
+                                    alert("新增成功");
                                     return r.json();//To be deleted
-                                    console.log("新增成功");
+
 
                                 }
-                                console.log("新增失敗");
+                                alert("新增失敗");
                             })
                             .then(
                                 r => {
                                     console.log(r);
                                 }
                             )
-                            .catch(error => console.log(error))
+                            .catch(error => {
+
+                                lert("新增失敗");
+                                console.log(error);
+                            })
+
+
+
+                    },
+
+                    reload: function () {
+                        fetch('/ItemApi/GetItemsByEquipId/' + this.selectEquipId, { method: 'GET' })
+                            .then(response => {
+                                if (response.ok) {
+                                    return response.json();
+                                }
+                            })
+                            .then(response => {
+                                this.items = response;
+
+                            })
 
 
 
