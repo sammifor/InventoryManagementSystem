@@ -17,5 +17,10 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
 
+        public IActionResult orderQryUser()
+        {
+            return View();
+        }
+
     }
 }
