@@ -388,3 +388,5 @@ FodyWeavers.xsd
 *.sln.iml
 /InventoryManagementSystem/Views/Test/test.cshtml
 /InventoryManagementSystem/Controllers/Test.cs
+/InventoryManagementSystem/Views/Test/test1.cshtml
+/InventoryManagementSystem/Views/Test/test2.cshtml
