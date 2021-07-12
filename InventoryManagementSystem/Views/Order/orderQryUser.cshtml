@@ -1,37 +1,28 @@
-﻿<div id="app">
-    <fieldset>
-        <legend>訂單狀態</legend>
-        <div>
-            <label>查詢：</label>
-            <input type="text" v-model="useridQry" placeholder="請輸入使用者ID" />
-            <input type="button" value="查詢" v-on:click="btnQry" />
-        </div>
-        <table class="table table-hover">
-            <thead class="badge-secondary">
-                <tr>
-                    <th>使用者ID</th>
-                    <th>訂單ID</th>
-                    <th>設備名稱</th>
-                    <th>品牌</th>
-                    <th>型號</th>
-                    <th>單價</th>
-                    <th>狀態</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="order in orders">
-                    <td>{{order.userId}}</td>
-                    <td>{{order.orderId}}</td>
-                    <td>{{order.equipmentName}}</td>
-                    <td>{{order.brand}}</td>
-                    <td>{{order.model}}</td>
-                    <td>{{order.unitPrice}}</td>
-                    <td>{{order.statusName}}</td>
-                </tr>
-            </tbody>
-        </table>
-    </fieldset>
-</div>
+<table class="table table-hover">
+    <thead class="badge-secondary">
+        <tr>
+            <th>使用者ID</th>
+            <th>訂單ID</th>
+            <th>設備名稱</th>
+            <th>品牌</th>
+            <th>型號</th>
+            <th>單價</th>
+            <th>狀態</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr v-for="order in orders">
+            <td>{{order.userId}}</td>
+            <td>{{order.orderId}}</td>
+            <td>{{order.equipmentName}}</td>
+            <td>{{order.brand}}</td>
+            <td>{{order.model}}</td>
+            <td>{{order.unitPrice}}</td>
+            <td>{{order.statusName}}</td>
+        </tr>
+    </tbody>
+</table>
+
 
 <script>
     var app = new Vue({
@@ -41,7 +32,6 @@
             useridQry: '',
 
         },
-
         methods: {
             btnQry: function () {
                 let userid = this.useridQry;
@@ -54,8 +44,6 @@
                         this.orders = response;
                     })
             },
-
         },
-
     })
-</script>
+</script> 
