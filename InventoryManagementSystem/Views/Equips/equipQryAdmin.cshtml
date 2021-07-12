@@ -88,7 +88,7 @@
                     <td>物品ID</td>
                     <td>序號</td>
                     <td>描述</td>
-                    <td>庫存</td>
+                    <td>狀態</td>
                     <td>修改</td>
                     <td>查看紀錄</td>
                 </tr>
@@ -101,7 +101,7 @@
                     <td>{{item.description}}</td>
                     <td>{{item.condition}}</td>
                     <td><a @@click="updateClickItem(item)" data-toggle="modal" data-target="#itemUpdateModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M17.263 2.177a1.75 1.75 0 012.474 0l2.586 2.586a1.75 1.75 0 010 2.474L19.53 10.03l-.012.013L8.69 20.378a1.75 1.75 0 01-.699.409l-5.523 1.68a.75.75 0 01-.935-.935l1.673-5.5a1.75 1.75 0 01.466-.756L14.476 4.963l2.787-2.786zm-2.275 4.371l-10.28 9.813a.25.25 0 00-.067.108l-1.264 4.154 4.177-1.271a.25.25 0 00.1-.059l10.273-9.806-2.94-2.939zM19 8.44l2.263-2.262a.25.25 0 000-.354l-2.586-2.586a.25.25 0 00-.354 0L16.061 5.5 19 8.44z"></path></svg></a></td>
-                    <td><a @@click="itemLog(item)" data-bs-toggle="modal" data-bs-target="#itemLogModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M3.75 5.5a.75.75 0 000 1.5h10a.75.75 0 000-1.5h-10zm5 6a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H8.75zm0 6a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H8.75zM5 12a1 1 0 11-2 0 1 1 0 012 0zm-1 7a1 1 0 100-2 1 1 0 000 2z"></path><path d="M19.309 7.918l-2.245-2.501A.25.25 0 0117.25 5h4.49a.25.25 0 01.185.417l-2.244 2.5a.25.25 0 01-.372 0z"></path></svg></a></td>
+                    <td><a @*@@click="itemLog(item)"*@ data-toggle="modal" data-target="#itemLogModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M3.75 5.5a.75.75 0 000 1.5h10a.75.75 0 000-1.5h-10zm5 6a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H8.75zm0 6a.75.75 0 000 1.5h11.5a.75.75 0 000-1.5H8.75zM5 12a1 1 0 11-2 0 1 1 0 012 0zm-1 7a1 1 0 100-2 1 1 0 000 2z"></path><path d="M19.309 7.918l-2.245-2.501A.25.25 0 0117.25 5h4.49a.25.25 0 01.185.417l-2.244 2.5a.25.25 0 01-.372 0z"></path></svg></a></td>
             </tbody>
         </table>
 
@@ -251,11 +251,11 @@
                     <div class="form-row">
                         <div class="form-group col-md-2">
                             <label class="col-form-label">設備序號</label>
-                            <input type="text" class="form-control" @*v-model="這是設備SN"*@ readonly>
+                            <input type="text" class="form-control" v-model="itemDetail.equipmentSn" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">設備名稱</label>
-                            <input type="text" class="form-control" @*v-model="這是設備名字"*@ readonly>
+                            <input type="text" class="form-control" v-model="itemDetail.equipmentName" readonly>
                         </div>
                         <div class="form-group col-md-3">
                             <label class="col-form-label">物品ID</label>
@@ -286,23 +286,25 @@
     </div>
 
     <!-- ItemLog-Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    <div class="modal fade" id="itemLogModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="exampleModalLongTitle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M11.47 5.22a.75.75 0 011.06 0l3.25 3.25a.75.75 0 01-1.06 1.06L12 6.81 9.28 9.53a.75.75 0 01-1.06-1.06l3.25-3.25z"></path><path fill-rule="evenodd" d="M12 5.5a.75.75 0 01.75.75v8a.75.75 0 01-1.5 0v-8A.75.75 0 0112 5.5zM10.75 18a.75.75 0 01.75-.75h1a.75.75 0 010 1.5h-1a.75.75 0 01-.75-.75zm-8 0a.75.75 0 01.75-.75h1a.75.75 0 010 1.5h-1a.75.75 0 01-.75-.75zm12 0a.75.75 0 01.75-.75h1a.75.75 0 010 1.5h-1a.75.75 0 01-.75-.75zm-8 0a.75.75 0 01.75-.75h1a.75.75 0 010 1.5h-1a.75.75 0 01-.75-.75zm12 0a.75.75 0 01.75-.75h1a.75.75 0 010 1.5h-1a.75.75 0 01-.75-.75z"></path></svg> ItemLog</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
-                    ...
+                    <ul>
+                        <li></li>
+                    </ul>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
+
             </div>
         </div>
     </div>
+   
 
 
 </div>
@@ -318,7 +320,8 @@
             category: {},
             equips: {},
             selectName: '',
-            selectVal: ''
+            selectVal: '',
+            categoryId:''
         },
         beforeCreate: function () {
             fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
@@ -334,7 +337,7 @@
         },
         methods: {
             onCategoryChange: function (data) {
-                /*console.log(data.target.value);*/
+                this.categoryId = data.target.value;
                 fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
                     .then(response => {
                         if (response.ok) {
@@ -353,16 +356,12 @@
 
             },
             btnQry: function () {
-                let url = '/EquipApi/GetEquipByEquipName/' + this.selectVal;
+                let url = '/EquipApi/GetEquipByCateOrName/' + this.categoryId + '/' + this.selectVal;
                 let request = {
                     method: 'GET',
                     headers: { 'content-type': 'application/json' }
                 };
-                if (this.selectName == '') {
-                    view.equips = '';
-                    alert("請選擇篩選條件!");
-                    return;
-                }
+                
                 fetch(url, request)
                     .then(response => {
                         if (response.ok) {
@@ -373,6 +372,7 @@
                     .then(response => {
                         view.equips = response;
                         app.selectName = '';
+                        app.selectVal = '';
                         view.items = '';
                     });
             }
@@ -390,6 +390,8 @@
 
             },
             itemDetail: {
+                equipmentSn:'',
+                equipmentName:'',
                 itemId: '',
                 itemSn: '',
                 description: '',
@@ -518,6 +520,8 @@
             updateClickItem: function (itemData) {
                 console.log(itemData);
                 let temp = {
+                    equipmentSn: itemData.equipmentSn,
+                    equipmentName: itemData.equipmentName,
                     itemId: itemData.itemId,
                     itemSn: itemData.itemSn,
                     description: itemData.description,
@@ -550,7 +554,27 @@
                         }
                     })
 
+            },
+            itemLog: function (item) {
+                let url = '' + item.itemId;
+                let request = {
+                    method: 'GET',
+                    headers: { 'content-type': 'application/json' }
+                }
+                fetch(url, request)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        return response.text();
+                    })
+                    .then(response => {
+                        this.items = response;
+                        this.checkedItems = [];
+                    })
             }
+                    
+            
 
         }
     })
