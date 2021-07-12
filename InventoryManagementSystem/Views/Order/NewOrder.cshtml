@@ -57,7 +57,7 @@
                         <div class="form-row">
                             <div class="form-group col-md-3">
                                 <label>租借天數</label>
-                                <b-form-input type="number" min="0" max="14" v-model="orderDays"></b-form-input>
+                                <b-form-input type="number" min="1" max="14" v-model="orderDays"></b-form-input>
                             </div>
                             <div>
                             <label>訂單租金</label>
@@ -70,7 +70,7 @@
                         <div class="form-group">
                                 <div><b-button variant="primary" class="pb-2" v-on:click="btnOrder">送出</b-button></div>
                         </div>
-\  
+
                     </div>  
             </b-card-text>
         </b-row>
@@ -159,6 +159,7 @@
                     .then(r => {
                         if (r.ok) {
                             alert("訂單送出成功");
+                            location.href = 'orderQryUser';
 
                         } else {
                             alert("資料有誤");
