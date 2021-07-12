@@ -44,7 +44,7 @@
             addNewCateName: ""
         },
 
-        beforeCreate: function() {
+        beforeCreate:  function() {
                 fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
                     .then(response => {
                         if (response.ok) {
@@ -70,24 +70,20 @@
                 fetch(url, request)
                     .then(r => {
                         if (r.ok) {
-                            this.reload();
                             alert("新增成功");
-                            return r.json();//To be deleted
+                            this.getdata();
 
                         }
                         else {
-                            alert("新增失敗");
+                            alert("資料有誤");
                         }
-                    })
-                    .then(r => {
-                        console.log(r);
                     })
                     .catch(error => {
                         alert("新增失敗");
                     })
             },
 
-            reload: function () {
+            getdata: function () {
                 fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
                     .then(response => {
                         if (response.ok) {

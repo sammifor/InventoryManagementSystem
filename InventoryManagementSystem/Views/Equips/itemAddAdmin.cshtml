@@ -106,16 +106,7 @@
 
                     onEquipNameChange: function (data) {
                         this.selectEquipId = data.target.value;
-                        fetch('/ItemApi/GetItemsByEquipId/' + data.target.value, { method: 'GET' })
-                            .then(response => {
-                                if (response.ok) {
-                                    return response.json();
-                                }
-                            })
-                            .then(response => {
-                                this.items = response;
-
-                            })
+                        this.getdata();
                     },
 
                     addNewItem: function () {
@@ -137,22 +128,15 @@
                         fetch(url, request)
                             .then(r => {
                                 if (r.ok) {
-                                    this.reload();
                                     alert("新增成功");
-                                    return r.json();//To be deleted
-
-
+                                    this.getdata();
+                                } else {
+                                    alert("資料有誤");
                                 }
-                                alert("新增失敗");
                             })
-                            .then(
-                                r => {
-                                    console.log(r);
-                                }
-                            )
                             .catch(error => {
 
-                                lert("新增失敗");
+                                alert("新增失敗");
                                 console.log(error);
                             })
 
@@ -160,7 +144,7 @@
 
                     },
 
-                    reload: function () {
+                    getdata: function () {
                         fetch('/ItemApi/GetItemsByEquipId/' + this.selectEquipId, { method: 'GET' })
                             .then(response => {
                                 if (response.ok) {

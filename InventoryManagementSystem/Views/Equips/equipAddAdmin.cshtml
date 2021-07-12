@@ -115,9 +115,9 @@
         },
 
         methods: {
-            onCategoryChange: function (data) {
-                this.equipCategoryId=data.target.value;
-                fetch('/equipapi/GetEquipByCateId/' + data.target.value, { method: 'GET' })
+
+            getdata: function (data) {
+                fetch('/equipapi/GetEquipByCateId/' + this.equipCategoryId, { method: 'GET' })
                     .then(response => {
                         if (response.ok) {
                             return response.json();
@@ -127,6 +127,11 @@
                         this.equips = response;
 
                     })
+            },
+
+            onCategoryChange: function (data) {
+                this.equipCategoryId=data.target.value;
+                this.getdata();
 
             },
 
@@ -152,38 +157,22 @@
                 fetch(url, request)
                     .then(r => {
                         if (r.ok) {
-                            this.reload();
                             alert("新增成功");
-                            return r.json();//To be deleted
-                            
+                            this.getdata();
+
+                        } else {
+                            alert("資料有誤");
                         }
+                    })
+                    .catch(error => {
+
+                        console.log(error);
                         alert("新增失敗");
                     })
-                    .then(
-                        r => {
-                            alert("新增失敗");
-                            console.log(r);
-                        }
-                    )
-                    .catch(error => console.log(error))
 
 
 
 
-
-            },
-            reload: function () {
-
-            fetch('/equipapi/GetEquipByCateId/' + this.equipCategoryId, { method: 'GET' })
-                    .then(response => {
-                        if (response.ok) {
-                            return response.json();
-                        }
-                    })
-                    .then(response => {
-                        this.equips = response;
-
-                    })
 
             }
 
