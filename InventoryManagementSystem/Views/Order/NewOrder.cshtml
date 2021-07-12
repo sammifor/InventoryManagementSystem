@@ -38,7 +38,6 @@
                         <div class="form-row">
                             <div class="form-group col-md-3">
                                 <label>租借數量</label>
-
                                 <b-input-group>
                                     <b-input-group-prepend>
                                         <b-button v-on:click="btnMinus()" variant="outline-secondary">-</b-button>
@@ -50,38 +49,32 @@
                                 </b-input-group>
                             </div>
 
-                            <div class="form-group col-md-7">
+                            <div class="form-group col-md-6">
                                 <label for="example-datepicker">選取租借日期</label>
                                 <b-form-datepicker id="example-datepicker" v-model="orderDate" class="mb-2"></b-form-datepicker>
                             </div>
                         </div>
-                        <div>
-                            <div class="form-row">
-                                <div class="form-group col-md-5">
-                                    <label>租借天數</label>
-                                    <b-form-input type="number" min="0" max="14" v-model="orderDays"></b-form-input>
-                                </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>租借天數</label>
+                                <b-form-input type="number" min="0" max="14" v-model="orderDays"></b-form-input>
                             </div>
-
+                            <div>
                             <label>訂單租金</label>
-                            <div class="form-row">
-                                <b-input-group class="form-group col-md-5">
-                                    <b-form-input v-model="totalPrice" disabled></b-form-input>
-                                    <b-input-group-append>
-                                        <b-button variant="outline-secondary" v-on:click="countTotal()">計算</b-button>
-                                    </b-input-group-append>
-                                </b-input-group>
+                            <b-input-group class="form-group col-md-12">
+                                <b-form-input :value="countQuantity" disabled></b-form-input>
+                            </b-input-group>
                             </div>
+                        </div>
 
-                            <div class="form-group">
-                                <label></label>
+                        <div class="form-group">
                                 <div><b-button variant="primary" class="pb-2" v-on:click="btnOrder">送出</b-button></div>
-                            </div>
-                        </div>   
-                    </div>            
+                        </div>
+\  
+                    </div>  
             </b-card-text>
         </b-row>
-</b-card>
+    </b-card>
 </div>
 
 
@@ -91,11 +84,13 @@
         el: '#order',
         data: {
             count: 0,
-            equips: {},
+            equips: {
+                unitPrice:0
+
+            },
             orderDate: "",
             orderDays: 0,
-            queries: {},
-            totalPrice: 0
+            queries: {}
 
         },
 
@@ -164,34 +159,27 @@
                     .then(r => {
                         if (r.ok) {
                             alert("訂單送出成功");
-                            return r.json(); //To be deleted
+
+                        } else {
+                            alert("資料有誤");
                         }
                     })
-                    .then(
-                        r => {
-                            console.log(r);
-                        }
-                    )
                     .catch(error => {
 
                         alert("訂單送出失敗");
                         console.log(error);
                     })
-            },
-
-            countTotal: function () {
-                if (this.orderDays != 0) {
-
-                    this.totalPrice = this.equips.unitPrice * this.count * this.orderDays;
-
-
-                }
-
-
             }
 
-        }
+            },
 
+        computed: {
+            countQuantity: function () {
+                
+                return this.equips.unitPrice * this.count * this.orderDays;
+                
+            }
+        }
 
     })
 
