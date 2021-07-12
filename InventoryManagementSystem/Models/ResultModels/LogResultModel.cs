@@ -11,7 +11,8 @@ namespace InventoryManagementSystem.Models.ResultModels
         public int? OrderDetailId { get; set; }
         public int? AdminId { get; set; }
         public int ItemId { get; set; }
-        public string ConditionId { get; set; }
+        public string ConditionName { get; set; }
+        public string AdminFullName { get; set; }
         public string Description { get; set; }
         public DateTime? CreateTime { get; set; }
     }
