@@ -1,7 +1,9 @@
 ﻿using InventoryManagementSystem.Models.EF;
+using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +20,26 @@ namespace InventoryManagementSystem.Controllers.Api
         public ReportApiController(InventoryManagementSystemContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        [HttpGet]
+        [Produces("application/json")]
+        [Route("{id}")]
+        public async Task<IActionResult> GetReportsByOrderDetailId(int id)
+        {
+            GetReportsResultModel[] reports = await _dbContext.Reports
+                .Where(r => r.OrderDetailId == id)
+                .Select(r => new GetReportsResultModel
+                {
+                    ReportId = r.ReportId,
+                    OrderDetailId = r.OrderDetailId,
+                    Description = r.Description,
+                    ReportTime = r.ReportTime,
+                    CloseTime = r.CloseTime
+                })
+                .ToArrayAsync();
+
+            return Ok(reports);
         }
 
         /*
@@ -63,5 +85,6 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok();
         }
+
     }
 }
