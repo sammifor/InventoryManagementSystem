@@ -12,7 +12,7 @@ namespace InventoryManagementSystem.Controllers
         [HttpGet]
         // public IActionResult NewOrder([FromQuery(Name = "id")]int equipId)
         // 後端連接都不用接
-        public IActionResult NewOrder()
+        public IActionResult newOrder()
         {
             return View();
         }
@@ -21,5 +21,14 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
 
+        public IActionResult orderQryUser()
+        {
+            return View();
+        }
+
+        public IActionResult orderQryUser()
+        {
+            return View();
+        }
     }
 }

@@ -38,7 +38,6 @@
                         <div class="form-row">
                             <div class="form-group col-md-3">
                                 <label>租借數量</label>
-
                                 <b-input-group>
                                     <b-input-group-prepend>
                                         <b-button v-on:click="btnMinus()" variant="outline-secondary">-</b-button>
@@ -50,7 +49,7 @@
                                 </b-input-group>
                             </div>
 
-                            <div class="form-group col-md-7">
+                            <div class="form-group col-md-6">
                                 <label for="example-datepicker">選取租借日期</label>
                                 <b-form-datepicker id="example-datepicker" v-model="orderDate" class="mb-2"></b-form-datepicker>
                             </div>
@@ -58,22 +57,24 @@
                         <div class="form-row">
                             <div class="form-group col-md-3">
                                 <label>租借天數</label>
-                                <b-form-input type="number" min="0" max="14" v-model="orderDays"></b-form-input>
+                                <b-form-input type="number" min="1" max="14" v-model="orderDays"></b-form-input>
                             </div>
-                            <div class="form-group col-md-7">
-                                <label class="text-white">租借天數</label>
-                                <div class="text-white">租借天數</div>
+                            <div>
+                            <label>訂單租金</label>
+                            <b-input-group class="form-group col-md-12">
+                                <b-form-input :value="countQuantity" disabled></b-form-input>
+                            </b-input-group>
                             </div>
-                            <div class="form-group">
+                        </div>
 
-                                <label></label>
-                                <div><b-button variant="primary" size="lg" v-on:click="btnOrder">送出</b-button></div>
+                        <div class="form-group">
+                                <div><b-button variant="primary" class="pb-2" v-on:click="btnOrder">送出</b-button></div>
+                        </div>
 
-                            </div>
-                     </div>   </div>            
+                    </div>  
             </b-card-text>
         </b-row>
-</b-card>
+    </b-card>
 </div>
 
 
@@ -83,10 +84,14 @@
         el: '#order',
         data: {
             count: 0,
-            equips: {},
+            equips: {
+                unitPrice:0
+
+            },
             orderDate: "",
             orderDays: 0,
             queries: {}
+
         },
 
 
@@ -135,7 +140,6 @@
 
             btnOrder: function () {
 
-                console.log("按下按鈕")
                 let requestData = {
                     equipmentId: this.equips.equipmentId,
                     estimatedPickupTime: this.orderDate,
@@ -154,19 +158,29 @@
                 fetch(url, request)
                     .then(r => {
                         if (r.ok) {
-                            return r.json(); //To be deleted
+                            alert("訂單送出成功");
+                            location.href = 'orderQryUser';
+
+                        } else {
+                            alert("資料有誤");
                         }
                     })
-                    .then(
-                        r => {
-                            console.log(r);
-                        }
-                    )
-                    .catch(error => console.log(error))
+                    .catch(error => {
+
+                        alert("訂單送出失敗");
+                        console.log(error);
+                    })
             }
 
-        }
+            },
 
+        computed: {
+            countQuantity: function () {
+                
+                return this.equips.unitPrice * this.count * this.orderDays;
+                
+            }
+        }
 
     })
 
