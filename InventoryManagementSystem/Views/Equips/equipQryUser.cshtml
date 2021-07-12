@@ -20,9 +20,8 @@
         <div>
             <button type="button" class="btn btn-outline-primary" v-on:click="btnQry">查詢 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M14.53 15.59a8.25 8.25 0 111.06-1.06l5.69 5.69a.75.75 0 11-1.06 1.06l-5.69-5.69zM2.5 9.25a6.75 6.75 0 1111.74 4.547.746.746 0 00-.443.442A6.75 6.75 0 012.5 9.25z"></path></svg></button>
         </div>
+        
     </div>
-
-
 
 </div>
 <br />
@@ -41,7 +40,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="equip in equips" v-if="equips.length !==0">
+            <tr v-for="equip in equips" @*v-if="equips.length !==0"*@>
                 <td class="font-weight-bold">{{equip.equipmentName}}</td>
                 <td>{{equip.brand}}</td>
                 <td>{{equip.model}}</td>
@@ -62,7 +61,10 @@
             category: {},
             equipname: '',
             selectName: '',
-            selectVal: ''
+            selectVal: '',
+            equipmentAll: {},
+            search: '',
+            categoryId:''
         },
 
         beforeCreate: function () {
@@ -75,10 +77,11 @@
                 .then(response => {
                     this.category = response;
                 });
-
         },
         methods: {
+
             onCategoryChange: function (data) {
+                this.categoryId = data.target.value;
                 fetch('/equipapi/GetEquipNamesByCatesId/' + data.target.value, { method: 'GET' })
                     .then(response => {
                         if (response.ok) {
@@ -99,7 +102,7 @@
             btnQry: function () {
                 console.log(this.selectName);
 
-                let url = '/EquipApi/GetEquipByEquipName/' + this.selectVal;
+                let url = '/EquipApi/GetEquipByCateOrName/' + this.categoryId+ '/' + this.selectVal;
 
                 let request = {
                     method: 'GET',
@@ -113,14 +116,9 @@
                         return response.text();
                     })
                     .then(response => {
-                        if (app.selectName == '') {
-                            //顯示錯誤
-                            alert("請選擇篩選條件!");
-                            view.equips = '';
-                            return;
-                        }
                         view.equips = response;
                         app.selectName = '';
+                        app.selectVal = '';
 
                     })
 
