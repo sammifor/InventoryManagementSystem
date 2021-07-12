@@ -131,7 +131,6 @@
             },
 
             addNewEquip: function () {
-                console.log("按下按鈕");
                 let requestData = {
                     equipmentCategoryId: this.equipCategoryId,
                     equipmentSn: this.addEquipSN,
@@ -142,7 +141,6 @@
                     description: this.addEquipDiscrip
                 
                 };
-                console.log("賦值成功");
                 let url = "/EquipApi/InsertEquip";
                 let request = {
                     body: JSON.stringify(requestData),
@@ -154,14 +152,16 @@
                 fetch(url, request)
                     .then(r => {
                         if (r.ok) {
-                            console.log("新增成功");
+                            this.reload();
+                            alert("新增成功");
                             return r.json();//To be deleted
                             
                         }
-                        console.log("新增失敗")
+                        alert("新增失敗");
                     })
                     .then(
                         r => {
+                            alert("新增失敗");
                             console.log(r);
                         }
                     )
@@ -170,6 +170,20 @@
 
 
 
+
+            },
+            reload: function () {
+
+            fetch('/equipapi/GetEquipByCateId/' + this.equipCategoryId, { method: 'GET' })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                    })
+                    .then(response => {
+                        this.equips = response;
+
+                    })
 
             }
 

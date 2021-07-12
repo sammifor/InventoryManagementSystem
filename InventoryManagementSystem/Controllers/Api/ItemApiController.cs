@@ -32,7 +32,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<ItemResultModel[]> GetItemsByEquipId(int id)
         {
             var results = await _dbContext.Items
-                .Where(i => i.EquipmentId == id)
+                .Where(i => i.EquipmentId == id && i.ConditionId != "D")
                 .Select(i => new ItemResultModel
                 {
                     ItemId = i.ItemId,
@@ -204,6 +204,8 @@ namespace InventoryManagementSystem.Controllers.Api
              */
             return Ok(rowsAffected / 2);
         }
+
+        
 
     }
 }

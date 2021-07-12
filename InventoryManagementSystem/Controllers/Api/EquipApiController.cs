@@ -242,22 +242,59 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok(rowsAffected);
         }
 
-        //設備資料
+        //關鍵字設備資料
+        [HttpGet]
+        public IActionResult EquipmentAll()
+        {
+            var result = _dbContext.Equipment.Where(e => e.EquipmentName != null).Select(e => new {
+            
+                    EquipmentId = e.EquipmentId,
+                    EquipmentCategoryId = e.EquipmentCategoryId,
+                    EquipmentSn = e.EquipmentSn,
+                    EquipmentName = e.EquipmentName,
+                    Brand = e.Brand,
+                    Model = e.Model,
+                    UnitPrice = e.UnitPrice,
+                    Description = e.Description,
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
+                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
+            }).ToList();
+            return Ok(result);
+        }
+
+
+        /*
+         * EquipApi/GetEquipByCateOrName/{categoryId}/{name?}
+         */
+        // 下拉式選單不強制選取名稱，選種類也可以
         [HttpGet]
         [Produces("application/json")]
-        [Consumes("application/json")]
-        public async Task<EquipResultModel[]> GetEquip()
+        [Route("{categoryId}/{name?}")]
+        public async Task<EquipResultModel[]> GetEquipByCateOrName(int categoryId, string name = null)
         {
-            var results = await _dbContext.Equipment.Select(e => new EquipResultModel()
+            var results = _dbContext.Equipment.Where(e => e.EquipmentCategoryId == categoryId);
+            if (!string.IsNullOrEmpty(name))
             {
+                results = results.Where(e => e.EquipmentName == name);
+            }
+
+            return await results.Select(e => new EquipResultModel
+            {
+                EquipmentId = e.EquipmentId,
+                EquipmentCategoryId = e.EquipmentCategoryId,
+                EquipmentSn = e.EquipmentSn,
                 EquipmentName = e.EquipmentName,
                 Brand = e.Brand,
                 Model = e.Model,
                 UnitPrice = e.UnitPrice,
-                Description = e.Description
-            }).ToArrayAsync();
+                Description = e.Description,
+                QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
+                QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
+            })
+            .ToArrayAsync();
 
-            return results;
         }
+
+
     }
 }
