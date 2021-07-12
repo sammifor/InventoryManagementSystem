@@ -226,12 +226,13 @@ VALUES
 
 INSERT INTO [PaymentCategory]([PaymentCategoryID], [PaymentCategoryName])
 VALUES
-        ('P', '租賃費'),        
-        ('F', '違規費')
+        ('P', N'租賃費'),        
+        ('F', N'違規費')
 
 INSERT INTO [OrderDetailStatus]([OrderDetailStatusID], [StatusName])
 VALUES
-        ('P', '待領取'),
-        ('T', '已領取'),
-        ('R', '已歸還'),
-        ('L', '遺失')
+        ('P', N'待領取'),
+        ('T', N'已領取'),
+        ('R', N'已歸還'),
+        ('L', N'遺失'),
+        ('C', N'取消')
