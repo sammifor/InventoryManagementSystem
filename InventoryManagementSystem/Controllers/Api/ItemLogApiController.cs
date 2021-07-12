@@ -38,10 +38,10 @@ namespace InventoryManagementSystem.Controllers.Api
                     OrderDetailId = il.OrderDetailId,
                     AdminId = il.AdminId,
                     ItemId = il.ItemId,
-                    ConditionId = il.ConditionId,
+                    ConditionName = il.Condition.ConditionName,
+                    AdminFullName = il.Admin.FullName,
                     Description = il.Description,
                     CreateTime = il.CreateTime
-
                 })
                 .ToArrayAsync();
 
