@@ -47,6 +47,11 @@ namespace InventoryManagementSystem.Controllers.Api
             [FromQuery(Name = "name")] 
             string categoryName)
         {
+            if(string.IsNullOrWhiteSpace(categoryName))
+            {
+                return BadRequest();
+            }
+
             EquipCategory category = new EquipCategory
             {
                 CategoryName = categoryName
