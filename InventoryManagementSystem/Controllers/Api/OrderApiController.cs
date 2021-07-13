@@ -512,7 +512,15 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> RespondOrder(RespondOrderViewModel model)
         {
             var order = await _dbContext.Orders
-                .FirstOrDefaultAsync(o => o.OrderId == model.OrderID);
+                .FirstOrDefaultAsync(o => o.OrderId == model.OrderID &&
+                    o.OrderStatusId == "P" && // 待審核的 order
+                    o.EstimatedPickupTime > DateTime.Now); // 尚未過期
+
+            // 找不到訂單
+            if(order == null)
+            {
+                return NotFound();
+            }
 
             // 防止同個 item 被分配多次
             int[] itemIDs = model.ItemIDs.Distinct().ToArray();
@@ -521,16 +529,10 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Where(i => itemIDs.Contains(i.ItemId))
                 .ToArrayAsync();
 
-            // 找不到訂單
-            if(order == null)
-            {
-                return BadRequest();
-            }
-
             Response response = new Response
             {
                 OrderId = model.OrderID,
-                AdminId = model.AdminID,
+                AdminId = 1 // TODO authentication
             };
 
             if(model.Reply == "N")
@@ -571,7 +573,7 @@ namespace InventoryManagementSystem.Controllers.Api
             else
             {
                 // REPLY 格式不正確
-                return BadRequest("REPLY 格式不正確");
+                return BadRequest();
             }
 
             _dbContext.Responses.Add(response);
@@ -622,7 +624,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 logs[i] = new ItemLog
                 {
                     OrderDetailId = details[i].OrderDetailId,
-                    AdminId = model.AdminID,
+                    AdminId = 1, // TODO authentication
                     ItemId = details[i].ItemId,
                     ConditionId = "P"  // Pending
                 };
