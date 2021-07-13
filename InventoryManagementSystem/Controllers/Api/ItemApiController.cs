@@ -57,6 +57,11 @@ namespace InventoryManagementSystem.Controllers.Api
         [Consumes("application/json")]
         public async Task<IActionResult> InsertItem(InsertItemViewModel model)
         {
+            if(string.IsNullOrWhiteSpace(model.ItemSn))
+            {
+                return BadRequest();
+            }
+
             Item item = new Item
             {
                 EquipmentId = model.EquipmentId,

@@ -140,6 +140,11 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         public async Task<IActionResult> InsertEquip(InsertEquipViewModel model)
         {
+            if(string.IsNullOrWhiteSpace(model.EquipmentSn) || string.IsNullOrWhiteSpace(model.EquipmentName))
+            {
+                return BadRequest();
+            }
+
             Equipment equip = new Equipment
             {
                 EquipmentCategoryId = model.EquipmentCategoryId,
