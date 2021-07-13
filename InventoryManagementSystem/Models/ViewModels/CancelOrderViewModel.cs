@@ -9,6 +9,5 @@ namespace InventoryManagementSystem.Models.ViewModels
     {
         public int OrderID { get; set; }
         public string Description { get; set; }
-        public int? AdminID { get; set; }
     }
 }

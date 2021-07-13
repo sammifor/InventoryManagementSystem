@@ -654,7 +654,9 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> CancelOrder(CancelOrderViewModel model)
         {
             Order order = await _dbContext.Orders
-                .FindAsync(model.OrderID);
+                .Where(o => o.OrderId == model.OrderID &&
+                    o.OrderDetails.Any(od => od.OrderDetailStatusId == "T")) // 此訂單的物品仍有東西應還能還但未還。
+                .FirstOrDefaultAsync();
 
 
             if(order == null)
@@ -666,14 +668,6 @@ namespace InventoryManagementSystem.Controllers.Api
             OrderDetail[] details = await _dbContext.OrderDetails
                 .Where(od => od.OrderId == order.OrderId)
                 .ToArrayAsync();
-
-            bool itemsTakenUnderTheOrder = details
-                .Any(od => od.OrderDetailStatusId == "T");
-
-            if(itemsTakenUnderTheOrder)
-            {
-                return BadRequest();
-            }
 
             // 訂單改為取消狀態
             order.OrderStatusId = "C";
@@ -703,14 +697,14 @@ namespace InventoryManagementSystem.Controllers.Api
                     .Where(i => itemIDs.Contains(i.ItemId))
                     .ToArrayAsync();
 
-                foreach(Item item in items)
-                {
-                    // item 的狀態改成入庫
-                    item.ConditionId = "I";
-                }
-
                 foreach(OrderDetail detail in details)
                 {
+                    // item 的狀態改成入庫
+                    Item item = items
+                        .Where(i => i.ItemId == detail.ItemId)
+                        .FirstOrDefault();
+                    item.ConditionId = "I";
+
                     // order detail 的狀態改成取消
                     detail.OrderDetailStatusId = "C";
 
@@ -719,7 +713,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     ItemLog log = new ItemLog
                     {
                         OrderDetailId = detail.OrderDetailId,
-                        AdminId = model.AdminID,
+                        AdminId = 1, //TODO authentication
                         ItemId = detail.ItemId,
                         ConditionId = "I",
                         Description = model.Description,
