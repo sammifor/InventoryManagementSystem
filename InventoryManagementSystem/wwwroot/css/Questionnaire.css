@@ -38,11 +38,6 @@ form .Feedback {
     height: 200px;
 }
 
-    form .Feedback .textarea {
-        height: 100%;
-        width: 100%;
-    }
-
 form .button {
     padding-left: 100px;
     padding-right: 100px;

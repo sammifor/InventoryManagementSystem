@@ -86,7 +86,7 @@
             </div>
             <div class="SatisfactionScore">
                 <span>評分：</span>
-                <select class="select">
+                <select name="SatisfactionScore" class="select">
                     <option disabled selected hidden>滿分5分</option>
                     <option>5</option>
                     <option>4</option>
@@ -99,7 +99,7 @@
             <div class="Feedback">
                 <span>回饋：</span>
                 <br />
-                <textarea class="textarea" placeholder="請輸入內容"></textarea>
+                <textarea name="Feedback" class="textarea" placeholder="請輸入內容"></textarea>
             </div>
             <br />
             <br />
@@ -111,5 +111,15 @@
 </body>
 
 <script>
+    var app = new Vue({
+        el: '#app',
+        data: {
 
+        },
+
+        methods: {
+
+        },
+
+    })
 </script>
