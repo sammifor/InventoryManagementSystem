@@ -22,5 +22,9 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
 
+        public IActionResult orderReaction()
+        {
+            return View();
+        }
     }
 }
