@@ -79,6 +79,7 @@ CREATE TABLE [EquipCategory](
                 CONSTRAINT [PK_EquipCategory] PRIMARY KEY,
 
         [CategoryName] NVARCHAR(50) NOT NULL
+                CONSTRAIN [UQ_EquipCategory_CategoryName] UNIQUE
 );
 
 CREATE TABLE [Equipment](
