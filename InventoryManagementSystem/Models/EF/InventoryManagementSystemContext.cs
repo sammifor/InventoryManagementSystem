@@ -138,6 +138,9 @@ namespace InventoryManagementSystem.Models.EF
             {
                 entity.ToTable("EquipCategory");
 
+                entity.HasIndex(e => e.CategoryName, "UQ_EquipCategory_CategoryName")
+                    .IsUnique();
+
                 entity.Property(e => e.EquipCategoryId).HasColumnName("EquipCategoryID");
 
                 entity.Property(e => e.CategoryName)
