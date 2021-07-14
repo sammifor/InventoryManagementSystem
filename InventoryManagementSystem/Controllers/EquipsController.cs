@@ -37,5 +37,11 @@ namespace InventoryManagementSystem.Controllers
             return View();
 
         }
+
+        public IActionResult backendManagement()
+        {
+            return View();        
+        
+        }
     }
 }

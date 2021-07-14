@@ -1,49 +1,119 @@
-<table class="table table-hover">
-    <thead class="badge-secondary">
-        <tr>
-            <th>使用者ID</th>
-            <th>訂單ID</th>
-            <th>設備名稱</th>
-            <th>品牌</th>
-            <th>型號</th>
-            <th>單價</th>
-            <th>狀態</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr v-for="order in orders">
-            <td>{{order.userId}}</td>
-            <td>{{order.orderId}}</td>
-            <td>{{order.equipmentName}}</td>
-            <td>{{order.brand}}</td>
-            <td>{{order.model}}</td>
-            <td>{{order.unitPrice}}</td>
-            <td>{{order.statusName}}</td>
-        </tr>
-    </tbody>
-</table>
+<link type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+<link type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+
+
+<script src="https://unpkg.com/vue"></script>
+<script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+
+
+<div id="app">
+    <b-card >
+        <b-tabs content-class="mt-3" fill>
+            <!-- 待核可 -->
+                <b-tab title="待核可" active >
+                    <div>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>訂單ID</th>
+                                    <th>設備序號</th>
+                                    <th>設備名稱</th>
+                                    <th>數量</th>
+                                    <th>預計取貨時間</th>
+                                    <th>租借天數</th>
+                                    <th>總價</th>
+                                    <th>訂單狀態</th>
+                                    <th>下單時間</th>
+                                    <th>問題回報</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="order in orders">
+                                    <td>{{order.orderId}}</td>
+                                    <td>{{order.equipmentSn}}</td>
+                                    <td>{{order.equipmentName}}</td>
+                                    <td>{{order.quantity}}</td>
+                                    <td>{{order.estimatedPickupTime}}</td>
+                                    <td>{{order.day}}</td>
+                                    <td>{{countQuantity}}</td>
+                                    <td>{{order.orderStatusId}}</td>
+                                    <td>{{order.orderTime}}</td>
+                                    <td><b-btn>問題回報</b-btn></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </b-tab>
+
+            <!-- 待領取 -->
+            <b-tab title="待領取">
+                <p>I'm the second tab</p>
+            </b-tab>
+
+            <!-- 租借中 -->
+            <b-tab title="租借中">
+                <p>I'm the tab with the very, very long title</p>
+            </b-tab>
+
+            <!-- 已結束 -->
+            <b-tab title="已結束">
+                <p>I'm a disabled tab!</p>
+            </b-tab>
+
+            <!-- 已結束 -->
+            <b-tab title="已逾期">
+                <p>I'm a disabled tab!</p>
+            </b-tab>
+        </b-tabs>
+    </b-card>
+</div>
 
 
 <script>
+
     var app = new Vue({
         el: '#app',
         data: {
-            orders: '',
-            useridQry: '',
+            orders: {
 
+
+            }
+
+            
         },
-        methods: {
-            btnQry: function () {
-                let userid = this.useridQry;
-                let url = '/orderApi/getOrdersByUserId/' + userid;
+        beforeCreate: function () {
+                let url = '/OrderApi/GetPendingOrdersByUserId/2';
                 fetch(url, { method: 'GET' })
                     .then(response => {
-                        return response.json();
-                    })
-                    .then(response => {
+                        if (response.ok) {
+                            console.log("資料庫連線成功");
+                            return response.json();
+                            
+                        } else {
+                            console.log("資料擷取失敗");
+                        }
+                    }).then(response => {
+                        console.log(response);
                         this.orders = response;
+                        
+                    }
+                    ).catch(error => {
+                        alert("資料庫連線失敗");
+                        console.log(error);
                     })
-            },
         },
+
+        computed: {
+            countQuantity: function () {
+
+                return this.orders.unitPrice * this.orders.quantity * this.orders.day;
+
+            }
+        }
+        
     })
 </script> 
