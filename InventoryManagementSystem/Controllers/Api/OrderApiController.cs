@@ -735,5 +735,44 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok();
         }
+
+        /*
+         * OrderApi/GetAllOrders
+         */
+        // 管理員查詢所有訂單（任何狀態的訂單都會查出來）
+        [HttpGet]
+        [Produces("application/json")]
+        
+        public async Task<OrderResultModel[]> GetAllOrders()
+        {
+            var results = await _dbContext.Orders
+                .Where(o => o.OrderId != 0)
+                .Select(o => new OrderResultModel
+                {
+                    OrderId = o.OrderId,
+                    UserId = o.UserId,
+                    EquipmentId = o.EquipmentId,
+                    Quantity = o.Quantity,
+                    EstimatedPickupTime = o.EstimatedPickupTime,
+                    Day = o.Day,
+                    OrderStatusId = o.OrderStatusId,
+                    OrderTime = o.OrderTime,
+
+                    EquipmentSn = o.Equipment.EquipmentSn,
+                    EquipmentName = o.Equipment.EquipmentName,
+                    Brand = o.Equipment.Brand,
+                    Model = o.Equipment.Model,
+                    UnitPrice = o.Equipment.UnitPrice,
+                    Description = o.Equipment.Description,
+
+                    Username = o.User.Username,
+
+                    StatusName = o.OrderStatus.StatusName
+                })
+                .ToArrayAsync();
+
+            return results;
+        }
+
     }
 }
