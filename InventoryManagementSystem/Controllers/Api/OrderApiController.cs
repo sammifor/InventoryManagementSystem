@@ -634,12 +634,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 AdminId = 1 // TODO authentication
             };
 
-            if(model.Reply == false)
-            {
-                order.OrderStatusId = "D"; // Denied
-                response.Reply = "N"; // No
-            }
-            else 
+            if(model.Reply == true)
             {
                 // 訂單寫的數量與實際分配的數量不一致
                 if(order.Quantity != itemIDs.Length)
@@ -714,6 +709,11 @@ namespace InventoryManagementSystem.Controllers.Api
                 _dbContext.ItemLogs.AddRange(logs);
 
                 order.OrderStatusId = "A"; // Approved
+            }
+            else 
+            {
+                order.OrderStatusId = "D"; // Denied
+                response.Reply = "N"; // No
             }
 
             _dbContext.Responses.Add(response);
