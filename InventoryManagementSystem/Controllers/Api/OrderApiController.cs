@@ -33,6 +33,11 @@ namespace InventoryManagementSystem.Controllers.Api
         [Consumes("application/json")]
         public async Task<IActionResult> MakeOrder(MakeOrderViewModel model)
         {
+            if(model.EstimatedPickupTime < DateTime.Today)
+            {
+                return BadRequest();
+            }
+
             Order order = new Order
             {
                 UserId = model.UserId,
