@@ -834,5 +834,37 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok();
         }
+
+        /*
+         * OrderApi/CompleteOrder/{OrderID}
+         */
+        // 管理員確認訂單完成（該標記歸還的已標記歸還、該標記遺失的已標記遺失）
+        [HttpPost]
+        [Route("{id}")]
+        public async Task<IActionResult> CompleteOrder(int id)
+        {
+            Order order = await _dbContext.Orders
+                .Where(o => o.OrderId == id &&
+                    o.OrderDetails.All(od => od.OrderDetailStatusId != "T"))
+                .FirstOrDefaultAsync();
+
+            if(order == null)
+            {
+                return NotFound();
+            }
+
+            order.OrderStatusId = "E"; // Ended
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
+            return Ok(id);
+        }
     }
 }
