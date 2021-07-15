@@ -33,6 +33,11 @@ namespace InventoryManagementSystem.Controllers.Api
         [Consumes("application/json")]
         public async Task<IActionResult> MakeOrder(MakeOrderViewModel model)
         {
+            if(model.EstimatedPickupTime < DateTime.Today)
+            {
+                return BadRequest();
+            }
+
             Order order = new Order
             {
                 UserId = model.UserId,
@@ -634,12 +639,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 AdminId = 1 // TODO authentication
             };
 
-            if(model.Reply == "N")
-            {
-                order.OrderStatusId = "D"; // Denied
-                response.Reply = "N"; // No
-            }
-            else if(model.Reply == "Y")
+            if(model.Reply == true)
             {
                 // 訂單寫的數量與實際分配的數量不一致
                 if(order.Quantity != itemIDs.Length)
@@ -668,69 +668,60 @@ namespace InventoryManagementSystem.Controllers.Api
 
 
                 response.Reply = "Y";
+
+                // 這裡 condition 也可以用 itemIDs.length
+                // 因為執行到這邊已經保證 items 跟 itemIDs 長度一樣
+                for(int i = 0; i < items.Length; i++)
+                {
+                    items[i].ConditionId = "P"; // Pending
+                }
+
+                // 每個 item 都要新增一筆 OrderDetail 的記錄
+                OrderDetail[] details = new OrderDetail[items.Length];
+                for(int i = 0; i < items.Length; i++)
+                {
+                    details[i] = new OrderDetail
+                    {
+                        OrderId = model.OrderID,
+                        ItemId = items[i].ItemId,
+                        OrderDetailStatusId = "P" // Pending
+                    };
+
+                }
+                _dbContext.OrderDetails.AddRange(details);
+
+                try
+                {
+                    await _dbContext.SaveChangesAsync();
+                }
+                catch
+                {
+                    return Conflict();
+                }
+
+
+                ItemLog[] logs = new ItemLog[items.Length];
+                for(int i = 0; i < items.Length; i++)
+                {
+                    logs[i] = new ItemLog
+                    {
+                        OrderDetailId = details[i].OrderDetailId,
+                        AdminId = 1, // TODO authentication
+                        ItemId = details[i].ItemId,
+                        ConditionId = "P"  // Pending
+                    };
+                }
+                _dbContext.ItemLogs.AddRange(logs);
+
+                order.OrderStatusId = "A"; // Approved
             }
-            else
+            else 
             {
-                // REPLY 格式不正確
-                return BadRequest();
+                order.OrderStatusId = "D"; // Denied
+                response.Reply = "N"; // No
             }
 
             _dbContext.Responses.Add(response);
-            try
-            {
-                await _dbContext.SaveChangesAsync();
-            }
-            catch
-            {
-                // 資料庫更新失敗
-                return Conflict();
-            }
-
-            // 這裡 condition 也可以用 itemIDs.length
-            // 因為執行到這邊已經保證 items 跟 itemIDs 長度一樣
-            for(int i = 0; i < items.Length; i++)
-            {
-                items[i].ConditionId = "P"; // Pending
-            }
-
-            // 每個 item 都要新增一筆 OrderDetail 的記錄
-            OrderDetail[] details = new OrderDetail[items.Length];
-            for(int i = 0; i < items.Length; i++)
-            {
-                details[i] = new OrderDetail
-                {
-                    OrderId = model.OrderID,
-                    ItemId = items[i].ItemId,
-                    OrderDetailStatusId = "P" // Pending
-                };
-
-            }
-            _dbContext.OrderDetails.AddRange(details);
-
-            try
-            {
-                await _dbContext.SaveChangesAsync();
-            }
-            catch
-            {
-                return Conflict();
-            }
-
-
-            ItemLog[] logs = new ItemLog[items.Length];
-            for(int i = 0; i < items.Length; i++)
-            {
-                logs[i] = new ItemLog
-                {
-                    OrderDetailId = details[i].OrderDetailId,
-                    AdminId = 1, // TODO authentication
-                    ItemId = details[i].ItemId,
-                    ConditionId = "P"  // Pending
-                };
-            }
-            _dbContext.ItemLogs.AddRange(logs);
-
-            order.OrderStatusId = "A"; // Approved
 
             try
             {
