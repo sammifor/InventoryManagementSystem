@@ -30,7 +30,7 @@
                                 <th>總價</th>
                                 <th>訂單狀態</th>
                                 <th>下單時間</th>
-                                <th>問題回報</th>
+                                <th>取消租借</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,7 +45,7 @@
                                 <td v-if="order.orderStatusId === 'P'">處理中</td>
                                 <td v-else>請洽管理員</td>
                                 <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn>問題回報</b-btn></td>
+                                <td><b-btn>取消租借</b-btn></td>
                             </tr>
                         </tbody>
                     </table>
@@ -67,7 +67,7 @@
                                 <th>總價</th>
                                 <th>訂單狀態</th>
                                 <th>下單時間</th>
-                                <th>問題回報</th>
+                                <th>取消租借</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -79,9 +79,9 @@
                                 <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
                                 <td>{{order.day}}</td>
                                 <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td>{{order.orderStatusId}}</td>
+                                <td>待領取</td>
                                 <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn>問題回報</b-btn></td>
+                                <td><b-btn>取消租借</b-btn></td>
                             </tr>
                         </tbody>
                     </table>
@@ -115,7 +115,7 @@
                                 <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
                                 <td>{{order.day}}</td>
                                 <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td>{{order.orderStatusId}}</td>
+                                <td>租借中</td>
                                 <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
                                 <td><b-btn>問題回報</b-btn></td>
                             </tr>
@@ -139,7 +139,6 @@
                                 <th>總價</th>
                                 <th>訂單狀態</th>
                                 <th>下單時間</th>
-                                <th>問題回報</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -151,9 +150,8 @@
                                 <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
                                 <td>{{order.day}}</td>
                                 <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td>{{order.orderStatusId}}</td>
+                                <td>已歸還</td>
                                 <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn>問題回報</b-btn></td>
                             </tr>
                         </tbody>
                     </table>
@@ -187,7 +185,7 @@
                                 <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
                                 <td>{{order.day}}</td>
                                 <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td>{{order.orderStatusId}}</td>
+                                <td>已逾期</td>
                                 <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
                                 <td><b-btn>問題回報</b-btn></td>
                             </tr>
@@ -338,8 +336,6 @@
 
 
             }
-
-
 
         }
 
