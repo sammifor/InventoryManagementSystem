@@ -2,6 +2,7 @@
       rel="stylesheet"
       href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
 <div id="order">
     <b-card no-body class="overflow-hidden" style="max-width: 1200px;">
@@ -51,7 +52,7 @@
 
                             <div class="form-group col-md-6">
                                 <label for="example-datepicker">選取租借日期</label>
-                                <b-form-datepicker id="example-datepicker" v-model="orderDate" class="mb-2"></b-form-datepicker>
+                                <b-form-datepicker id="example-datepicker" v-model="orderDate" class="mb-2" v-on:input="verifyDate($event)" value-as-date min="time"></b-form-datepicker>
                             </div>
                         </div>
                         <div class="form-row">
@@ -89,6 +90,7 @@
 
             },
             orderDate: "",
+            time:new Date(),
             orderDays: 0,
             queries: {}
 
@@ -139,7 +141,7 @@
 
 
             btnOrder: function () {
-
+                
                 let requestData = {
                     equipmentId: this.equips.equipmentId,
                     estimatedPickupTime: this.orderDate,
@@ -170,6 +172,20 @@
                         alert("訂單送出失敗");
                         console.log(error);
                     })
+            },
+
+            verifyDate: function (orderDate) {
+
+                
+                if (moment(this.orderDate).isBefore(this.time)) {
+                    this.orderDate = "";
+                    alert("請選擇正確日期");
+                    this.orderDate = "";
+                    
+
+                } 
+                
+
             }
 
             },
