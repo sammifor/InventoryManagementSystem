@@ -128,5 +128,53 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok();
         }
+
+        /*
+         * OrderDetailApi/ItemLostCheck/
+         */
+        [HttpPost]
+        [Consumes("application/json")]
+        // 管理員無法確認歸還時，將物品標記為遺失
+        public async Task<IActionResult> ItemLostCheck(ItemLostCheckViewModel model)
+        {
+            OrderDetail detail = await _dbContext.OrderDetails
+                .Where(od => od.OrderDetailId == model.OrderDetailId &&
+                    od.OrderDetailStatusId == "T" && // Taken
+                    od.Item.ConditionId == "O") // OutStock
+                .FirstOrDefaultAsync();
+
+            if(detail == null)
+            {
+                return NotFound();
+            }
+
+            detail.OrderDetailStatusId = "L"; // LOST
+
+            Item item = await _dbContext.Items.FindAsync(detail.ItemId);
+            item.ConditionId = "L"; // LOST
+
+            ItemLog log = new ItemLog
+            {
+                OrderDetailId = detail.OrderDetailId,
+                AdminId = 1, // TODO authentication
+                ItemId = item.ItemId,
+                ConditionId = item.ConditionId,
+                Description = model.Description,
+                CreateTime = DateTime.Now
+            };
+
+            _dbContext.ItemLogs.Add(log);
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
+            return Ok();
+        }
     }
 }
