@@ -118,7 +118,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetPendingOrdersByUserId(int id)
         {
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => o.UserId == id && 
+                .Where(o => o.UserId == id &&
                     o.OrderStatusId == "P" && // Pending
                     o.EstimatedPickupTime > DateTime.Now) // 尚未過期的 order
                 .Select(o => new OrderResultModel
@@ -268,7 +268,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             string[] restrictions = { "C", "E", "D" }; // Canceled, ended and denied.
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => o.UserId == id && 
+                .Where(o => o.UserId == id &&
                     (restrictions.Contains(o.OrderStatusId) || // 已取消、已結束、已拒絕
                         o.OrderStatusId == "P" && o.EstimatedPickupTime < DateTime.Now)) // 逾期回應
                 .Select(o => new OrderResultModel
@@ -366,7 +366,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetPendingOrders()
         {
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
+                .Where(o =>
                     o.OrderStatusId == "P" && // Pending
                     o.EstimatedPickupTime > DateTime.Now) // 尚未過期的 order
                 .Select(o => new OrderResultModel
@@ -414,7 +414,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetReadyOrders()
         {
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
+                .Where(o =>
                     o.OrderStatusId == "A" && // Order 是核可的
                     o.OrderDetails.Any(od => od.OrderDetailStatusId == "P") && // order 底下的 order detail 有待取貨的
                     o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 沒過期的
@@ -463,7 +463,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetOnGoingOrders()
         {
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
+                .Where(o =>
                     o.OrderStatusId == "A" && // 被核准的 order
                     o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") && // 所訂的物品已被取貨
                     o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 尚未逾期
@@ -513,7 +513,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             string[] restrictions = { "C", "E", "D" }; // Canceled, ended and denied.
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
+                .Where(o =>
                     (restrictions.Contains(o.OrderStatusId) || // 已取消、已結束、已拒絕
                         o.OrderStatusId == "P" && o.EstimatedPickupTime < DateTime.Now)) // 逾期回應
                 .Select(o => new OrderResultModel
@@ -561,7 +561,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetOverdueOrders()
         {
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
+                .Where(o =>
                     o.OrderStatusId == "A" &&
                     o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") &&
                     o.EstimatedPickupTime.AddDays(o.Day) < DateTime.Now)
@@ -634,46 +634,39 @@ namespace InventoryManagementSystem.Controllers.Api
                 AdminId = 1 // TODO authentication
             };
 
-            if(model.Reply == "N")
+            if(model.Reply == false)
             {
                 order.OrderStatusId = "D"; // Denied
                 response.Reply = "N"; // No
             }
-            else if(model.Reply == "Y")
+
+            // 訂單寫的數量與實際分配的數量不一致
+            if(order.Quantity != itemIDs.Length)
             {
-                // 訂單寫的數量與實際分配的數量不一致
-                if(order.Quantity != itemIDs.Length)
-                {
-                    return BadRequest();
-                }
-
-                // 存在有分配的設備非訂單所寫的設備
-                bool invalidEquipIdExists = items
-                    .Any(i => i.EquipmentId != order.EquipmentId);
-                
-                if(invalidEquipIdExists)
-                {
-                    return BadRequest();
-                }
-
-                // 庫存不夠，無法滿足訂單
-                int inStockNumber = await _dbContext.Items
-                    .AsNoTracking()
-                    .Where(i => i.EquipmentId == order.EquipmentId)
-                    .CountAsync(i => i.ConditionId == "I");
-                if(inStockNumber < order.Quantity)
-                {
-                    return BadRequest();
-                }
-
-
-                response.Reply = "Y";
-            }
-            else
-            {
-                // REPLY 格式不正確
                 return BadRequest();
             }
+
+            // 存在有分配的設備非訂單所寫的設備
+            bool invalidEquipIdExists = items
+                .Any(i => i.EquipmentId != order.EquipmentId);
+
+            if(invalidEquipIdExists)
+            {
+                return BadRequest();
+            }
+
+            // 庫存不夠，無法滿足訂單
+            int inStockNumber = await _dbContext.Items
+                .AsNoTracking()
+                .Where(i => i.EquipmentId == order.EquipmentId)
+                .CountAsync(i => i.ConditionId == "I");
+            if(inStockNumber < order.Quantity)
+            {
+                return BadRequest();
+            }
+
+
+            response.Reply = "Y";
 
             _dbContext.Responses.Add(response);
             try
