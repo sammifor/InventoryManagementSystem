@@ -11,7 +11,7 @@
                 </div>
 
             </div>
-            <button class="btn btn-primary" v-on:click="addNewEquip">新增</button>
+            <button class="btn btn-primary" v-on:click="addNewCate">新增</button>
 
         </div>
     </div>
@@ -60,7 +60,7 @@
 
         methods: {
 
-            addNewEquip: function () {
+            addNewCate: function () {
                 console.log("按下按鈕");
                 let url = "https://localhost:5001/EquipCategoryApi/InsertCate?Name=" + this.addNewCateName;
                 let request = {

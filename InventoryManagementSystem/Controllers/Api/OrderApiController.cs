@@ -92,7 +92,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
@@ -132,7 +141,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
@@ -173,7 +191,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
@@ -214,7 +241,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
@@ -255,7 +291,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
@@ -296,7 +341,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
@@ -335,7 +389,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
@@ -375,7 +438,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
@@ -415,7 +487,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
@@ -455,7 +536,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
@@ -495,7 +585,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
