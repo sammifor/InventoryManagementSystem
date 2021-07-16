@@ -44,7 +44,7 @@
                                 <td>{{order.unitPrice * order.day * order.quantity}}</td>
                                 <td>處理中</td>
                                 <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn  data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
+                                <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
                             </tr>
                         </tbody>
                     </table>
@@ -80,7 +80,7 @@
                                 <td>{{order.unitPrice * order.day * order.quantity}}</td>
                                 <td>待領取</td>
                                 <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
+                                <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
                             </tr>
                         </tbody>
                     </table>
@@ -116,7 +116,7 @@
                                 <td>{{order.unitPrice * order.day * order.quantity}}</td>
                                 <td>租借中</td>
                                 <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
+                                <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
                             </tr>
                         </tbody>
                     </table>
@@ -157,7 +157,7 @@
                 </div>
             </b-tab>
 
-            <!-- 已結束 -->
+            <!-- 已逾期 -->
             <b-tab title="已逾期" v-on:click="tab($event)">
                 <div>
                     <table class="table table-hover">
@@ -186,7 +186,7 @@
                                 <td>{{order.unitPrice * order.day * order.quantity}}</td>
                                 <td>已逾期</td>
                                 <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
+                                <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
                             </tr>
                         </tbody>
                     </table>
@@ -210,27 +210,36 @@
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label class="col-form-label">訂單編號</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.orderId" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">設備名稱</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.equipmentName" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">設備序號</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.equipmentSn" readonly>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-form-label">物品序號</label>
-                        <input type="text" class="form-control" required>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+                            <label class="col-form-label">數量</label>
+                            <input type="text" class="form-control" :value="currentOrder.quantity" readonly>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label class="col-form-label">物品序號</label>
+                            <select class="form-control">
+                                <option disabled selected>請先選擇序號</option>
+                                <option v-for="eachOrderDetails in currentOrder.orderDetails" :value="eachOrderDetails.itemId">{{eachOrderDetails.itemSn}}</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary">前往設備報修問卷</button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary">前往設備報修問卷</button>
+                        </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 
@@ -249,45 +258,45 @@
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label class="col-form-label">訂單編號</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.orderId" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">設備名稱</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.equipmentName" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">設備序號</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.equipmentSn" readonly>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-2">
                             <label class="col-form-label">數量</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.quantity" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">取貨日期</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.estimatedPickupTime | timeString('YYYY-MM-DD')" readonly>
                         </div>
                         <div class="form-group col-md-2">
                             <label class="col-form-label">租借天數</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.day" readonly>
                         </div>
 
                         <div class="form-group col-md-4">
                             <label class="col-form-label">總金額</label>
-                            <input type="text" class="form-control" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.day * currentOrder.unitPrice * currentOrder.quantity" readonly>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-12">
                             <label class="col-form-label">取消原因</label>
-                            <input type="text" class="form-control" required>
+                            <input type="text" class="form-control" v-model="cancelOrder.cancelDiscription" required>
                         </div>
                     </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                            <button type="button" class="btn btn-primary">確定</button>
+                            <button type="button" class="btn btn-primary" @@click="cancelConfirm($event)">確定</button>
                         </div>
                     </div>
                 </div>
@@ -313,7 +322,13 @@
             orders_4: [],
             tabIndex: 0,
             currentTab: ["待核可", "待領取", "租借中", "已結束", "已逾期"],
-            
+            currentOrder: {
+                
+            },
+            cancelOrder: {
+                cancelDiscription:""
+
+            }
 
         },
 
@@ -342,7 +357,7 @@
         methods: {
 
             tab: function () {
-                
+
                 let url = '/OrderApi/GetOrders/' + this.currentTab[this.tabIndex];
                 let request = {
                     method: "GET",
@@ -379,10 +394,53 @@
                         console.log(error);
                     })
 
+            },
+
+            cancelOrderAction: function (orderData) {
+                this.currentOrder = orderData;
+           
+
+            },
+
+            cancelConfirm: function () {
+
+                console.log(this.currentOrder.orderId);
+                console.log(this.cancelOrder.cancelDiscription);
+                
+                let requestData = {
+                    orderID: this.currentOrder.orderId,
+                    description: this.cancelOrder.cancelDiscription,
+                };
+                let url = "/OrderApi/CancelOrder";
+                let request = {
+                    body: JSON.stringify(requestData),
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                }
+                fetch(url, request)
+                    .then(r => {
+                        if (r.ok) {
+                            alert("取消成功");
+                            location.reload(true);
+
+                        } else {
+                            alert("資料有誤");
+                        }
+                    })
+                    .catch(error => {
+
+                        alert("取消失敗");
+                        console.log(error);
+                    })
+            },
+
+            reportAction: function (orderData) {
+                this.currentOrder = orderData;
+                console.log(this.currentOrder);
+
             }
-
-
-            
 
         }
 
