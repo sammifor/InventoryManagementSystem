@@ -16,7 +16,7 @@
     <b-card>
         <b-tabs content-class="mt-3" fill v-model="tabIndex">
             <!-- 待核可 -->
-            <b-tab title="待核可" active>
+            <b-tab title="待核可" active v-on:click="tab($event)">
                 <div>
                     <table class="table table-hover">
                         <thead>
@@ -42,8 +42,7 @@
                                 <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
                                 <td>{{order.day}}</td>
                                 <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td v-if="order.orderStatusId === 'P'">處理中</td>
-                                <td v-else>請洽管理員</td>
+                                <td>處理中</td>
                                 <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
                                 <td><b-btn>取消租借</b-btn></td>
                             </tr>
@@ -53,7 +52,7 @@
             </b-tab>
                 
             <!-- 待領取 -->
-            <b-tab title="待領取"  v-on:click="tab2($event)" >
+            <b-tab title="待領取"  v-on:click="tab($event)" >
                 <div>
                     <table class="table table-hover">
                         <thead>
@@ -89,7 +88,7 @@
             </b-tab>
 
             <!-- 租借中 -->
-            <b-tab title="租借中" v-on:click="tab3($event)">
+            <b-tab title="租借中" v-on:click="tab($event)">
                 <div>
                     <table class="table table-hover">
                         <thead>
@@ -125,7 +124,7 @@
             </b-tab>
 
             <!-- 已結束 -->
-            <b-tab title="已結束" v-on:click="tab4($event)">
+            <b-tab title="已結束" v-on:click="tab($event)">
                 <div> 
                     <table class="table table-hover">
                         <thead>
@@ -159,7 +158,7 @@
             </b-tab>
 
             <!-- 已結束 -->
-            <b-tab title="已逾期" v-on:click="tab5($event)">
+            <b-tab title="已逾期" v-on:click="tab($event)">
                 <div>
                     <table class="table table-hover">
                         <thead>
@@ -206,42 +205,55 @@
 
         el: '#app',
         data: {
-            orders: {},
-            orders_2: {},
-            orders_3: {},
-            orders_4: {},
-            orders_5: {}
+            orders: [],
+            orders_2: [],
+            orders_3: [],
+            orders_4: [],
+            orders_5: [],
+            tabIndex: 0,
+            currentTab: ["待核可","待領取","租借中","已結束","已逾期"]
 
         },
 
-        beforeCreate: function () {
-            let url = '/OrderApi/GetPendingOrdersByUserId/2';
-            fetch(url, { method: 'GET' })
-                .then(response => {
-                    if (response.ok) {
-                        console.log("資料庫連線成功");
-                        return response.json();
+        //beforeCreate: function () {
+        //    let url = '/OrderApi/GetPendingOrdersByUserId/2';
+        //    fetch(url, { method: 'GET' })
+        //        .then(response => {
+        //            if (response.ok) {
+        //                console.log("資料庫連線成功");
+        //                return response.json();
 
-                    } else {
-                        console.log("資料擷取失敗");
-                    }
-                }).then(response => {
-                    console.log(response);
-                    this.orders = response;
+        //            } else {
+        //                console.log("資料擷取失敗");
+        //            }
+        //        }).then(response => {
+        //            console.log(response);
+        //            this.orders = response;
 
-                }
-                ).catch(error => {
-                    alert("資料庫連線失敗");
-                    console.log(error);
-                })
-        },
+        //        }
+        //        ).catch(error => {
+        //            alert("資料庫連線失敗");
+        //            console.log(error);
+        //        })
+        //},
 
         methods: {
 
-            tab2: function () {
-
-                let url = '/OrderApi/GetReadyOrdersByUserId/2';
-                fetch(url, { method: 'GET' })
+            tab: function () {
+                console.log(this.currentTab[this.tabIndex]);
+                let requestData = {
+                    Tab: this.currentTab[this.tabIndex],
+                    UserId:2
+                };
+                let url = '/OrderApi/GetOrders';
+                let request = {
+                    body: JSON.stringify(requestData),
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                }
+                fetch(url, request)
                     .then(response => {
                         if (response.ok) {
                             console.log("資料庫連線成功");
@@ -252,90 +264,18 @@
                         }
                     }).then(response => {
                         console.log(response);
-                        this.orders_2 = response;
+                        /*this.orders_2 = response*/;
 
                     }
                     ).catch(error => {
                         alert("資料庫連線失敗");
                         console.log(error);
                     })
-
-            },
-
-            tab3: function () {
-
-                let url = '/OrderApi/GetOnGoingOrdersByUserId/2';
-                fetch(url, { method: 'GET' })
-                    .then(response => {
-                        if (response.ok) {
-                            console.log("資料庫連線成功");
-                            return response.json();
-
-                        } else {
-                            console.log("資料擷取失敗");
-                        }
-                    }).then(response => {
-                        console.log(response);
-                        this.orders_3 = response;
-
-                    }
-                    ).catch(error => {
-                        alert("資料庫連線失敗");
-                        console.log(error);
-                    })
-
-
-            },
-
-            tab4: function () {
-
-                let url = '/OrderApi/GetClosedOrdersByUserId/2';
-                fetch(url, { method: 'GET' })
-                    .then(response => {
-                        if (response.ok) {
-                            console.log("資料庫連線成功");
-                            return response.json();
-
-                        } else {
-                            console.log("資料擷取失敗");
-                        }
-                    }).then(response => {
-                        console.log(response);
-                        this.orders_4 = response;
-
-                    }
-                    ).catch(error => {
-                        alert("資料庫連線失敗");
-                        console.log(error);
-                    })
-
-
-
-            },
-
-            tab5: function () {
-                let url = '/OrderApi/GetOverdueOrdersByUserId/2';
-                fetch(url, { method: 'GET' })
-                    .then(response => {
-                        if (response.ok) {
-                            console.log("資料庫連線成功");
-                            return response.json();
-
-                        } else {
-                            console.log("資料擷取失敗");
-                        }
-                    }).then(response => {
-                        console.log(response);
-                        this.orders_5 = response;
-
-                    }
-                    ).catch(error => {
-                        alert("資料庫連線失敗");
-                        console.log(error);
-                    })
-
 
             }
+
+
+            
 
         }
 
