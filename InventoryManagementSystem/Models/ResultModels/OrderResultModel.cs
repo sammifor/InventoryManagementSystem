@@ -33,6 +33,5 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string StatusName { get; set; }
 
         public OrderDetailResultModel[] OrderDetails { get; set; }
-
     }
 }
