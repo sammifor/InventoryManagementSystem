@@ -66,544 +66,104 @@ namespace InventoryManagementSystem.Controllers.Api
 
         }
 
-        /*
-         * OrderApi/GetOrdersByUserId/{UserID}
-         */
-        // 以 UserID 查詢所有訂單（任何狀態的訂單都會查出來）
         [HttpGet]
+        [Consumes("application/json")]
         [Produces("application/json")]
-        [Route("{id}")]
-        public async Task<OrderResultModel[]> GetOrdersByUserId(int id)
+        public async Task<IActionResult> GetOrders(GetOrdersViewModel model)
         {
-            var results = await _dbContext.Orders
-                .Where(o => o.UserId == id)
-                .Select(o => new OrderResultModel
-                {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
+            if(User.IsInRole("user"))
+            {
+                // TODO authorization
+            }
+            else if(User.IsInRole("admin"))
+            {
+                // TODO authorization
+            }
 
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
+            // TODO authorization
+            IQueryable<Order> tempOrders = null;
+            if(model.UserId != null)
+            {
+                tempOrders = _dbContext.Orders.Where(o => o.UserId == model.UserId);
+            }
+            else
+            {
+                tempOrders = _dbContext.Orders.Select(o => o);
+            }
 
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
-                })
-                .ToArrayAsync();
-
-            return results;
-        }
-
-        /*
-         * OrderApi/GetPendingOrdersByUserId/{UserID}
-         */
-        // 以 UserID 查出待審核的 order
-        [HttpGet]
-        [Produces("application/json")]
-        [Route("{id}")]
-        public async Task<IActionResult> GetPendingOrdersByUserId(int id)
-        {
-            OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => o.UserId == id && 
-                    o.OrderStatusId == "P" && // Pending
-                    o.EstimatedPickupTime > DateTime.Now) // 尚未過期的 order
-                .Select(o => new OrderResultModel
-                {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
-
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
-
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
-                })
-                .ToArrayAsync();
-
-            return Ok(orders);
-        }
-
-        /*
-         * OrderApi/GetReadyOrdersByUserId/{UserID}
-         */
-        // 以 UserID 查出待取貨的 order
-        [HttpGet]
-        [Produces("application/json")]
-        [Route("{id}")]
-        public async Task<IActionResult> GetReadyOrdersByUserId(int id)
-        {
-            OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => o.UserId == id &&
-                    o.OrderStatusId == "A" && // Order 是核可的
-                    o.OrderDetails.Any(od => od.OrderDetailStatusId == "P") && // order 底下的 order detail 有待取貨的
-                    o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 沒過期的
-                .Select(o => new OrderResultModel
-                {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
-
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
-
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
-                })
-                .ToArrayAsync();
-
-            return Ok(orders);
-        }
-
-        /*
-         * OrderApi/GetOnGoingOrdersByUserId/{UserID}
-         */
-        // 以 UserID 查出租借中的 order
-        [HttpGet]
-        [Produces("application/json")]
-        [Route("{id}")]
-        public async Task<IActionResult> GetOnGoingOrdersByUserId(int id)
-        {
-            OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => o.UserId == id &&
-                    o.OrderStatusId == "A" && // 被核准的 order
-                    o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") && // 所訂的物品已被取貨
-                    o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 尚未逾期
-                .Select(o => new OrderResultModel
-                {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
-
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
-
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
-                })
-                .ToArrayAsync();
-
-            return Ok(orders);
-        }
-
-        /*
-         * OrderApi/GetClosedOrdersByUserId/{UserID}
-         */
-        // 以 UserID 查出已結束和管理員逾期回應的 order
-        [HttpGet]
-        [Produces("application/json")]
-        [Route("{id}")]
-        public async Task<IActionResult> GetClosedOrdersByUserId(int id)
-        {
-            string[] restrictions = { "C", "E", "D" }; // Canceled, ended and denied.
-            OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => o.UserId == id && 
-                    (restrictions.Contains(o.OrderStatusId) || // 已取消、已結束、已拒絕
-                        o.OrderStatusId == "P" && o.EstimatedPickupTime < DateTime.Now)) // 逾期回應
-                .Select(o => new OrderResultModel
-                {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
-
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
-
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
-                })
-                .ToArrayAsync();
-
-            return Ok(orders);
-        }
-
-        /*
-         * OrderApi/GetOverdueOrdersByUserId/{UserID}
-         */
-        // 以 UserID 查出已逾期且仍有物品尚未歸還的 order
-        [HttpGet]
-        [Produces("application/json")]
-        [Route("{id}")]
-        public async Task<IActionResult> GetOverdueOrdersByUserId(int id)
-        {
-            OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => o.UserId == id &&
+            switch(model.Tab)
+            {
+                case "所有訂單":
+                    break;
+                case "待核可":
+                    tempOrders = tempOrders.Where(o =>
+                        o.OrderStatusId == "P" && // Pending
+                        o.EstimatedPickupTime > DateTime.Now); // 尚未過期的 order
+                    break;
+                case "待領取":
+                    tempOrders = tempOrders.Where(o =>
+                        o.OrderStatusId == "A" && // Order 是核可的
+                        o.OrderDetails.Any(od => od.OrderDetailStatusId == "P") && // order 底下的 order detail 有待取貨的
+                        o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now); // 沒過期的
+                    break;
+                case "租借中":
+                    tempOrders = tempOrders.Where(o =>
+                        o.OrderStatusId == "A" && // 被核准的 order
+                        o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") && // 所訂的物品已被取貨
+                        o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now); // 尚未逾期
+                    break;
+                case "已結束":
+                    string[] restrictions = { "C", "E", "D" }; // Canceled, ended and denied.
+                    tempOrders = tempOrders.Where(o =>
+                        restrictions.Contains(o.OrderStatusId) || // 已取消、已結束、已拒絕
+                        o.OrderStatusId == "P" && o.EstimatedPickupTime < DateTime.Now); // 逾期回應
+                    break;
+                case "已逾期":
+                    tempOrders = tempOrders.Where(o =>
                     o.OrderStatusId == "A" &&
                     o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") &&
-                    o.EstimatedPickupTime.AddDays(o.Day) < DateTime.Now)
-                .Select(o => new OrderResultModel
+                    o.EstimatedPickupTime.AddDays(o.Day) < DateTime.Now);
+                    break;
+
+                default:
+                    return BadRequest();
+            }
+
+            OrderResultModel[] orders = await tempOrders.Select(o => new OrderResultModel
+            {
+                OrderId = o.OrderId,
+                UserId = o.UserId,
+                EquipmentId = o.EquipmentId,
+                Quantity = o.Quantity,
+                EstimatedPickupTime = o.EstimatedPickupTime,
+                Day = o.Day,
+                OrderStatusId = o.OrderStatusId,
+                OrderTime = o.OrderTime,
+
+                EquipmentSn = o.Equipment.EquipmentSn,
+                EquipmentName = o.Equipment.EquipmentName,
+                Brand = o.Equipment.Brand,
+                Model = o.Equipment.Model,
+                UnitPrice = o.Equipment.UnitPrice,
+                Description = o.Equipment.Description,
+
+                Username = o.User.Username,
+
+                StatusName = o.OrderStatus.StatusName,
+
+                OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
                 {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
-
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
-
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
+                    OrderDetailId = od.OrderDetailId,
+                    ItemId = od.ItemId,
+                    ItemSn = od.Item.ItemSn,
+                    OrderDetailStatus = od.OrderDetailStatus.StatusName
                 })
+                        .ToArray()
+            })
                 .ToArrayAsync();
 
             return Ok(orders);
-        }
 
-        /*
-         * OrderApi/GetPendingOrders/
-         */
-        // 查出所有待審核的 order
-        [HttpGet]
-        [Produces("application/json")]
-        public async Task<IActionResult> GetPendingOrders()
-        {
-            OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
-                    o.OrderStatusId == "P" && // Pending
-                    o.EstimatedPickupTime > DateTime.Now) // 尚未過期的 order
-                .Select(o => new OrderResultModel
-                {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
-
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
-
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
-                })
-                .ToArrayAsync();
-
-            return Ok(orders);
-        }
-
-        /*
-         * OrderApi/GetReadyOrders/
-         */
-        // 查出所有待取貨的 order
-        [HttpGet]
-        [Produces("application/json")]
-        public async Task<IActionResult> GetReadyOrders()
-        {
-            OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
-                    o.OrderStatusId == "A" && // Order 是核可的
-                    o.OrderDetails.Any(od => od.OrderDetailStatusId == "P") && // order 底下的 order detail 有待取貨的
-                    o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 沒過期的
-                .Select(o => new OrderResultModel
-                {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
-
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
-
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
-                })
-                .ToArrayAsync();
-
-            return Ok(orders);
-        }
-
-        /*
-         * OrderApi/GetOnGoingOrders/
-         */
-        // 查出所有租借中的 order
-        [HttpGet]
-        [Produces("application/json")]
-        public async Task<IActionResult> GetOnGoingOrders()
-        {
-            OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
-                    o.OrderStatusId == "A" && // 被核准的 order
-                    o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") && // 所訂的物品已被取貨
-                    o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 尚未逾期
-                .Select(o => new OrderResultModel
-                {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
-
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
-
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
-                })
-                .ToArrayAsync();
-
-            return Ok(orders);
-        }
-
-        /*
-         * OrderApi/GetClosedOrders/
-         */
-        // 查出所有已結束和管理員逾期回應的 order
-        [HttpGet]
-        [Produces("application/json")]
-        public async Task<IActionResult> GetClosedOrders()
-        {
-            string[] restrictions = { "C", "E", "D" }; // Canceled, ended and denied.
-            OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
-                    (restrictions.Contains(o.OrderStatusId) || // 已取消、已結束、已拒絕
-                        o.OrderStatusId == "P" && o.EstimatedPickupTime < DateTime.Now)) // 逾期回應
-                .Select(o => new OrderResultModel
-                {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
-
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
-
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
-                })
-                .ToArrayAsync();
-
-            return Ok(orders);
-        }
-
-        /*
-         * OrderApi/GetOverDueOrders/
-         */
-        // 查出所有已逾期且仍有物品尚未歸還的 order
-        [HttpGet]
-        [Produces("application/json")]
-        public async Task<IActionResult> GetOverdueOrders()
-        {
-            OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
-                    o.OrderStatusId == "A" &&
-                    o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") &&
-                    o.EstimatedPickupTime.AddDays(o.Day) < DateTime.Now)
-                .Select(o => new OrderResultModel
-                {
-                    OrderId = o.OrderId,
-                    UserId = o.UserId,
-                    EquipmentId = o.EquipmentId,
-                    Quantity = o.Quantity,
-                    EstimatedPickupTime = o.EstimatedPickupTime,
-                    Day = o.Day,
-                    OrderStatusId = o.OrderStatusId,
-                    OrderTime = o.OrderTime,
-
-                    EquipmentSn = o.Equipment.EquipmentSn,
-                    EquipmentName = o.Equipment.EquipmentName,
-                    Brand = o.Equipment.Brand,
-                    Model = o.Equipment.Model,
-                    UnitPrice = o.Equipment.UnitPrice,
-                    Description = o.Equipment.Description,
-
-                    Username = o.User.Username,
-
-                    StatusName = o.OrderStatus.StatusName,
-
-                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
-                    {
-                        OrderDetailId = od.OrderDetailId,
-                        ItemId = od.ItemId,
-                        ItemSn = od.Item.ItemSn,
-                        OrderDetailStatus = od.OrderDetailStatus.StatusName
-                    })
-                        .ToArray()
-                })
-                .ToArrayAsync();
-
-            return Ok(orders);
         }
 
         /*
