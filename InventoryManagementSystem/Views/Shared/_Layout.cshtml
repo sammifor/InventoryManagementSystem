@@ -59,9 +59,20 @@
                     </ul>
                     <ul class="navbar-nav flex-grow-1 navbar-right">
                         <li class="nav-item active">
-                            <a class="nav-link" href="#">
-                                Login  <img src="/image/user.svg" width="25" height="25" />
-                            </a>
+                            @{
+                                if(User.Identity.IsAuthenticated)
+                                {
+                                    <a class="nav-link" asp-controller="User" asp-action="Logout">
+                                        使用者登出<img src="/image/logout.svg" width="25" height="25" />
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a class="nav-link" asp-controller="User" asp-action="Login">
+                                        使用者登入<img src="/image/login.svg" width="25" height="25" />
+                                    </a>
+                                }
+                            }
                         </li>
                     </ul>
                 </div>
@@ -77,6 +88,10 @@
     <footer class="footer text-muted bg-dark">
         <div class="container">
             &copy; 2021 - InventoryManagementSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+
+        <div class="container">
+            Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

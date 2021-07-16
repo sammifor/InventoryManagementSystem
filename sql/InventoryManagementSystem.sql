@@ -23,7 +23,9 @@ CREATE TABLE [Admin](
         [Username] NVARCHAR(50) NOT NULL
                 CONSTRAINT [UQ_Admin_Username] UNIQUE,
 
-        [Password] CHAR(64) NOT NULL,
+        [HashedPassword] BINARY(32) NOT NULL,
+
+        [Salt] BINARY(32) NOT NULL,
 
         [FullName] NVARCHAR(50) NOT NULL,
 
@@ -41,7 +43,9 @@ CREATE TABLE [User](
         [Email] VARCHAR(100) NOT NULL
                 CONSTRAINT [UQ_User_Email] UNIQUE,
 
-        [Password] CHAR(64) NOT NULL,
+        [HashedPassword] BINARY(32) NOT NULL,
+
+        [Salt] BINARY(32) NOT NULL,
 
         [FullName] NVARCHAR(50) NOT NULL,
 
