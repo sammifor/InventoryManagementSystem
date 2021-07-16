@@ -16,7 +16,8 @@ namespace InventoryManagementSystem.Models.EF
         public int AdminId { get; set; }
         public int RoleId { get; set; }
         public string Username { get; set; }
-        public string Password { get; set; }
+        public byte[] HashedPassword { get; set; }
+        public byte[] Salt { get; set; }
         public string FullName { get; set; }
         public DateTime? CreateTime { get; set; }
 

@@ -68,13 +68,17 @@ namespace InventoryManagementSystem.Models.EF
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(e => e.Password)
+                entity.Property(e => e.HashedPassword)
                     .IsRequired()
-                    .HasMaxLength(64)
-                    .IsUnicode(false)
+                    .HasMaxLength(32)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.RoleId).HasColumnName("RoleID");
+
+                entity.Property(e => e.Salt)
+                    .IsRequired()
+                    .HasMaxLength(32)
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.Username)
                     .IsRequired()
@@ -249,7 +253,6 @@ namespace InventoryManagementSystem.Models.EF
                 entity.HasOne(d => d.Admin)
                     .WithMany(p => p.ItemLogs)
                     .HasForeignKey(d => d.AdminId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ItemLog_Admin");
 
                 entity.HasOne(d => d.Condition)
@@ -614,20 +617,24 @@ namespace InventoryManagementSystem.Models.EF
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
+                entity.Property(e => e.HashedPassword)
+                    .IsRequired()
+                    .HasMaxLength(32)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.LineAccount)
                     .HasMaxLength(64)
                     .IsUnicode(false);
-
-                entity.Property(e => e.Password)
-                    .IsRequired()
-                    .HasMaxLength(64)
-                    .IsUnicode(false)
-                    .IsFixedLength(true);
 
                 entity.Property(e => e.PhoneNumber)
                     .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false);
+
+                entity.Property(e => e.Salt)
+                    .IsRequired()
+                    .HasMaxLength(32)
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.Username)
                     .IsRequired()
