@@ -306,7 +306,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             Order order = await _dbContext.Orders
                 .Where(o => o.OrderId == model.OrderID &&
-                    o.OrderDetails.Any(od => od.OrderDetailStatusId == "T")) // 此訂單的物品仍有東西應還能還但未還。
+                    o.OrderDetails.All(od => od.OrderDetailStatusId != "T")) // 此訂單的物品仍有東西應還能還但未還。
                 .FirstOrDefaultAsync();
 
 
