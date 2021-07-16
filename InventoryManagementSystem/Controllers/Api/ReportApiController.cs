@@ -54,13 +54,13 @@ namespace InventoryManagementSystem.Controllers.Api
                 .FindAsync(model.OrderDetailId);
 
             // 不可對不存在的 order detail 新增 report
-            if(od == null)
+            if (od == null)
             {
                 return NotFound();
             }
 
             // 已取消的 order detail 不可再 report
-            if(od.OrderDetailStatusId == "C") // Cancel
+            if (od.OrderDetailStatusId == "C") // Cancel
             {
                 return BadRequest();
             }
