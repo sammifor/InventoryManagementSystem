@@ -118,7 +118,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetPendingOrdersByUserId(int id)
         {
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => o.UserId == id && 
+                .Where(o => o.UserId == id &&
                     o.OrderStatusId == "P" && // Pending
                     o.EstimatedPickupTime > DateTime.Now) // 尚未過期的 order
                 .Select(o => new OrderResultModel
@@ -268,7 +268,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             string[] restrictions = { "C", "E", "D" }; // Canceled, ended and denied.
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => o.UserId == id && 
+                .Where(o => o.UserId == id &&
                     (restrictions.Contains(o.OrderStatusId) || // 已取消、已結束、已拒絕
                         o.OrderStatusId == "P" && o.EstimatedPickupTime < DateTime.Now)) // 逾期回應
                 .Select(o => new OrderResultModel
@@ -366,7 +366,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetPendingOrders()
         {
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
+                .Where(o =>
                     o.OrderStatusId == "P" && // Pending
                     o.EstimatedPickupTime > DateTime.Now) // 尚未過期的 order
                 .Select(o => new OrderResultModel
@@ -414,7 +414,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetReadyOrders()
         {
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
+                .Where(o =>
                     o.OrderStatusId == "A" && // Order 是核可的
                     o.OrderDetails.Any(od => od.OrderDetailStatusId == "P") && // order 底下的 order detail 有待取貨的
                     o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 沒過期的
@@ -463,7 +463,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetOnGoingOrders()
         {
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
+                .Where(o =>
                     o.OrderStatusId == "A" && // 被核准的 order
                     o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") && // 所訂的物品已被取貨
                     o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 尚未逾期
@@ -513,7 +513,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             string[] restrictions = { "C", "E", "D" }; // Canceled, ended and denied.
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
+                .Where(o =>
                     (restrictions.Contains(o.OrderStatusId) || // 已取消、已結束、已拒絕
                         o.OrderStatusId == "P" && o.EstimatedPickupTime < DateTime.Now)) // 逾期回應
                 .Select(o => new OrderResultModel
@@ -561,7 +561,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetOverdueOrders()
         {
             OrderResultModel[] orders = await _dbContext.Orders
-                .Where(o => 
+                .Where(o =>
                     o.OrderStatusId == "A" &&
                     o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") &&
                     o.EstimatedPickupTime.AddDays(o.Day) < DateTime.Now)
@@ -616,7 +616,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     o.EstimatedPickupTime > DateTime.Now); // 尚未過期
 
             // 找不到訂單
-            if(order == null)
+            if (order == null)
             {
                 return NotFound();
             }
@@ -634,15 +634,15 @@ namespace InventoryManagementSystem.Controllers.Api
                 AdminId = 1 // TODO authentication
             };
 
-            if(model.Reply == "N")
+            if (model.Reply == "N")
             {
                 order.OrderStatusId = "D"; // Denied
                 response.Reply = "N"; // No
             }
-            else if(model.Reply == "Y")
+            else if (model.Reply == "Y")
             {
                 // 訂單寫的數量與實際分配的數量不一致
-                if(order.Quantity != itemIDs.Length)
+                if (order.Quantity != itemIDs.Length)
                 {
                     return BadRequest();
                 }
@@ -650,8 +650,8 @@ namespace InventoryManagementSystem.Controllers.Api
                 // 存在有分配的設備非訂單所寫的設備
                 bool invalidEquipIdExists = items
                     .Any(i => i.EquipmentId != order.EquipmentId);
-                
-                if(invalidEquipIdExists)
+
+                if (invalidEquipIdExists)
                 {
                     return BadRequest();
                 }
@@ -661,7 +661,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     .AsNoTracking()
                     .Where(i => i.EquipmentId == order.EquipmentId)
                     .CountAsync(i => i.ConditionId == "I");
-                if(inStockNumber < order.Quantity)
+                if (inStockNumber < order.Quantity)
                 {
                     return BadRequest();
                 }
@@ -688,14 +688,14 @@ namespace InventoryManagementSystem.Controllers.Api
 
             // 這裡 condition 也可以用 itemIDs.length
             // 因為執行到這邊已經保證 items 跟 itemIDs 長度一樣
-            for(int i = 0; i < items.Length; i++)
+            for (int i = 0; i < items.Length; i++)
             {
                 items[i].ConditionId = "P"; // Pending
             }
 
             // 每個 item 都要新增一筆 OrderDetail 的記錄
             OrderDetail[] details = new OrderDetail[items.Length];
-            for(int i = 0; i < items.Length; i++)
+            for (int i = 0; i < items.Length; i++)
             {
                 details[i] = new OrderDetail
                 {
@@ -718,7 +718,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
 
             ItemLog[] logs = new ItemLog[items.Length];
-            for(int i = 0; i < items.Length; i++)
+            for (int i = 0; i < items.Length; i++)
             {
                 logs[i] = new ItemLog
                 {
@@ -758,7 +758,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .FirstOrDefaultAsync();
 
 
-            if(order == null)
+            if (order == null)
             {
                 return NotFound();
             }
@@ -786,7 +786,7 @@ namespace InventoryManagementSystem.Controllers.Api
             // 還要再額外
             // 1. 把 item 的 condition 改回再庫（ItemLog 也要記錄 item 的改變）
             // 2. 把 order detail 的 status 改成取消
-            if(details.Length != 0)
+            if (details.Length != 0)
             {
                 int[] itemIDs = details
                     .Select(od => od.ItemId)
@@ -796,7 +796,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     .Where(i => itemIDs.Contains(i.ItemId))
                     .ToArrayAsync();
 
-                foreach(OrderDetail detail in details)
+                foreach (OrderDetail detail in details)
                 {
                     // item 的狀態改成入庫
                     Item item = items
@@ -841,7 +841,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // 管理員查詢所有訂單（任何狀態的訂單都會查出來）
         [HttpGet]
         [Produces("application/json")]
-        
+
         public async Task<OrderResultModel[]> GetAllOrders()
         {
             var results = await _dbContext.Orders
@@ -866,12 +866,20 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     Username = o.User.Username,
 
-                    StatusName = o.OrderStatus.StatusName
+                    StatusName = o.OrderStatus.StatusName,
+
+                    OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
+                    {
+                        OrderDetailId = od.OrderDetailId,
+                        ItemId = od.ItemId,
+                        ItemSn = od.Item.ItemSn,
+                        OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    })
+                        .ToArray()
                 })
                 .ToArrayAsync();
 
             return results;
         }
-
     }
 }
