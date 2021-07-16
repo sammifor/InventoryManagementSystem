@@ -67,9 +67,10 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         [HttpGet]
-        [Consumes("application/json")]
         [Produces("application/json")]
-        public async Task<IActionResult> GetOrders(GetOrdersViewModel model)
+        // 所有訂單、待核可、待領取、租借中、已結束、已逾期
+        [Route("{tabname}")]
+        public async Task<IActionResult> GetOrders(string tabName)
         {
             if(User.IsInRole("user"))
             {
@@ -79,19 +80,19 @@ namespace InventoryManagementSystem.Controllers.Api
             {
                 // TODO authorization
             }
-
+            int userId = 1; // TODO authorization
             // TODO authorization
             IQueryable<Order> tempOrders = null;
-            if(model.UserId != null)
+            if(userId != null)
             {
-                tempOrders = _dbContext.Orders.Where(o => o.UserId == model.UserId);
+                tempOrders = _dbContext.Orders.Where(o => o.UserId == userId);
             }
             else
             {
                 tempOrders = _dbContext.Orders.Select(o => o);
             }
 
-            switch(model.Tab)
+            switch(tabName)
             {
                 case "所有訂單":
                     break;
