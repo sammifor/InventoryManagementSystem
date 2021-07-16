@@ -7,66 +7,191 @@
 
 
 <script src="https://unpkg.com/vue"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 
 
-<div id="app">
-    <b-card >
-        <b-tabs content-class="mt-3" fill>
-            <!-- 待核可 -->
-                <b-tab title="待核可" active >
-                    <div>
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>訂單ID</th>
-                                    <th>設備序號</th>
-                                    <th>設備名稱</th>
-                                    <th>數量</th>
-                                    <th>預計取貨時間</th>
-                                    <th>租借天數</th>
-                                    <th>總價</th>
-                                    <th>訂單狀態</th>
-                                    <th>下單時間</th>
-                                    <th>問題回報</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="order in orders">
-                                    <td>{{order.orderId}}</td>
-                                    <td>{{order.equipmentSn}}</td>
-                                    <td>{{order.equipmentName}}</td>
-                                    <td>{{order.quantity}}</td>
-                                    <td>{{order.estimatedPickupTime}}</td>
-                                    <td>{{order.day}}</td>
-                                    <td>{{countQuantity}}</td>
-                                    <td>{{order.orderStatusId}}</td>
-                                    <td>{{order.orderTime}}</td>
-                                    <td><b-btn>問題回報</b-btn></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </b-tab>
 
+<div id="app">
+    <b-card>
+        <b-tabs content-class="mt-3" fill v-model="tabIndex">
+            <!-- 待核可 -->
+            <b-tab title="待核可" active>
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>訂單ID</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>預計取貨時間</th>
+                                <th>租借天數</th>
+                                <th>總價</th>
+                                <th>訂單狀態</th>
+                                <th>下單時間</th>
+                                <th>取消租借</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="order in orders">
+                                <td>{{order.orderId}}</td>
+                                <td>{{order.equipmentSn}}</td>
+                                <td>{{order.equipmentName}}</td>
+                                <td>{{order.quantity}}</td>
+                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                <td>{{order.day}}</td>
+                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                <td v-if="order.orderStatusId === 'P'">處理中</td>
+                                <td v-else>請洽管理員</td>
+                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                <td><b-btn>取消租借</b-btn></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </b-tab>
+                
             <!-- 待領取 -->
-            <b-tab title="待領取">
-                <p>I'm the second tab</p>
+            <b-tab title="待領取"  v-on:click="tab2($event)" >
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>訂單ID</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>預計取貨時間</th>
+                                <th>租借天數</th>
+                                <th>總價</th>
+                                <th>訂單狀態</th>
+                                <th>下單時間</th>
+                                <th>取消租借</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="order in orders_2">
+                                <td>{{order.orderId}}</td>
+                                <td>{{order.equipmentSn}}</td>
+                                <td>{{order.equipmentName}}</td>
+                                <td>{{order.quantity}}</td>
+                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                <td>{{order.day}}</td>
+                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                <td>待領取</td>
+                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                <td><b-btn>取消租借</b-btn></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </b-tab>
 
             <!-- 租借中 -->
-            <b-tab title="租借中">
-                <p>I'm the tab with the very, very long title</p>
+            <b-tab title="租借中" v-on:click="tab3($event)">
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>訂單ID</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>預計取貨時間</th>
+                                <th>租借天數</th>
+                                <th>總價</th>
+                                <th>訂單狀態</th>
+                                <th>下單時間</th>
+                                <th>問題回報</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="order in orders_3">
+                                <td>{{order.orderId}}</td>
+                                <td>{{order.equipmentSn}}</td>
+                                <td>{{order.equipmentName}}</td>
+                                <td>{{order.quantity}}</td>
+                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                <td>{{order.day}}</td>
+                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                <td>租借中</td>
+                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                <td><b-btn>問題回報</b-btn></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </b-tab>
 
             <!-- 已結束 -->
-            <b-tab title="已結束">
-                <p>I'm a disabled tab!</p>
+            <b-tab title="已結束" v-on:click="tab4($event)">
+                <div> 
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>訂單ID</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>預計取貨時間</th>
+                                <th>租借天數</th>
+                                <th>總價</th>
+                                <th>訂單狀態</th>
+                                <th>下單時間</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="order in orders_4">
+                                <td>{{order.orderId}}</td>
+                                <td>{{order.equipmentSn}}</td>
+                                <td>{{order.equipmentName}}</td>
+                                <td>{{order.quantity}}</td>
+                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                <td>{{order.day}}</td>
+                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                <td>已歸還</td>
+                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </b-tab>
 
             <!-- 已結束 -->
-            <b-tab title="已逾期">
-                <p>I'm a disabled tab!</p>
+            <b-tab title="已逾期" v-on:click="tab5($event)">
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>訂單ID</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>預計取貨時間</th>
+                                <th>租借天數</th>
+                                <th>總價</th>
+                                <th>訂單狀態</th>
+                                <th>下單時間</th>
+                                <th>問題回報</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="order in orders_5">
+                                <td>{{order.orderId}}</td>
+                                <td>{{order.equipmentSn}}</td>
+                                <td>{{order.equipmentName}}</td>
+                                <td>{{order.quantity}}</td>
+                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                <td>{{order.day}}</td>
+                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                <td>已逾期</td>
+                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                <td><b-btn>問題回報</b-btn></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </b-tab>
         </b-tabs>
     </b-card>
@@ -74,46 +199,151 @@
 
 
 <script>
-
+    Vue.filter('timeString', function (value, myFormat) {
+        return moment(value).format(myFormat || 'YYYY-MM-DD, HH:mm:ss');
+    });
     var app = new Vue({
+
         el: '#app',
         data: {
-            orders: {
+            orders: {},
+            orders_2: {},
+            orders_3: {},
+            orders_4: {},
+            orders_5: {}
 
-
-            }
-
-            
         },
+
         beforeCreate: function () {
-                let url = '/OrderApi/GetPendingOrdersByUserId/2';
+            let url = '/OrderApi/GetPendingOrdersByUserId/2';
+            fetch(url, { method: 'GET' })
+                .then(response => {
+                    if (response.ok) {
+                        console.log("資料庫連線成功");
+                        return response.json();
+
+                    } else {
+                        console.log("資料擷取失敗");
+                    }
+                }).then(response => {
+                    console.log(response);
+                    this.orders = response;
+
+                }
+                ).catch(error => {
+                    alert("資料庫連線失敗");
+                    console.log(error);
+                })
+        },
+
+        methods: {
+
+            tab2: function () {
+
+                let url = '/OrderApi/GetReadyOrdersByUserId/2';
                 fetch(url, { method: 'GET' })
                     .then(response => {
                         if (response.ok) {
                             console.log("資料庫連線成功");
                             return response.json();
-                            
+
                         } else {
                             console.log("資料擷取失敗");
                         }
                     }).then(response => {
                         console.log(response);
-                        this.orders = response;
-                        
+                        this.orders_2 = response;
+
                     }
                     ).catch(error => {
                         alert("資料庫連線失敗");
                         console.log(error);
                     })
-        },
 
-        computed: {
-            countQuantity: function () {
+            },
 
-                return this.orders.unitPrice * this.orders.quantity * this.orders.day;
+            tab3: function () {
+
+                let url = '/OrderApi/GetOnGoingOrdersByUserId/2';
+                fetch(url, { method: 'GET' })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("資料庫連線成功");
+                            return response.json();
+
+                        } else {
+                            console.log("資料擷取失敗");
+                        }
+                    }).then(response => {
+                        console.log(response);
+                        this.orders_3 = response;
+
+                    }
+                    ).catch(error => {
+                        alert("資料庫連線失敗");
+                        console.log(error);
+                    })
+
+
+            },
+
+            tab4: function () {
+
+                let url = '/OrderApi/GetClosedOrdersByUserId/2';
+                fetch(url, { method: 'GET' })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("資料庫連線成功");
+                            return response.json();
+
+                        } else {
+                            console.log("資料擷取失敗");
+                        }
+                    }).then(response => {
+                        console.log(response);
+                        this.orders_4 = response;
+
+                    }
+                    ).catch(error => {
+                        alert("資料庫連線失敗");
+                        console.log(error);
+                    })
+
+
+
+            },
+
+            tab5: function () {
+                let url = '/OrderApi/GetOverdueOrdersByUserId/2';
+                fetch(url, { method: 'GET' })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("資料庫連線成功");
+                            return response.json();
+
+                        } else {
+                            console.log("資料擷取失敗");
+                        }
+                    }).then(response => {
+                        console.log(response);
+                        this.orders_5 = response;
+
+                    }
+                    ).catch(error => {
+                        alert("資料庫連線失敗");
+                        console.log(error);
+                    })
+
 
             }
+
         }
+
+        
+
+
         
     })
+
+ 
 </script> 
