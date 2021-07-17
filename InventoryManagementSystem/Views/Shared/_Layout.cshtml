@@ -93,12 +93,12 @@
                     </li>
                     @if(!User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item active">
+                        <li class="nav-item">
                             <a class="nav-link" asp-controller="User" asp-action="Login">
                                 使用者登入<img src="/image/login.svg" width="25" height="25" />
                             </a>
                         </li>
-                        <li class="nav-item active">
+                        <li class="nav-item">
                             <a class="nav-link" asp-controller="Admin" asp-action="Login">
                                 管理員登入<img src="/image/login.svg" width="25" height="25" />
                             </a>
@@ -118,11 +118,15 @@
 
     <footer class="footer text-muted bg-dark">
         <div class="container">
-            &copy; 2021 - InventoryManagementSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
+            <div class="row">
+                <div class="col-6 text-center">
+                    &copy; 2021 - InventoryManagementSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </div>
 
-        <div class="container">
-            Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+                <div class="col-6 text-center">
+                    Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+                </div>
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
