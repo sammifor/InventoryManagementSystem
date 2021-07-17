@@ -76,9 +76,8 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Produces("application/json")]
         // 所有訂單、待核可、待領取、租借中、已結束、已逾期
-        [Route("{tabname}")]
         [Authorize]
-        public async Task<IActionResult> GetOrders(string tabName)
+        public async Task<IActionResult> GetOrders()
         {
             IQueryable<Order> tempOrders = null;
 
