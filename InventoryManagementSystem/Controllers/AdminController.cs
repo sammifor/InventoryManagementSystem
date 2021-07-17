@@ -36,7 +36,7 @@ namespace InventoryManagementSystem.Controllers
                 .Where(a => a.Username == username)
                 .FirstOrDefaultAsync();
 
-            if(admin == null)
+            if (admin == null)
             {
                 return View("Login");
             }
@@ -45,7 +45,7 @@ namespace InventoryManagementSystem.Controllers
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
             byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, admin.Salt);
 
-            if(hashedPassword.SequenceEqual(admin.HashedPassword))
+            if (hashedPassword.SequenceEqual(admin.HashedPassword))
             {
 
                 List<Claim> claims = new List<Claim>();
@@ -68,6 +68,16 @@ namespace InventoryManagementSystem.Controllers
         {
             await HttpContext.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult adminManage()
+        {
+            return View();
+        }
+
+        public IActionResult addAdmin()
+        {
+            return View();
         }
     }
 }
