@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.ResultModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // 取得所有 EquipCategory 的 id 和 name
         [HttpGet]
         [Produces("application/json")]
+        [Authorize]
         public async Task<IActionResult> GetCates()
         {
             var categories = await _dbContext.EquipCategories
@@ -43,6 +45,7 @@ namespace InventoryManagementSystem.Controllers.Api
          * EquipCategoryApi/InsertCate
          */
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> InsertCate(
             [FromQuery(Name = "name")] 
             string categoryName)

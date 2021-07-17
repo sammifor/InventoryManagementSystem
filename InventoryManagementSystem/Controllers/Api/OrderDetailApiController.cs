@@ -1,11 +1,13 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Controllers.Api
@@ -27,6 +29,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // 管理員確認某筆 OrderDetail 底下的 Item 被領取
         [HttpPost]
         [Consumes("application/json")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> PickupItemsCheck(PickupItemsCheckViewModel model)
         {
             // 查詢 detail 是否存在且 item 在庫
@@ -47,10 +50,16 @@ namespace InventoryManagementSystem.Controllers.Api
 
             item.ConditionId = "O"; // OutStock
 
+            // Get AdminID
+            string adminIdString = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
+            int adminId = int.Parse(adminIdString);
+
             ItemLog log = new ItemLog
             {
                 OrderDetailId = detail.OrderDetailId,
-                AdminId = 1, // TODO authentication
+                AdminId = adminId,
                 ItemId = item.ItemId,
                 ConditionId = item.ConditionId,
                 Description = model.Description,
@@ -81,6 +90,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // 管理員確認某筆 OrderDetail 底下的 Item 歸還與 Item 狀態
         [HttpPost]
         [Consumes("application/json")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> ReturnItemsCheck(ReturnItemsCheckViewModel model)
         {
             OrderDetail detail = await _dbContext.OrderDetails
@@ -105,10 +115,16 @@ namespace InventoryManagementSystem.Controllers.Api
             else
                 item.ConditionId = "F"; // Failure
 
+            // Get AdminID
+            string adminIdString = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
+            int adminId = int.Parse(adminIdString);
+
             ItemLog log = new ItemLog
             {
                 OrderDetailId = detail.OrderDetailId,
-                AdminId = 1, // TODO authentication
+                AdminId = adminId,
                 ItemId = item.ItemId,
                 ConditionId = item.ConditionId,
                 Description = model.Description,
@@ -132,9 +148,10 @@ namespace InventoryManagementSystem.Controllers.Api
         /*
          * OrderDetailApi/ItemLostCheck/
          */
+        // 管理員無法確認歸還時，將物品標記為遺失
         [HttpPost]
         [Consumes("application/json")]
-        // 管理員無法確認歸還時，將物品標記為遺失
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> ItemLostCheck(ItemLostCheckViewModel model)
         {
             OrderDetail detail = await _dbContext.OrderDetails
@@ -153,10 +170,16 @@ namespace InventoryManagementSystem.Controllers.Api
             Item item = await _dbContext.Items.FindAsync(detail.ItemId);
             item.ConditionId = "L"; // LOST
 
+            // Get AdminID
+            string adminIdString = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
+            int adminId = int.Parse(adminIdString);
+
             ItemLog log = new ItemLog
             {
                 OrderDetailId = detail.OrderDetailId,
-                AdminId = 1, // TODO authentication
+                AdminId = adminId,
                 ItemId = item.ItemId,
                 ConditionId = item.ConditionId,
                 Description = model.Description,

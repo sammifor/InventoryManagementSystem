@@ -1,6 +1,7 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Produces("application/json")]
         [Route("{id}")]
+        [Authorize]
         public async Task<string[]> GetEquipNamesByCatesId(int id)
         {
             var results = await _dbContext.Equipment
@@ -46,6 +48,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // 以 equip ID 查詢 equip 的資訊
         [HttpGet]
         [Route("{id}")]
+        [Authorize]
         public async Task<ActionResult<EquipResultModel>> GetEquipById(int id)
         {
             var result = await _dbContext.Equipment
@@ -82,6 +85,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Produces("application/json")]
         [Route("{name}")]
+        [Authorize]
         public async Task<EquipResultModel[]> GetEquipByEquipName(string name)
         {
             var results = await _dbContext.Equipment
@@ -110,6 +114,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Produces("application/json")]
         [Route("{id}")]
+        [Authorize]
         public async Task<EquipResultModel[]> GetEquipByCateId(int id)
         {
             var results = await _dbContext.Equipment
@@ -138,6 +143,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPost]
         [Consumes("application/json")]
         [Produces("application/json")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> InsertEquip(InsertEquipViewModel model)
         {
             if(string.IsNullOrWhiteSpace(model.EquipmentSn) || string.IsNullOrWhiteSpace(model.EquipmentName))
@@ -178,6 +184,8 @@ namespace InventoryManagementSystem.Controllers.Api
         [Consumes("application/json")]
         [Produces("application/json")]
         [Route("{id}")]
+        [Authorize(Roles = "admin")]
+        // TODO 應使用 ViewModel 防止 overposting
         public async Task<IActionResult> EditEquip(int id, Equipment equip)
         {
             if (equip.EquipmentId != id)
@@ -205,6 +213,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // Return: 刪除的資料筆數
         [HttpDelete]
         [Consumes("application/json")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<int>> RemoveEquipByIds(int[] ids)
         {
 
@@ -249,6 +258,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
         //關鍵字設備資料
         [HttpGet]
+        [Authorize]
         public IActionResult EquipmentAll()
         {
             var result = _dbContext.Equipment.Where(e => e.EquipmentName != null).Select(e => new {
@@ -275,6 +285,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Produces("application/json")]
         [Route("{categoryId}/{name?}")]
+        [Authorize]
         public async Task<EquipResultModel[]> GetEquipByCateOrName(int categoryId, string name = null)
         {
             var results = _dbContext.Equipment.Where(e => e.EquipmentCategoryId == categoryId);

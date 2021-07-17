@@ -22,7 +22,11 @@ namespace InventoryManagementSystem {
         public void ConfigureServices(IServiceCollection services) {
             services.AddControllersWithViews();
             services.AddDbContext<Models.EF.InventoryManagementSystemContext>();
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                    {
+                        options.LoginPath = "/login";
+                    });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

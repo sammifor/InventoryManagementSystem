@@ -1,12 +1,14 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Controllers.Api
@@ -29,6 +31,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Produces("application/json")]
         [Route("{id}")]
+        [Authorize]
         public async Task<ItemResultModel[]> GetItemsByEquipId(int id)
         {
             var results = await _dbContext.Items
@@ -55,6 +58,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // 若成功新增，return ItemID
         [HttpPost]
         [Consumes("application/json")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> InsertItem(InsertItemViewModel model)
         {
             if(string.IsNullOrWhiteSpace(model.ItemSn))
@@ -81,9 +85,14 @@ namespace InventoryManagementSystem.Controllers.Api
                 return Conflict();
             }
 
+            // Get AdminID
+            string adminIDString = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
+
             ItemLog log = new ItemLog
             {
-                AdminId = model.AdminId,
+                AdminId = int.Parse(adminIDString),
                 ItemId = item.ItemId,
                 ConditionId = item.ConditionId,
                 CreateTime = DateTime.Now
@@ -109,6 +118,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPut]
         [Consumes("application/json")]
         [Route("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> EditItem(int id, EditItemViewModel model)
         {
             if(id != model.ItemId)
@@ -147,6 +157,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // Return: 刪除的資料筆數
         [HttpDelete]
         [Consumes("application/json")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<int>> RemoveItemsByIds(int[] ids)
         {
 
@@ -174,6 +185,11 @@ namespace InventoryManagementSystem.Controllers.Api
                 return BadRequest(0);
             }
 
+            // Get AdminID
+            string adminIDString = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
+
             foreach(Item item in items)
             {
                 item.ConditionId = "D";
@@ -183,7 +199,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 {
                     ItemId = item.ItemId,
                     ConditionId = item.ConditionId,
-                    AdminId = 1, // TODO
+                    AdminId = int.Parse(adminIDString),
                     CreateTime = DateTime.Now
                 };
                 _dbContext.Add(log);

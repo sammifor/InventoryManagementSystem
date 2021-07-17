@@ -1,12 +1,14 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Controllers.Api
@@ -31,6 +33,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // 下訂單
         [HttpPost]
         [Consumes("application/json")]
+        [Authorize(Roles = "user")]
         public async Task<IActionResult> MakeOrder(MakeOrderViewModel model)
         {
             if(model.EstimatedPickupTime < DateTime.Today)
@@ -38,9 +41,13 @@ namespace InventoryManagementSystem.Controllers.Api
                 return BadRequest();
             }
 
+            // Get UserID
+            string userIDString = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
             Order order = new Order
             {
-                UserId = model.UserId,
+                UserId = int.Parse(userIDString),
                 EquipmentId = model.EquipmentId,
                 Quantity = model.Quantity,
                 EstimatedPickupTime = model.EstimatedPickupTime,
@@ -70,32 +77,31 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         // 所有訂單、待核可、待領取、租借中、已結束、已逾期
         [Route("{tabname}")]
+        [Authorize]
         public async Task<IActionResult> GetOrders(string tabName)
         {
-            if(User.IsInRole("user"))
-            {
-                // TODO authorization
-            }
-            else if(User.IsInRole("admin"))
-            {
-                // TODO authorization
-            }
-            int userId = 1; // TODO authorization
-            // TODO authorization
             IQueryable<Order> tempOrders = null;
-            if(userId != null)
+
+            //  Could also use User.IsInRole("user")
+            if(User.HasClaim(ClaimTypes.Role, "user"))
             {
-                tempOrders = _dbContext.Orders.Where(o => o.UserId == userId);
+                // User 只看得到自己的 Order
+                string userIdString = User.Claims
+                    .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                    .Value;
+                int userId = int.Parse(userIdString);
+
+                tempOrders = _dbContext.Orders
+                    .Where(o => o.UserId == userId);
             }
-            else
+            else if(User.HasClaim(ClaimTypes.Role, "admin"))
             {
+                // 管理員可以看到所有人的 Order
                 tempOrders = _dbContext.Orders.Select(o => o);
             }
 
             switch(tabName)
             {
-                case "所有訂單":
-                    break;
                 case "待核可":
                     tempOrders = tempOrders.Where(o =>
                         o.OrderStatusId == "P" && // Pending
@@ -152,6 +158,8 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 StatusName = o.OrderStatus.StatusName,
 
+                TabName = "", // TODO
+
                 OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
                 {
                     OrderDetailId = od.OrderDetailId,
@@ -174,6 +182,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPost]
         [Produces("application/json")]
         [Consumes("application/json")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> RespondOrder(RespondOrderViewModel model)
         {
             var order = await _dbContext.Orders
@@ -194,10 +203,16 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Where(i => itemIDs.Contains(i.ItemId))
                 .ToArrayAsync();
 
+            // Get AdminID
+            string adminIdString = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
+            int adminId = int.Parse(adminIdString);
+
             Response response = new Response
             {
                 OrderId = model.OrderID,
-                AdminId = 1 // TODO authentication
+                AdminId = adminId
             };
 
             if(model.Reply == true)
@@ -267,7 +282,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     logs[i] = new ItemLog
                     {
                         OrderDetailId = details[i].OrderDetailId,
-                        AdminId = 1, // TODO authentication
+                        AdminId = adminId,
                         ItemId = details[i].ItemId,
                         ConditionId = "P"  // Pending
                     };
@@ -302,6 +317,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // 取消 Order
         [HttpPost]
         [Consumes("application/json")]
+        [Authorize]
         public async Task<IActionResult> CancelOrder(CancelOrderViewModel model)
         {
             Order order = await _dbContext.Orders
@@ -364,12 +380,20 @@ namespace InventoryManagementSystem.Controllers.Api
                     ItemLog log = new ItemLog
                     {
                         OrderDetailId = detail.OrderDetailId,
-                        AdminId = 1, //TODO authentication
                         ItemId = detail.ItemId,
                         ConditionId = "I",
                         Description = model.Description,
                         CreateTime = DateTime.Now
                     };
+                    if(User.HasClaim(ClaimTypes.Role, "admin"))
+                    {
+                        string adminIdString = User.Claims
+                            .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                            .Value;
+                        int adminId = int.Parse(adminIdString);
+
+                        log.AdminId = adminId;
+                    }
 
                     _dbContext.ItemLogs.Add(log);
                 }
@@ -393,6 +417,7 @@ namespace InventoryManagementSystem.Controllers.Api
         // 管理員確認訂單完成（該標記歸還的已標記歸還、該標記遺失的已標記遺失）
         [HttpPost]
         [Route("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> CompleteOrder(int id)
         {
             Order order = await _dbContext.Orders

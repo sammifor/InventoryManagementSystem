@@ -1,12 +1,14 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Controllers.Api
@@ -25,6 +27,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Produces("application/json")]
         [Route("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetReportsByOrderDetailId(int id)
         {
             GetReportsResultModel[] reports = await _dbContext.Reports
@@ -47,9 +50,9 @@ namespace InventoryManagementSystem.Controllers.Api
          */
         // 使用者對某筆 order detail 的新增 report
         [HttpPost]
+        [Authorize(Roles = "user")]
         public async Task<IActionResult> PostReport(PostReportViewModel model)
         {
-            // TODO 確認發出 request 的用戶是 order detail 的用戶
             OrderDetail od = await _dbContext.OrderDetails
                 .FindAsync(model.OrderDetailId);
 
@@ -57,6 +60,21 @@ namespace InventoryManagementSystem.Controllers.Api
             if (od == null)
             {
                 return NotFound();
+            }
+
+            // 有 od 保證一定有 o，故不再檢查 o 是否為 null。
+            Order o = await _dbContext.Orders.FindAsync(od.OrderId);
+
+            // Get UserID
+            string userIdString = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
+            int userId = int.Parse(userIdString);
+
+            // 確認反映問題的 user 是下訂這筆 order 的 user
+            if(userId != o.UserId)
+            {
+                return BadRequest();
             }
 
             // 已取消的 order detail 不可再 report
