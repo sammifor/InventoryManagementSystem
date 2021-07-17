@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace InventoryManagementSystem.Controllers
     public class QuestionnaireController : Controller
     {
         //滿意度調查問卷
+        [Authorize(Roles = "user")]
         public IActionResult questionnaire()
         {
             return View();

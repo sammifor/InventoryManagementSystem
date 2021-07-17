@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,22 +9,26 @@ namespace InventoryManagementSystem.Controllers
 {
     public class EquipsController : Controller
     {
+        [Authorize(Roles = "user")]
         public IActionResult equipQryUser()
         {
             return View();
         }
         
+        [Authorize(Roles = "admin")]
         public IActionResult equipQryAdmin()
         {
             return View();
         }
 
+        [Authorize(Roles = "admin")]
         public IActionResult equipAddAdmin() {
 
             return View();
         
         }
 
+        [Authorize(Roles = "admin")]
         public IActionResult cateAddAdmin()
         {
 
@@ -31,6 +36,7 @@ namespace InventoryManagementSystem.Controllers
 
         }
 
+        [Authorize(Roles = "admin")]
         public IActionResult itemAddAdmin()
         {
 
@@ -38,6 +44,7 @@ namespace InventoryManagementSystem.Controllers
 
         }
 
+        [Authorize(Roles = "admin")]
         public IActionResult backendManagement()
         {
             return View();        
