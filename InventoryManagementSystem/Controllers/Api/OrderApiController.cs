@@ -100,42 +100,6 @@ namespace InventoryManagementSystem.Controllers.Api
                 tempOrders = _dbContext.Orders.Select(o => o);
             }
 
-            switch(tabName)
-            {
-                case "待核可":
-                    tempOrders = tempOrders.Where(o =>
-                        o.OrderStatusId == "P" && // Pending
-                        o.EstimatedPickupTime > DateTime.Now); // 尚未過期的 order
-                    break;
-                case "待領取":
-                    tempOrders = tempOrders.Where(o =>
-                        o.OrderStatusId == "A" && // Order 是核可的
-                        o.OrderDetails.Any(od => od.OrderDetailStatusId == "P") && // order 底下的 order detail 有待取貨的
-                        o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now); // 沒過期的
-                    break;
-                case "租借中":
-                    tempOrders = tempOrders.Where(o =>
-                        o.OrderStatusId == "A" && // 被核准的 order
-                        o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") && // 所訂的物品已被取貨
-                        o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now); // 尚未逾期
-                    break;
-                case "已結束":
-                    string[] restrictions = { "C", "E", "D" }; // Canceled, ended and denied.
-                    tempOrders = tempOrders.Where(o =>
-                        restrictions.Contains(o.OrderStatusId) || // 已取消、已結束、已拒絕
-                        o.OrderStatusId == "P" && o.EstimatedPickupTime < DateTime.Now); // 逾期回應
-                    break;
-                case "已逾期":
-                    tempOrders = tempOrders.Where(o =>
-                    o.OrderStatusId == "A" &&
-                    o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") &&
-                    o.EstimatedPickupTime.AddDays(o.Day) < DateTime.Now);
-                    break;
-
-                default:
-                    return BadRequest();
-            }
-
             OrderResultModel[] orders = await tempOrders.Select(o => new OrderResultModel
             {
                 OrderId = o.OrderId,
@@ -158,18 +122,66 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 StatusName = o.OrderStatus.StatusName,
 
-                TabName = "", // TODO
-
                 OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
                 {
                     OrderDetailId = od.OrderDetailId,
                     ItemId = od.ItemId,
                     ItemSn = od.Item.ItemSn,
+
+                    OrderDetailStatusId = od.OrderDetailStatusId,
                     OrderDetailStatus = od.OrderDetailStatus.StatusName
                 })
                         .ToArray()
             })
                 .ToArrayAsync();
+
+            //"待核可"
+            OrderResultModel[] pendingOrders = orders.Where(o =>
+                o.OrderStatusId == "P" && // Pending
+                o.EstimatedPickupTime > DateTime.Now) // 尚未過期的 order
+                .ToArray();
+
+            //"待領取"
+            OrderResultModel[] readyOrders = orders.Where(o =>
+                o.OrderStatusId == "A" && // Order 是核可的
+                o.OrderDetails.Any(od => od.OrderDetailStatusId == "P") && // order 底下的 order detail 有待取貨的
+                o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 沒過期的
+                .ToArray();
+
+            //"租借中"
+            OrderResultModel[] ongoinOrders = orders.Where(o =>
+                o.OrderStatusId == "A" && // 被核准的 order
+                o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") && // 所訂的物品已被取貨
+                o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 尚未逾期
+                .ToArray();
+
+            //"已結束"
+            string[] restrictions = { "C", "E", "D" }; // Canceled, ended and denied.
+            OrderResultModel[] closedOrders = orders.Where(o =>
+                restrictions.Contains(o.OrderStatusId) || // 已取消、已結束、已拒絕
+                o.OrderStatusId == "P" && o.EstimatedPickupTime < DateTime.Now) // 逾期回應
+                .ToArray();
+
+            //"已逾期"
+            OrderResultModel[] overdueOrders = orders.Where(o =>
+                o.OrderStatusId == "A" &&
+                o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") &&
+                o.EstimatedPickupTime.AddDays(o.Day) < DateTime.Now)
+                .ToArray();
+
+            Array.ForEach(pendingOrders, o => o.TabName = "待核可");
+            Array.ForEach(readyOrders, o => o.TabName = "待領取");
+            Array.ForEach(ongoinOrders, o => o.TabName = "租借中");
+            Array.ForEach(closedOrders, o => o.TabName = "已結束");
+            Array.ForEach(overdueOrders, o => o.TabName = "已逾期");
+
+            orders = pendingOrders
+                .Concat(readyOrders)
+                .Concat(ongoinOrders)
+                .Concat(closedOrders)
+                .Concat(overdueOrders)
+                .ToArray();
+
 
             return Ok(orders);
 
