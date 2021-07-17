@@ -72,5 +72,11 @@ namespace InventoryManagementSystem.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        [HttpGet("signup")]
+        public IActionResult SignUp()
+        {
+            return View();
+        }
+
     }
 }
