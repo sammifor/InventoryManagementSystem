@@ -1,0 +1,57 @@
+﻿<div id="app">
+    <div>
+        <input type="text" placeholder="請輸入關鍵字" />
+        <button type="button" class="btn btn-primary">搜尋</button>
+    </div>
+    <div class="float-lg-right">
+        <button type="button" class="btn btn-success" onclick="window.location.href='https://localhost:44397/Admin/addAdmin'">新增</button>
+    </div>
+</div>
+<br />
+<div id="view">
+    <table class="table table-hover">
+        <thead class="badge-secondary">
+            <tr>
+                <th>管理員ID</th>
+                <th>角色ID</th>
+                <th>使用者名稱</th>
+                <th>密碼</th>
+                <th>名稱</th>
+                <th>建立時間</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>{{}}</td>
+                <td>
+                    <button type="button" class="btn btn-secondary">修改</button>
+                    <button type="button" class="btn btn-danger" v-on:click="deleteAdmin">刪除</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            admins: []
+        },
+
+        methods: {
+            deleteAdmin: function () {
+                fetch('', {
+                    method: 'DELETE',
+                })
+            },
+
+        },
+    })
+</script>
