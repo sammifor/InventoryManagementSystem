@@ -232,14 +232,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <a href="orderReport?orderDetailId=
-                                +reportOrder.reportOrderDetailId
-                                '&ename='
-                                +currentOrder.equipmentName
-                                '&esn='
-                                +currentOrder.equipmentSn
-                                '&itemsn='
-                                +reportOrder.reportItemSn" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">填寫設備報修申請</a>
+                        <a :href="reportUrl" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">填寫設備報修申請</a>
                     </div>
                     </div>
                 </div>
@@ -338,7 +331,8 @@
                 reportItemSn:"",
                 reportOrderDetailId:""
 
-            }
+            },
+            reportUrl:""
 
         },
 
@@ -441,6 +435,8 @@
                 
                 this.reportOrder.reportOrderDetailId=orderDetailData[0].orderDetailId;
                 console.log(this.reportOrder.reportOrderDetailId);
+                this.reportUrl = 'orderReport?orderDetailId=' + this.reportOrder.reportOrderDetailId + '&ename='
+                    + this.currentOrder.equipmentName +"&esn=" + this.currentOrder.equipmentSn + "&itemsn="+ this.reportOrder.reportItemSn
 
 
                 
