@@ -1,0 +1,106 @@
+﻿<style>
+    table {
+        margin: 0 auto;
+        height: 400px;
+        width: 400px;
+    }
+
+    .title {
+        text-align: center;
+        font-size: 30px;
+        background: #ececec;
+    }
+
+    table th {
+        font-size: 20px;
+        height: 60px;
+    }
+
+    .button {
+        text-align: center;
+    }
+</style>
+
+<div id="app">
+    <table class="border">
+        <tr>
+            <th colspan="2" class="title">新增管理員</th>
+        </tr>
+        <tr>
+            <th>角色ID：</th>
+            <td>
+                <select size="1" v-model="addRoleId">
+                    <option disabled selected>請選擇權限</option>
+                    <option value="1">高級管理員</option>
+                    <option value="2">一般管理員</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>使用者名稱：</th>
+            <td>
+                <input type="text" v-model="addUserName" />
+            </td>
+        </tr>
+        <tr>
+            <th>密碼：</th>
+            <td>
+                <input type="text" v-model="addPassword" />
+            </td>
+        </tr>
+        <tr>
+            <th>名稱：</th>
+            <td>
+                <input type="text" v-model="addFullName" />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="button">
+                <button type="button" class="btn btn-primary" v-on:click="addNewAdmin">新增</button>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            addAdminId: '',
+            addRoleId: '',
+            addUserName: '',
+            addPassword: '',
+            addFullName: ''
+        },
+
+        methods: {
+            addNewAdmin: function () {
+                fetch('', {
+                    method: 'POST',
+                    headers: { 'content-type': 'application/json' },
+                    body: {
+                        adminId: this.addAdminId,
+                        roleId: this.addRoleId,
+                        userName: this.addUserName,
+                        password: this.addPassword,
+                        fullName: this.addFullName
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('新增成功');
+                            location.reload(true);
+                        } else {
+                            alert('資料有誤')
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        alert('新增失敗')
+                    })
+            },
+
+        },
+
+    })
+</script>
