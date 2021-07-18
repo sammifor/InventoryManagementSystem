@@ -25,7 +25,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             _dbContext = dbContext;
         }
-]
+
         /* GET
          * 
          * api/admin/{AdminID} 找特定 admin
