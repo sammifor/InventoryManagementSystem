@@ -224,20 +224,27 @@
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">物品序號</label>
-                            <select class="form-control">
+                            <select class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)" v-model="reportOrder.reportItemSn">
                                 <option disabled selected>請先選擇序號</option>
-                                <option v-for="eachOrderDetails in currentOrder.orderDetails" :value="eachOrderDetails.itemId">{{eachOrderDetails.itemSn}}</option>
+                                <option v-for="eachOrderDetails in currentOrder.orderDetails" :value="eachOrderDetails.orderDetailId">{{eachOrderDetails.itemSn}}</option>
                             </select>
                         </div>
                     </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                            <button type="button" class="btn btn-primary">前往設備報修問卷</button>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <a href="orderReport?orderDetailId=
+                                +reportOrder.reportOrderDetailId
+                                '&ename='
+                                +currentOrder.equipmentName
+                                '&esn='
+                                +currentOrder.equipmentSn
+                                '&itemsn='
+                                +reportOrder.reportItemSn" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">填寫設備報修申請</a>
+                    </div>
                     </div>
                 </div>
         </div>
-    </div>
+    </div>  
 
     <!-- 取消訂單Modal -->
     <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -324,6 +331,12 @@
             },
             cancelOrder: {
                 cancelDiscription:""
+
+            },
+
+            reportOrder: {
+                reportItemSn:"",
+                reportOrderDetailId:""
 
             }
 
@@ -422,6 +435,15 @@
                 this.currentOrder = orderData;
                 console.log(this.currentOrder);
 
+            },
+
+            selectReportItem(orderDetailData) {
+                
+                this.reportOrder.reportOrderDetailId=orderDetailData[0].orderDetailId;
+                console.log(this.reportOrder.reportOrderDetailId);
+
+
+                
             }
 
         }
