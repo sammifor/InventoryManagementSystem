@@ -224,9 +224,9 @@
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">物品序號</label>
-                            <select class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)" v-model="reportOrder.reportItemSn">
+                            <select class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)">
                                 <option disabled selected>請先選擇序號</option>
-                                <option v-for="eachOrderDetails in currentOrder.orderDetails" :value="eachOrderDetails.orderDetailId">{{eachOrderDetails.itemSn}}</option>
+                                <option v-for="eachOrderDetails in currentOrder.orderDetails" :value="eachOrderDetails.reportItemSn">{{eachOrderDetails.itemSn}}</option>
                             </select>
                         </div>
                     </div>
@@ -433,7 +433,8 @@
 
             selectReportItem(orderDetailData) {
                 
-                this.reportOrder.reportOrderDetailId=orderDetailData[0].orderDetailId;
+                this.reportOrder.reportOrderDetailId = orderDetailData[0].orderDetailId;
+                this.reportOrder.reportItemSn = orderDetailData[0].itemSn;
                 console.log(this.reportOrder.reportOrderDetailId);
                 this.reportUrl = 'orderReport?orderDetailId=' + this.reportOrder.reportOrderDetailId + '&ename='
                     + this.currentOrder.equipmentName +"&esn=" + this.currentOrder.equipmentSn + "&itemsn="+ this.reportOrder.reportItemSn
