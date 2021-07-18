@@ -3,6 +3,7 @@ using InventoryManagementSystem.Models.Interfaces;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,42 @@ namespace InventoryManagementSystem.Controllers.Api
             _dbContext = dbContext;
         }
 
+        /* GET
+         * api/user/validate?validatedField={FieldName}&value={Value}
+         * 
+         * FieldName accepts 3 values: 'username', 'email', 'phoneNumber'.
+         * 
+         */
+        // 驗證 username、email、phoneNumber 是否可被註冊
+        [HttpGet("validate")]
+        public async Task<IActionResult> ValidateUser(string validatedField, string value)
+        {
+            if(string.IsNullOrEmpty(value))
+            {
+                return Ok(false);
+            }
+
+            bool userExists;
+            switch(validatedField)
+            {
+                case "username":
+                    userExists = await _dbContext.Users.AnyAsync(u => u.Username == value);
+                    break;
+                case "email":
+                    userExists = await _dbContext.Users.AnyAsync(u => u.Email == value);
+                    break;
+                case "phoneNumber":
+                    userExists = await _dbContext.Users.AnyAsync(u => u.PhoneNumber == value);
+                    break;
+                default:
+                    return Ok(false);
+            }
+
+            if(userExists)
+                return Ok(false);
+
+            return Ok(true);
+        }
         [HttpPost]
         [Consumes("application/json")]
         public async Task<IActionResult> PostUser(PostUserViewModel model)

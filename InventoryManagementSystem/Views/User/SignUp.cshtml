@@ -10,17 +10,27 @@
             <form method="post" class="card-body">
                 <div class="form-group">
                     <label for="email">電子信箱</label>
-                    <input class="form-control" type="email" name="email" id="email" />
+                    <input v-model="info.email" 
+                           @@change="validateUniqueField(emailValidationClass, $event, 'email')" 
+                           :class="emailValidationClass" 
+                           type="email" 
+                           name="email" 
+                           id="email" />
                 </div>
 
                 <div class="form-group">
                     <label for="username">使用者名稱</label>
-                    <input class="form-control" type="text" name="username" id="username" />
+                    <input v-model="info.username" 
+                           @@change="validateUniqueField(usernameValidationClass, $event, 'username')" 
+                           :class="usernameValidationClass" 
+                           type="text" 
+                           name="username" 
+                           id="username" />
                 </div>
 
                 <div class="form-group">
                     <label for="password">密碼</label>
-                    <input class="form-control" type="password" name="password" id="password" />
+                    <input v-model="info.password" class="form-control" type="password" name="password" id="password" />
                 </div>
 
                 <div class="form-group">
@@ -30,41 +40,46 @@
 
                 <div class="form-group">
                     <label for="fullName">全名</label>
-                    <input class="form-control" type="text" name="fullName" id="fullName" />
+                    <input v-model="info.fullname" class="form-control" type="text" name="fullName" id="fullName" />
                 </div>
 
                 <div class="form-group">
                     <label>姓別</label>
-                    <input type="radio" name="gender" id="male" value="M" />
+                    <input @@change="selectGender" type="radio" name="gender" id="male" value="M" />
                     <label for="male">男</label>
-                    <input type="radio" name="gender" id="female" value="F" />
+                    <input @@change="selectGender" type="radio" name="gender" id="female" value="F" />
                     <label for="female">女</label>
-                    <input type="radio" name="gender" id="unspecified" value="X" />
+                    <input @@change="selectGender" type="radio" name="gender" id="unspecified" value="X" />
                     <label for="unspecified">不透露</label>
                 </div>
 
                 <div class="form-group">
                     <label for="dateOfBirth">生日</label>
-                    <input type="date" name="dateOfBirth" id="dateOfBirth" />
+                    <input v-model="info.dateOfBirth" type="date" name="dateOfBirth" id="dateOfBirth" />
                 </div>
 
                 <div class="form-group">
                     <label for="phoneNumber">手機</label>
-                    <input class="form-control" type="tel" name="phoneNumber" id="phoneNumber" />
+                    <input v-model="info.phoneNumber" 
+                           @@change="validateUniqueField(phoneNumberValidationClass, $event, 'phoneNumber')"
+                           :class="phoneNumberValidationClass" 
+                           type="tel" 
+                           name="phoneNumber" 
+                           id="phoneNumber" />
                 </div>
 
                 <div class="form-group">
                     <label for="address">地址</label>
-                    <input class="form-control" type="text" name="address" id="address" />
+                    <input v-model="info.address" class="form-control" type="text" name="address" id="address" />
                 </div>
 
                 <div class="form-group">
                     <label for="lineAccount">LINE 帳號</label>
-                    <input class="form-control" type="text" name="lineAccount" id="lineAccount" />
+                    <input v-model="info.lineAccount" class="form-control" type="text" name="lineAccount" id="lineAccount" />
                 </div>
 
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="allowNotification" id="allowNotification" />
+                    <input v-model="info.allowNotification" class="form-check-input" type="checkbox" name="allowNotification" id="allowNotification" />
                     <label class="form-check-label" for="allowNotification">我要接收逾期提醒</label>
                 </div>
 
@@ -73,9 +88,88 @@
                     <label class="form-check-label" for="agreeToToC">我已閱讀並同意<a href="#">服務條款</a></label>
                 </div>
                 <div class="form-group text-center">
-                    <button class="btn btn-primary btn-lg" type="submit">註冊</button>
+                    <button @@click="clickSignUp" class="btn btn-primary btn-lg" :disabled="btnIsDisabled" type="button">註冊</button>
                 </div>
             </form>
         </section>
     </div>
 </div>
+
+<script>
+    let apiURLs = {
+        signUp: "api/user",
+        validate: "api/user/validate"
+    };
+    let form = new Vue({
+        el: ".card-body",
+        data() {
+            return {
+                info: {
+                    gender: "X",
+                    allowNotification: false
+                },
+                emailValidationClass: {
+                    "form-control": true,
+                    "is-valid": false,
+                    "is-invalid": false
+                },
+                usernameValidationClass: {
+                    "form-control": true,
+                    "is-valid": false,
+                    "is-invalid": false
+                },
+                phoneNumberValidationClass: {
+                    "form-control": true,
+                    "is-valid": false,
+                    "is-invalid": false
+                }
+            };
+        },
+        methods: {
+            // TODO 註冊鈕
+            async clickSignUp(e) {
+                let response = await fetch(apiURLs.signUp, {
+                    method: "POST",
+                    body: JSON.stringify(this.info),
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error("不OK");
+                    return;
+                }
+
+                console.log("OK");
+            },
+            selectGender(e) {
+                this.info.gender = e.target.value;
+            },
+            async validateUniqueField(validationClass, e, field) {
+                validationClass["is-valid"] = false;
+                validationClass["is-invalid"] = false;
+                let validationURL = apiURLs.validate + `?validatedField=${field}&value=${e.target.value}`;
+                let response = await fetch(validationURL, {
+                    method: "GET"
+                });
+                if (!response.ok)
+                    throw new Error(`HTTP error! status: ${response.status}`);
+
+                let available = await response.json();
+
+                if(available)
+                    validationClass["is-valid"] = true;
+                else
+                    validationClass["is-invalid"] = true;
+            }
+        },
+        computed: {
+            btnIsDisabled() {
+                return !this.emailValidationClass["is-valid"] ||
+                    !this.usernameValidationClass["is-valid"] ||
+                    !this.phoneNumberValidationClass["is-valid"];
+            }
+        }
+    });
+</script>
