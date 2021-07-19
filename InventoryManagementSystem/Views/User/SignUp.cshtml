@@ -296,19 +296,51 @@
             async validateUniqueField(validationClass, field, value) {
                 validationClass["is-valid"] = false;
                 validationClass["is-invalid"] = false;
-                let validationURL = apiURLs.validate + `?validatedField=${field}&value=${value}`;
-                let response = await fetch(validationURL, {
-                    method: "GET"
-                });
-                if (!response.ok)
-                    throw new Error(`HTTP error! status: ${response.status}`);
 
-                let available = await response.json();
+                // 先檢查格式。
+                // 因為一次只檢查一個 field，所以其他 field 就 don't care。
+                // 因此，全部都先給 true，格式不對了自然會有其中一個是 false 出現。
+                let emailIsValid = usernameIsValid = phoneNumberIsvalid = true;
+                switch (field) {
+                    case "email":
+                        let emailRule = /^\w+((-\w+)|(\.\w+))*\@@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+                        emailIsValid = emailRule.test(value);
+                        break;
+                    case "username":
+                        // TODO username validation logic
+                        break;
+                    case "phoneNumber":
+                        let phoneRule = /^09[0-9]{8}$/;
+                        phoneNumberIsvalid = phoneRule.test(value);
+                        break;
+                    default:
+                        return;
+                }
+
+                // 格式對了才連到 API 檢查是否在 database 有重覆
+                // 因此如果下方的 if 出現 false，那就不連到 API
+                // 整個 availability 需直接判定為 false
+                // 故預設先給 false
+                let available = false;
+
+                if (emailIsValid && usernameIsValid && phoneNumberIsvalid) {
+                    console.log("connecting to db...", field);
+                    let validationURL = apiURLs.validate + `?validatedField=${field}&value=${value}`;
+                    let response = await fetch(validationURL, {
+                        method: "GET"
+                    });
+                    if (!response.ok)
+                        throw new Error(`HTTP error! status: ${response.status}`);
+
+                    // API 會回傳 true or false
+                    available = await response.json();
+                }
 
                 if (available)
                     validationClass["is-valid"] = true;
                 else
                     validationClass["is-invalid"] = true;
+
             },
             validatePw() {
                 this.pwClass["is-valid"] = false;
@@ -336,9 +368,9 @@
 
                 timer.value = setTimeout(
                     this.validateUniqueField, 500, // 500 ms 後才跟 API 要資料
-                    validationClass,
-                    fieldName,
-                    e.target.value
+                    validationClass, // para1
+                    fieldName, // para2
+                    e.target.value // para3
                 );
             },
             // 驗證有無輸入姓名
@@ -354,8 +386,7 @@
                     validationClass["is-valid"] = true;
             },
             validateDate(date) {
-                this.dateValidationClass["is-valid"] = false;
-                this.dateValidationClass["is-invalid"] = false;
+                this.dateCleared.call(this);
 
                 if (date > new Date())
                     this.dateValidationClass["is-invalid"] = true;
