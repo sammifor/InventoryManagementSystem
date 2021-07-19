@@ -1,12 +1,15 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.Interfaces;
 using InventoryManagementSystem.Models.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -114,7 +117,16 @@ namespace InventoryManagementSystem.Controllers.Api
                 return Conflict();
             }
 
-            return Ok("hi");
+            // 註冊成功後直接發 cookie，視同登入。
+            List<Claim> claims = new List<Claim>();
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString(), ClaimValueTypes.Integer32));
+            claims.Add(new Claim(ClaimTypes.Name, user.Username));
+            claims.Add(new Claim(ClaimTypes.Role, "user"));
+            ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(principal);
+            return RedirectToAction("equipQryUser", "Equips");
+
         }
     }
 }
