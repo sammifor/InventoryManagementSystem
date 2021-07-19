@@ -75,7 +75,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
         [HttpGet]
         [Produces("application/json")]
-        // 所有訂單、待核可、待領取、租借中、已結束、已逾期
+        // 所有訂單、待核可、待付款、待領取、租借中、已結束、已逾期
         [Authorize]
         public async Task<IActionResult> GetOrders()
         {
@@ -130,7 +130,9 @@ namespace InventoryManagementSystem.Controllers.Api
                     OrderDetailStatusId = od.OrderDetailStatusId,
                     OrderDetailStatus = od.OrderDetailStatus.StatusName
                 })
-                        .ToArray()
+                        .ToArray(),
+
+                PaymentId = o.PaymentOrder.PaymentId
             })
                 .ToArrayAsync();
 
@@ -140,11 +142,19 @@ namespace InventoryManagementSystem.Controllers.Api
                 o.EstimatedPickupTime > DateTime.Now) // 尚未過期的 order
                 .ToArray();
 
+            //"待付款"
+            OrderResultModel[] outstandingOrders = orders.Where(o =>
+            o.OrderStatusId == "A" && // Order 是核可的
+            o.PaymentId == null && // 沒付款
+            o.EstimatedPickupTime > DateTime.Now) // 現在還沒過取貨時間
+                .ToArray();
+
             //"待領取"
             OrderResultModel[] readyOrders = orders.Where(o =>
                 o.OrderStatusId == "A" && // Order 是核可的
                 o.OrderDetails.Any(od => od.OrderDetailStatusId == "P") && // order 底下的 order detail 有待取貨的
-                o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 沒過期的
+                o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now && // 沒過期的
+                o.PaymentId != null) // 已付款
                 .ToArray();
 
             //"租借中"
@@ -169,12 +179,14 @@ namespace InventoryManagementSystem.Controllers.Api
                 .ToArray();
 
             Array.ForEach(pendingOrders, o => o.TabName = "待核可");
+            Array.ForEach(outstandingOrders, o => o.TabName = "待付款");
             Array.ForEach(readyOrders, o => o.TabName = "待領取");
             Array.ForEach(ongoinOrders, o => o.TabName = "租借中");
             Array.ForEach(closedOrders, o => o.TabName = "已結束");
             Array.ForEach(overdueOrders, o => o.TabName = "已逾期");
 
             orders = pendingOrders
+                .Concat(outstandingOrders)
                 .Concat(readyOrders)
                 .Concat(ongoinOrders)
                 .Concat(closedOrders)
