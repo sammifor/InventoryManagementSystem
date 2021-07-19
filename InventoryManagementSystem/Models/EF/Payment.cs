@@ -14,10 +14,9 @@ namespace InventoryManagementSystem.Models.EF
         }
 
         public int PaymentId { get; set; }
-        public string PaymentCategoryId { get; set; }
-        public decimal Fee { get; set; }
+        public decimal RentalFee { get; set; }
+        public decimal? ExtraFee { get; set; }
 
-        public virtual PaymentCategory PaymentCategory { get; set; }
         public virtual ICollection<PaymentDetail> PaymentDetails { get; set; }
         public virtual ICollection<PaymentOrder> PaymentOrders { get; set; }
     }
