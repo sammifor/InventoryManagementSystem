@@ -4,38 +4,51 @@
 }
 
 <div class="row justify-content-center">
-    <div class="col-xl-6 col-12">
+    <div class="col-xl-8 col-12">
         <section class="card">
             <h1 class="card-header">會員註冊</h1>
             <form method="post" class="card-body">
-                <div class="form-group">
-                    <label for="email">電子信箱</label>
-                    <input v-model="info.email" 
-                           @@change="validateUniqueField(emailValidationClass, $event, 'email')" 
-                           :class="emailValidationClass" 
-                           type="email" 
-                           name="email" 
+                <label for="email">電子信箱</label>
+                <div class="input-group">
+                    <input v-model="info.email"
+                           @@change="validateUniqueField(emailValidationClass, $event, 'email')"
+                           :class="['form-control', emailValidationClass]"
+                           type="email"
+                           name="email"
                            id="email" />
+                    <div class="input-group-append">
+                        <span class="input-group-text">@@</span>
+                        @*<button class="btn btn-info input-group-text">檢查電子信箱</button>*@
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="username">使用者名稱</label>
-                    <input v-model="info.username" 
-                           @@change="validateUniqueField(usernameValidationClass, $event, 'username')" 
-                           :class="usernameValidationClass" 
-                           type="text" 
-                           name="username" 
+                    <input v-model="info.username"
+                           @@change="validateUniqueField(usernameValidationClass, $event, 'username')"
+                           :class="['form-control', usernameValidationClass]"
+                           type="text"
+                           name="username"
                            id="username" />
                 </div>
 
                 <div class="form-group">
                     <label for="password">密碼</label>
-                    <input v-model="info.password" class="form-control" type="password" name="password" id="password" />
+                    <input v-model="info.password"
+                           @@input="validatePw()"
+                           :class="['form-control', pwClass]"
+                           type="password"
+                           name="password"
+                           id="password" />
                 </div>
 
                 <div class="form-group">
-                    <label for="password2">確認密碼</label>
-                    <input class="form-control" type="password" id="password2" />
+                    <label for="pw-check">確認密碼</label>
+                    <input v-model="pwCheck"
+                           @@input="validatePw()"
+                           :class="['form-control', pwCheckClass]"
+                           type="password"
+                           id="pw-check" />
                 </div>
 
                 <div class="form-group">
@@ -60,11 +73,11 @@
 
                 <div class="form-group">
                     <label for="phoneNumber">手機</label>
-                    <input v-model="info.phoneNumber" 
+                    <input v-model="info.phoneNumber"
                            @@change="validateUniqueField(phoneNumberValidationClass, $event, 'phoneNumber')"
-                           :class="phoneNumberValidationClass" 
-                           type="tel" 
-                           name="phoneNumber" 
+                           :class="['form-control', phoneNumberValidationClass]"
+                           type="tel"
+                           name="phoneNumber"
                            id="phoneNumber" />
                 </div>
 
@@ -109,20 +122,26 @@
                     allowNotification: false
                 },
                 emailValidationClass: {
-                    "form-control": true,
                     "is-valid": false,
                     "is-invalid": false
                 },
                 usernameValidationClass: {
-                    "form-control": true,
                     "is-valid": false,
                     "is-invalid": false
                 },
                 phoneNumberValidationClass: {
-                    "form-control": true,
                     "is-valid": false,
                     "is-invalid": false
-                }
+                },
+                pwClass: {
+                    "is-valid": false,
+                    "is-invalid": false
+                },
+                pwCheckClass: {
+                    "is-valid": false,
+                    "is-invalid": false
+                },
+                pwCheck: ""
             };
         },
         methods: {
@@ -162,6 +181,25 @@
                     validationClass["is-valid"] = true;
                 else
                     validationClass["is-invalid"] = true;
+            },
+            validatePw() {
+                this.pwClass["is-valid"] = false;
+                this.pwClass["is-invalid"] = false;
+                this.pwCheckClass["is-valid"] = false;
+                this.pwCheckClass["is-invalid"] = false;
+
+                // 驗證密碼符合規則
+                if (this.info.password.length < 6)
+                    this.pwClass["is-invalid"] = true;
+                else
+                    this.pwClass["is-valid"] = true;
+
+                // 驗證確認密碼與密碼一致
+                if (this.pwCheck !== this.info.password)
+                    this.pwCheckClass["is-invalid"] = true;
+                else
+                    this.pwCheckClass["is-valid"] = true;
+
             }
         },
         computed: {
