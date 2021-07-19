@@ -47,7 +47,7 @@
 </style>
 
 <div id="app">
-    <form id="form" action="" method="post">
+    <form>
         <div class="title">設備問題反應</div>
         <div class="field">
             <label class="label">問題描述：</label>
@@ -56,7 +56,7 @@
         <br />
         <br />
         <div class="button">
-            <button class="btn" v-on:click="addForm">送出</button>
+            <button class="btn" v-on:click="addNewReport">送出</button>
         </div>
     </form>
 </div>
@@ -65,10 +65,8 @@
     var app = new Vue({
         el: '#app',
         data: {
-            form: {},
-            addOrderDetailId: '',
             addDescription: '',
-            queries: {}
+            queries: []
         },
 
         created: function () {
@@ -79,32 +77,37 @@
             console.log(queryStrArr);
             for (let i = 0; i < queryStrArr.length; i++) {
                 let keyvaluePair = queryStrArr[i].split("=");
-                this.queries[keyvaluePair[0]] = keyvaluePair[1];
+                this.queries[keyvaluePair[0]] = decodeURI(keyvaluePair[1]);
                 console.log(keyvaluePair);
             }
             console.log(this.queries);
         },
 
         methods: {
-            addForm: function () {
-                fetch('/ReportApi/PostReport/',
+            addNewReport: function () {
+                let requestData = {
+                    orderDetailId: this.queries.orderDetailId,
+                    description: this.addDescription
+                };
+
+                fetch('/ReportApi/PostReport',
                     {
                         method: 'POST',
-                        body: JSON.stringify({
-                            orderDetailId: this.addOrderDetailId,
-                            description: this.addDescription
-                        }),
+                        body: JSON.stringify(requestData),
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
                         }
                     })
                     .then(res => {
                         if (res.ok) {
-                            console.log(res);
+                            console.log('成功');
+                        } else {
+                            console.log('失敗');
                         }
                     })
-                    .catch(error => {
-                        console.log(error);
+                    .catch(err => {
+                        console.log(err, err.message);
+                        alert('送出失敗');
                     })
             },
 
