@@ -7,7 +7,7 @@ namespace InventoryManagementSystem.Models.EF
 {
     public partial class PaymentDetail
     {
-        public int PaymentDetail1 { get; set; }
+        public int PaymentDetailId { get; set; }
         public int PaymentId { get; set; }
         public decimal AmountPaid { get; set; }
         public DateTime? PayTime { get; set; }

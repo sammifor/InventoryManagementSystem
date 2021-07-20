@@ -263,7 +263,7 @@ CREATE TABLE [PaymentOrder](
 );
 
 CREATE TABLE [PaymentDetail](
-        [PaymentDetail] INT IDENTITY(1, 1) NOT NULL
+        [PaymentDetailID] INT IDENTITY(1, 1) NOT NULL
                 CONSTRAINT [PK_PaymentDetail] PRIMARY KEY,
 
         [PaymentID] INT NOT NULL

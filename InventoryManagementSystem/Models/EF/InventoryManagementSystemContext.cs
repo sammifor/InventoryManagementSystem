@@ -440,11 +440,9 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<PaymentDetail>(entity =>
             {
-                entity.HasKey(e => e.PaymentDetail1);
-
                 entity.ToTable("PaymentDetail");
 
-                entity.Property(e => e.PaymentDetail1).HasColumnName("PaymentDetail");
+                entity.Property(e => e.PaymentDetailId).HasColumnName("PaymentDetailID");
 
                 entity.Property(e => e.AmountPaid).HasColumnType("decimal(18, 0)");
 
