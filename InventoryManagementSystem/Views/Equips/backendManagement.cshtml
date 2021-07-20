@@ -62,7 +62,7 @@
                     <td>{{item.equipmentName}}</td>
                     <td>{{item.itemSn}}</td>
                     <td>{{item.description}}</td>
-                    <td><button class="btn btn-primary">刪除</button></td>
+                    <td><button class="btn btn-primary" @@click="btnDelItem(item.itemId)">刪除</button></td>
                 </tr>
             </tbody>
         </table>
@@ -169,6 +169,8 @@
             items: {},
             selectCateId: '',
             selectEquipId: '',
+            selectEquipSn: '',
+            selectEquipName:'',
             addItemSN: "",
             addItemDiscrip: "",
             addNewCateName: "",
@@ -178,7 +180,12 @@
             addEquipBrand: "",
             addEquipModel: "",
             addEquipPrice: 0,
-            addEquipDiscrip: ""
+            addEquipDiscrip: "",
+            deletItems: [],
+            indexofSelectEquip: '',
+            selectEquipName: '',
+            selectEquipSn: '',
+            delectItemId:''
         },
 
         beforeCreate: function () {
@@ -207,12 +214,13 @@
                     .then(response => {
                         this.equips = response;
 
-                    })
+                    })  
 
             },
 
             onEquipNameChange: function (data) {
-                this.selectEquipId = data.target.value;
+                console.log(this.selectEquipId);
+                console.log(data.target.value);
                 this.getdata();
             },
 
@@ -224,6 +232,7 @@
                     description: this.addItemDiscrip
 
                 };
+                
                 let url = "/ItemApi/InsertItem";
                 let request = {
                     body: JSON.stringify(requestData),
@@ -236,7 +245,16 @@
                     .then(r => {
                         if (r.ok) {
                             alert("新增成功");
-                            this.getdata();
+                            this.indexofSelectEquip = this.equips.findIndex(x => x.equipmentId === this.selectEquipId);
+                            this.selectEquipName = this.equips[this.indexofSelectEquip].equipmentName;
+                            this.selectEquipSn = this.equips[this.indexofSelectEquip].equipmentSn;
+                            let updateData = {
+                                equipmentName: this.selectEquipName,
+                                equipmentSn: this.selectEquipSn,
+                                itemSn: this.addItemSN,
+                                description: this.addItemDiscrip
+                            }
+                            this.items.push(updateData);
                         } else {
                             alert("資料有誤");
                         }
@@ -325,9 +343,40 @@
                         alert("新增失敗");
                     })
 
+            },
+
+            btnDelItem: function (data) {
+                this.delectItemId = data;
+                this.deletItems.push(this.delectItemId);
+                let url = '/ItemApi/RemoveItemsByIds/';
+                let request = {
+                    method: 'Delete',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(this.deletItems)
+                }
+                fetch(url, request)
+                    .then(response => {
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data === 0) {
+                            alert("刪除失敗!!!");
+                        } else {
+                            alert("刪除" + data + "筆");
+                            this.getdata();
+                            //this.indexofDelectItem = this.items.findIndex(x => x.itemId === this.delectItemId);
+
+                            //this.items.filter(x => {
+                            //    x.itemId !== this.delectItemId;
+                           /* });*/
+                            
+                            /*this.deletItems = [];*/
+                            
+                        }
+                    })
             }
 
-
+                
 
         }
 
