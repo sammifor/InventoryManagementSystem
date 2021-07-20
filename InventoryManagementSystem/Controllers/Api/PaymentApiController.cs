@@ -79,7 +79,7 @@ namespace InventoryManagementSystem.Controllers.Api
                         PaymentDetails = po.Payment.PaymentDetails
                             .Select(pd => new PaymentDetailResultModel
                             {
-                                PaymentDetailId = pd.PaymentDetail1,
+                                PaymentDetailId = pd.PaymentDetailId,
                                 AmountPaid = pd.AmountPaid,
                                 PayTime = pd.PayTime
                             })
