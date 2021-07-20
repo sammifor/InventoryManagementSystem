@@ -221,23 +221,34 @@ CREATE TABLE [Questionnaire](
         [Feedback] NVARCHAR(200)
 );
 
-CREATE TABLE [PaymentCategory](
-        [PaymentCategoryID] CHAR(1) NOT NULL
-                CONSTRAINT [PK_PaymentCategory] PRIMARY KEY,
-                -- P for Purchase
-                -- F for Fine
+CREATE TABLE [FeeCategory](
+        [FeeCategoryID] CHAR(1) NOT NULL
+                CONSTRAINT [PK_FeeCategory] PRIMARY KEY,
+                -- R for RentalFee
+                -- E for ExtraFee
 
-        [PaymentCategoryName] NVARCHAR(50) NOT NULL
+        [Name] NVARCHAR(50) NOT NULL
 );
 
 CREATE TABLE [Payment](
         [PaymentID] INT IDENTITY(1, 1) NOT NULL
                 CONSTRAINT [PK_Payment] PRIMARY KEY,
 
-        [PaymentCategoryID] CHAR(1) NOT NULL
-                CONSTRAINT [FK_Payment_PaymentCategory] FOREIGN KEY REFERENCES [PaymentCategory]([PaymentCategoryID]),
+        [RentalFee] DECIMAL NOT NULL,
 
-        [Fee] DECIMAL NOT NULL
+        [ExtraFee] DECIMAL
+);
+
+CREATE TABLE [PaymentLog](
+        [PaymentLogID] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [PK_PaymentLog] PRIMARY KEY,
+
+        [FeeCategoryID] CHAR(1) NOT NULL
+                CONSTRAINT [FK_PaymentLog_FeeCategory] FOREIGN KEY REFERENCES [FeeCategory]([FeeCategoryID]),
+
+        [Fee] DECIMAL NOT NULL,
+
+        [Description] NVARCHAR(200)
 );
 
 CREATE TABLE [PaymentOrder](
@@ -245,7 +256,8 @@ CREATE TABLE [PaymentOrder](
                 CONSTRAINT [FK_PaymentOrder_Payment] FOREIGN KEY REFERENCES [Payment]([PaymentID]),
 
         [OrderID] INT NOT NULL
-                CONSTRAINT [FK_PaymentOrder_Order] FOREIGN KEY REFERENCES [Order]([OrderID]),
+                CONSTRAINT [FK_PaymentOrder_Order] FOREIGN KEY REFERENCES [Order]([OrderID])
+                CONSTRAINT [UQ_PaymentOrder_OrderID] UNIQUE,
 
         CONSTRAINT [PK_PaymentOrder] PRIMARY KEY ([PaymentID], [OrderID])
 );
