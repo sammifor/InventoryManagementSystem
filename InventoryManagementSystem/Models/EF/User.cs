@@ -28,6 +28,7 @@ namespace InventoryManagementSystem.Models.EF
         public int? ViolationTimes { get; set; }
         public bool? Banned { get; set; }
         public string LineAccount { get; set; }
+        public bool? Deleted { get; set; }
 
         public virtual ICollection<CanceledOrder> CanceledOrders { get; set; }
         public virtual ICollection<Order> Orders { get; set; }

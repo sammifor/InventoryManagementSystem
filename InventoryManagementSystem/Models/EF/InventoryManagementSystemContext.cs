@@ -144,19 +144,19 @@ namespace InventoryManagementSystem.Models.EF
                 entity.ToTable("EquipCategory");
 
                 entity.HasIndex(e => e.CategoryName, "UQ_EquipCategory_CategoryName")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([CategoryName] IS NOT NULL)");
 
                 entity.Property(e => e.EquipCategoryId).HasColumnName("EquipCategoryID");
 
-                entity.Property(e => e.CategoryName)
-                    .IsRequired()
-                    .HasMaxLength(50);
+                entity.Property(e => e.CategoryName).HasMaxLength(50);
             });
 
             modelBuilder.Entity<Equipment>(entity =>
             {
                 entity.HasIndex(e => e.EquipmentSn, "UQ_Equipment_EquipmentSN")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([EquipmentSN] IS NOT NULL)");
 
                 entity.Property(e => e.EquipmentId).HasColumnName("EquipmentID");
 
@@ -207,7 +207,8 @@ namespace InventoryManagementSystem.Models.EF
                 entity.ToTable("Item");
 
                 entity.HasIndex(e => e.ItemSn, "UQ_Item_ItemSN")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([ItemSN] IS NOT NULL)");
 
                 entity.Property(e => e.ItemId).HasColumnName("ItemID");
 
@@ -600,13 +601,16 @@ namespace InventoryManagementSystem.Models.EF
                 entity.ToTable("User");
 
                 entity.HasIndex(e => e.Email, "UQ_User_Email")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([Email] IS NOT NULL)");
 
                 entity.HasIndex(e => e.PhoneNumber, "UQ_User_PhoneNumber")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([PhoneNumber] IS NOT NULL)");
 
                 entity.HasIndex(e => e.Username, "UQ_User_Username")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([Username] IS NOT NULL)");
 
                 entity.Property(e => e.UserId).HasColumnName("UserID");
 
@@ -618,8 +622,9 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.DateOfBirth).HasColumnType("date");
 
+                entity.Property(e => e.Deleted).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.Email)
-                    .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
@@ -642,7 +647,6 @@ namespace InventoryManagementSystem.Models.EF
                     .IsUnicode(false);
 
                 entity.Property(e => e.PhoneNumber)
-                    .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
@@ -652,7 +656,6 @@ namespace InventoryManagementSystem.Models.EF
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Username)
-                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
