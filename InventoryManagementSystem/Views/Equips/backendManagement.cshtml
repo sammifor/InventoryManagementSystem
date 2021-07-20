@@ -363,14 +363,12 @@
                             alert("刪除失敗!!!");
                         } else {
                             alert("刪除" + data + "筆");
-                            this.getdata();
-                            //this.indexofDelectItem = this.items.findIndex(x => x.itemId === this.delectItemId);
 
-                            //this.items.filter(x => {
-                            //    x.itemId !== this.delectItemId;
-                           /* });*/
+                            this.items=this.items.filter((x) => {
+                                return x.itemId !== this.delectItemId;
+                            });
                             
-                            /*this.deletItems = [];*/
+                            this.deletItems = [];
                             
                         }
                     })
