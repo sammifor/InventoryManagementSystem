@@ -56,38 +56,39 @@
                                  :sort-desc.sync="sortDesc"
                                  sort-icon-left
                                  responsive="sm" striped>
-                            <template #cell(show_details)="row">
-                                <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
-                                    {{ row.detailsShowing ? '隱藏' : '顯示'}}
-                                </b-button>
+                            
+                                <template #cell(show_details)="row">
+                                    <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
+                                        {{ row.detailsShowing ? '隱藏' : '顯示'}}
+                                    </b-button>
 
-                                <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @@change -->
-                                @*<b-form-checkbox v-model="row.detailsShowing" @@change="row.toggleDetails">
-                                        Details via check
-                                    </b-form-checkbox>*@
-                            </template>
+                                    <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @@change -->
+                                    @*<b-form-checkbox v-model="row.detailsShowing" @@change="row.toggleDetails">
+                    Details via check
+                </b-form-checkbox>*@
+                                </template>
 
-                            <template #row-details="row">
-                                <b-card>
-                                    <b-row>
-                                        <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品ID</b></b-col>
-                                        <b-col><b>物品SN</b></b-col>
-                                        <b-col><b>物品狀態</b></b-col>
-                                    </b-row>
-                                    <hr />
-                                    <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailId }}</b-col>
-                                        <b-col>{{ item.itemId }}</b-col>
-                                        <b-col>{{ item.itemSn }}</b-col>
-                                        <b-col>{{ item.orderDetailStatus }}</b-col>
-                                    </b-row>
+                                <template #row-details="row">
+                                    <b-card>
+                                        <b-row>
+                                            <b-col><b>訂單明細編號</b></b-col>
+                                            <b-col><b>物品ID</b></b-col>
+                                            <b-col><b>物品SN</b></b-col>
+                                            <b-col><b>物品狀態</b></b-col>
+                                        </b-row>
+                                        <hr />
+                                        <b-row v-for="item in row.item.orderDetails">
+                                            <b-col>{{ item.orderDetailId }}</b-col>
+                                            <b-col>{{ item.itemId }}</b-col>
+                                            <b-col>{{ item.itemSn }}</b-col>
+                                            <b-col>{{ item.orderDetailStatus }}</b-col>
+                                        </b-row>
 
 
 
-                                    <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
-                                </b-card>
-                            </template>
+                                        <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
+                                    </b-card>
+                                </template>
                         </b-table>
                     </div>
                 </template>
@@ -110,8 +111,8 @@
                                 <b-button size="sm" @@click="clearSelected">清除</b-button>
                             </span>
                             <span class="float-right">
-                                <b-button size="sm" @@click="distributeItems()">核可</b-button>
-                                <b-button size="sm" @@click="">拒絕</b-button>
+                                <b-button size="sm" @@click="">核可</b-button>
+                                <b-button size="sm" v-b-modal.deny-modal>拒絕</b-button>
                             </span>
                         </p>
                         <div>
@@ -128,6 +129,41 @@
                                  sort-icon-left
                                  selectable
                                  @@row-selected="onRowSelected">
+                            <template #cell(statusName)="data">
+                                <b class="btn-warning">{{ data.value }}</b>
+                            </template>
+                            <template #cell(btnItem)="data">
+                                <b-button id="popover-3" variant="primary" size="sm" class="mr-2" :value="orders[0].equipmentId">分配</b-button>
+                                <b-popover target="popover-3" triggers="hover focus">
+                                    <template #title>
+                                        分配物品
+                                    </template>
+                                    <p><strong>設備ID:</strong><input :value="orders[0].equipmentId" /></p>
+                                    <p><strong>選擇物品</strong><checkbox></checkbox></p>
+                                </b-popover>
+                            </template>
+
+                            @*<template #row-details="row">
+                                <b-card>
+                                    <b-row>
+                                        <b-col><b>訂單明細編號</b></b-col>
+                                        <b-col><b>物品ID</b></b-col>
+                                        <b-col><b>物品SN</b></b-col>
+                                        <b-col><b>物品狀態</b></b-col>
+                                    </b-row>
+                                    <hr />
+                                    <b-row v-for="item in row.item.orderDetails">
+                                        <b-col>{{ item.orderDetailId }}</b-col>
+                                        <b-col>{{ item.itemId }}</b-col>
+                                        <b-col>{{ item.itemSn }}</b-col>
+                                        <b-col>{{ item.orderDetailStatus }}</b-col>
+                                    </b-row>
+
+
+
+                                    <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
+                                </b-card>
+                            </template>*@
 
                             <!-- Example scoped slot for select state illustrative purposes -->
                             <template #cell(selected)="{ rowSelected }">
@@ -148,7 +184,7 @@
                             </span>
                             <span class="float-right">
                                 <b-button size="sm" @@click="">核可</b-button>
-                                <b-button size="sm" @@click="">拒絕</b-button>
+                                <b-button size="sm" v-b-modal.deny-modal>拒絕</b-button>
                             </span>
                         </p>
                         <p>
@@ -157,8 +193,7 @@
                         </p>
                     </div>
                 </template>
-
-        </b-tab>
+</b-tab>
 
         <!--PICKUP ORDERS-->
         <b-tab title="待領取" v-on:click="PickUpOrders">
@@ -430,8 +465,9 @@
                 items: [],
                 orders: [], // 存一開始拿到的所有訂單
                 selectMode: 'multi',
-                selected: []
-               
+                selected: [],
+                eid: [],
+                distributeitems:[]
             }
         },
         beforeCreate: function () {
@@ -483,17 +519,18 @@
                     { key: 'day', label: '租期', sortable: true },
                     { key: 'totalPrice', label: '總價', sortable: true },
                     { key: 'statusName', label: '狀態', sortable: true },
-                    { key: 'orderTime', label: '下單時間', sortable: true }];
+                    { key: 'orderTime', label: '下單時間', sortable: true },
+                    { key: 'btnItem', label: '分配' }];
                 this.items = this.orders.filter(o => o.tabName === "待核可");
             },
             onRowSelected(items) {
-                this.selected = items
+                this.selected = items;
             },
             selectAllRows() {
-                this.$refs.selectableTable.selectAllRows()
+                this.$refs.selectableTable.selectAllRows();
             },
             clearSelected() {
-                this.$refs.selectableTable.clearSelected()
+                this.$refs.selectableTable.clearSelected();
             },
             // 待領取
             PickUpOrders: function () {
@@ -574,6 +611,26 @@
             getLengthofOverdue(overdueorders) {
                 var OverdueLength = this.orders.filter(o => o.tabName === "已逾期");
                 return OverdueLength.length;
+            },
+            BtnItem:function(e) {
+                this.eid = e.target.value;
+
+                let url = '/ItemApi/GetItemsByEquipId/' + this.eid;
+                let request = {
+                    method: 'GET',
+                    headers: { 'content-type': 'application/json' }
+                }
+                fetch(url, request)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        return response.text();
+                    })
+                    .then(response => {
+                        this.distributeitems = response;
+                        /*this.checkedItems = [];*/
+                    })
             }
         }
     })
