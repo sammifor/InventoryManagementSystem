@@ -37,11 +37,9 @@ CREATE TABLE [User](
         [UserID] INT IDENTITY(1, 1) NOT NULL
                 CONSTRAINT [PK_User] PRIMARY KEY,
 
-        [Username] VARCHAR(50) NOT NULL
-                CONSTRAINT [UQ_User_Username] UNIQUE,
+        [Username] VARCHAR(50),
 
-        [Email] VARCHAR(100) NOT NULL
-                CONSTRAINT [UQ_User_Email] UNIQUE,
+        [Email] VARCHAR(100),
 
         [HashedPassword] BINARY(32) NOT NULL,
 
@@ -53,8 +51,7 @@ CREATE TABLE [User](
 
         [Address] NVARCHAR(50),
 
-        [PhoneNumber] VARCHAR(20) NOT NULL
-                CONSTRAINT [UQ_User_PhoneNumber] UNIQUE,
+        [PhoneNumber] VARCHAR(20),
 
         [Gender] CHAR(1)
                 CONSTRAINT [CK_User_Gender] CHECK(
@@ -75,16 +72,34 @@ CREATE TABLE [User](
 
         [Banned] BIT,
 
-        [LineAccount] VARCHAR(64)
+        [LineAccount] VARCHAR(64),
+
+        [Deleted] BIT
+                CONSTRAINT [DF_User_Deleted] DEFAULT 0
 );
+
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_User_Username]
+ON [User]([Username])
+WHERE [Username] IS NOT NULL
+
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_User_Email]
+ON [User]([Email])
+WHERE [Email] IS NOT NULL
+
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_User_PhoneNumber]
+ON [User]([PhoneNumber])
+WHERE [PhoneNumber] IS NOT NULL
 
 CREATE TABLE [EquipCategory](
         [EquipCategoryID] INT IDENTITY(1, 1) NOT NULL
                 CONSTRAINT [PK_EquipCategory] PRIMARY KEY,
 
-        [CategoryName] NVARCHAR(50) NOT NULL
-                CONSTRAINT [UQ_EquipCategory_CategoryName] UNIQUE
+        [CategoryName] NVARCHAR(50)
 );
+
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_EquipCategory_CategoryName]
+ON [EquipCategory]([CategoryName])
+WHERE [CategoryName] IS NOT NULL
 
 CREATE TABLE [Equipment](
         [EquipmentID] INT IDENTITY(1, 1) NOT NULL 
@@ -93,8 +108,7 @@ CREATE TABLE [Equipment](
         [EquipmentCategoryID] INT NOT NULL
                 CONSTRAINT [FK_Equipment_EquipCategory] FOREIGN KEY REFERENCES [EquipCategory]([EquipCategoryID]),
 
-        [EquipmentSN] VARCHAR(50) NOT NULL
-                CONSTRAINT [UQ_Equipment_EquipmentSN] UNIQUE,
+        [EquipmentSN] VARCHAR(50) NOT NULL,
 
         [EquipmentName] NVARCHAR(50) NOT NULL,
 
@@ -106,6 +120,10 @@ CREATE TABLE [Equipment](
 
         [Description] NVARCHAR(100)
 );
+
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_Equipment_EquipmentSN]
+ON [Equipment]([EquipmentSN])
+WHERE [EquipmentSN] IS NOT NULL
 
 CREATE TABLE [Condition](
         [ConditionID] CHAR(1) NOT NULL
@@ -129,11 +147,14 @@ CREATE TABLE [Item](
         [ConditionID] CHAR(1) NOT NULL
                 CONSTRAINT [FK_Item_Condition] FOREIGN KEY REFERENCES [Condition]([ConditionID]),
 
-        [ItemSN] VARCHAR(50) NOT NULL
-                CONSTRAINT [UQ_Item_ItemSN] UNIQUE,
+        [ItemSN] VARCHAR(50) NOT NULL,
 
         [Description] NVARCHAR(100)
 );
+
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_Item_ItemSN]
+ON [Item]([ItemSN])
+WHERE [ItemSN] IS NOT NULL
 
 CREATE TABLE [OrderStatus](
         [OrderStatusID] CHAR(1) NOT NULL
@@ -221,23 +242,34 @@ CREATE TABLE [Questionnaire](
         [Feedback] NVARCHAR(200)
 );
 
-CREATE TABLE [PaymentCategory](
-        [PaymentCategoryID] CHAR(1) NOT NULL
-                CONSTRAINT [PK_PaymentCategory] PRIMARY KEY,
-                -- P for Purchase
-                -- F for Fine
+CREATE TABLE [FeeCategory](
+        [FeeCategoryID] CHAR(1) NOT NULL
+                CONSTRAINT [PK_FeeCategory] PRIMARY KEY,
+                -- R for RentalFee
+                -- E for ExtraFee
 
-        [PaymentCategoryName] NVARCHAR(50) NOT NULL
+        [Name] NVARCHAR(50) NOT NULL
 );
 
 CREATE TABLE [Payment](
         [PaymentID] INT IDENTITY(1, 1) NOT NULL
                 CONSTRAINT [PK_Payment] PRIMARY KEY,
 
-        [PaymentCategoryID] CHAR(1) NOT NULL
-                CONSTRAINT [FK_Payment_PaymentCategory] FOREIGN KEY REFERENCES [PaymentCategory]([PaymentCategoryID]),
+        [RentalFee] DECIMAL NOT NULL,
 
-        [Fee] DECIMAL NOT NULL
+        [ExtraFee] DECIMAL
+);
+
+CREATE TABLE [PaymentLog](
+        [PaymentLogID] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [PK_PaymentLog] PRIMARY KEY,
+
+        [FeeCategoryID] CHAR(1) NOT NULL
+                CONSTRAINT [FK_PaymentLog_FeeCategory] FOREIGN KEY REFERENCES [FeeCategory]([FeeCategoryID]),
+
+        [Fee] DECIMAL NOT NULL,
+
+        [Description] NVARCHAR(200)
 );
 
 CREATE TABLE [PaymentOrder](
@@ -245,13 +277,14 @@ CREATE TABLE [PaymentOrder](
                 CONSTRAINT [FK_PaymentOrder_Payment] FOREIGN KEY REFERENCES [Payment]([PaymentID]),
 
         [OrderID] INT NOT NULL
-                CONSTRAINT [FK_PaymentOrder_Order] FOREIGN KEY REFERENCES [Order]([OrderID]),
+                CONSTRAINT [FK_PaymentOrder_Order] FOREIGN KEY REFERENCES [Order]([OrderID])
+                CONSTRAINT [UQ_PaymentOrder_OrderID] UNIQUE,
 
         CONSTRAINT [PK_PaymentOrder] PRIMARY KEY ([PaymentID], [OrderID])
 );
 
 CREATE TABLE [PaymentDetail](
-        [PaymentDetail] INT IDENTITY(1, 1) NOT NULL
+        [PaymentDetailID] INT IDENTITY(1, 1) NOT NULL
                 CONSTRAINT [PK_PaymentDetail] PRIMARY KEY,
 
         [PaymentID] INT NOT NULL

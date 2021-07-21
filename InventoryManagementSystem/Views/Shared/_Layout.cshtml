@@ -24,89 +24,94 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    @{ if(User.Identity.IsAuthenticated)
-                        {
+                <span class="navbar-collapse collapse">
+                    @if(User.Identity.IsAuthenticated)
+                    {
 
-                            <ul class="navbar-nav flex-grow-1">
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        設備查詢
-                                    </a>
-                                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                        @{ if(User.HasClaim(ClaimTypes.Role, "user"))
-                                            {
-                                                <a class="dropdown-item" asp-controller="Equips" asp-action="equipQryUser">使用者查詢設備</a>
-                                            }
-                                            else if(User.HasClaim(ClaimTypes.Role, "admin"))
-                                            {
-                                                <a class="dropdown-item" asp-controller="Equips" asp-action="equipQryAdmin">管理員查詢設備</a>
-                                            }
+                        <ul class="navbar-nav">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    設備查詢
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    @{ if(User.HasClaim(ClaimTypes.Role, "user"))
+                                        {
+                                            <a class="dropdown-item" asp-controller="Equips" asp-action="equipQryUser">使用者查詢設備</a>
                                         }
-                                        <a class="dropdown-item" href="#">設備瀏覽</a>
-                                    </div>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#"></a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Features</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Features</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">Features</a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        訂單管理
-                                    </a>
-                                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                        @{if(User.HasClaim(ClaimTypes.Role, "user"))
-                                            {
-                                                <a class="dropdown-item" asp-controller="Order" asp-action="orderQryUser">使用者訂單管理</a>
-                                            }
-                                            else if(User.HasClaim(ClaimTypes.Role, "admin"))
-                                            {
-                                                <a class="dropdown-item" asp-controller="Order" asp-action="orderManageAdmin">管理員訂單管理</a>
-                                            }
+                                        else if(User.HasClaim(ClaimTypes.Role, "admin"))
+                                        {
+                                            <a class="dropdown-item" asp-controller="Equips" asp-action="equipQryAdmin">管理員查詢設備</a>
                                         }
-                                    </div>
-                                </li>
-                            </ul>}
+                                    }
+                                    <a class="dropdown-item" href="#">設備瀏覽</a>
+                                </div>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Features</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Features</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Features</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    訂單管理
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    @{if(User.HasClaim(ClaimTypes.Role, "user"))
+                                        {
+                                            <a class="dropdown-item" asp-controller="Order" asp-action="orderQryUser">使用者訂單管理</a>
+                                        }
+                                        else if(User.HasClaim(ClaimTypes.Role, "admin"))
+                                        {
+                                            <a class="dropdown-item" asp-controller="Order" asp-action="orderManageAdmin">管理員訂單管理</a>
+                                        }
+                                    }
+                                </div>
+                            </li>
+                        </ul>
+                        <span class="navbar-text mx-auto">@@@User.Identity.Name</span>
                     }
-                <ul class="navbar-nav flex-grow-1 navbar-right">
-                    <li class="nav-item active">
-                        @if(User.HasClaim(ClaimTypes.Role, "user"))
-                        {
-                            <a class="nav-link" asp-controller="User" asp-action="Logout">
-                                登出<img src="/image/logout.svg" width="25" height="25" />
-                            </a>
-                        }
-                        else if(User.HasClaim(ClaimTypes.Role, "admin"))
-                        {
-                            <a class="nav-link" asp-controller="Admin" asp-action="Logout">
-                                登出<img src="/image/logout.svg" width="25" height="25" />
-                            </a>
-                        }
-                    </li>
+
+                    @if(User.Identity.IsAuthenticated)
+                    {
+                        <ul class="navbar-nav">
+                            @if(User.HasClaim(ClaimTypes.Role, "user"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="User" asp-action="Logout">
+                                        登出<img src="/image/logout.svg" width="25" height="25" />
+                                    </a>
+                                </li>
+                            }
+                            else if(User.HasClaim(ClaimTypes.Role, "admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Admin" asp-action="Logout">
+                                        登出<img src="/image/logout.svg" width="25" height="25" />
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    }
                     @if(!User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="User" asp-action="Login">
-                                使用者登入<img src="/image/login.svg" width="25" height="25" />
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Admin" asp-action="Login">
-                                管理員登入<img src="/image/login.svg" width="25" height="25" />
-                            </a>
-                        </li>
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="User" asp-action="Login">
+                                    使用者登入<img src="/image/login.svg" width="25" height="25" />
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Admin" asp-action="Login">
+                                    管理員登入<img src="/image/login.svg" width="25" height="25" />
+                                </a>
+                            </li>
+                        </ul>
                     }
-                </ul>
 
-                </div>
             </div>
         </nav>
     </header>

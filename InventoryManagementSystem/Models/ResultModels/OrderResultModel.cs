@@ -35,5 +35,8 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string TabName { get; set; }
 
         public OrderDetailResultModel[] OrderDetails { get; set; }
+
+        // From Payment table
+        public int? PaymentId { get; set; }
     }
 }

@@ -22,6 +22,7 @@ namespace InventoryManagementSystem.Models.EF
         public virtual DbSet<Condition> Conditions { get; set; }
         public virtual DbSet<EquipCategory> EquipCategories { get; set; }
         public virtual DbSet<Equipment> Equipment { get; set; }
+        public virtual DbSet<FeeCategory> FeeCategories { get; set; }
         public virtual DbSet<Item> Items { get; set; }
         public virtual DbSet<ItemLog> ItemLogs { get; set; }
         public virtual DbSet<LineNotification> LineNotifications { get; set; }
@@ -30,8 +31,8 @@ namespace InventoryManagementSystem.Models.EF
         public virtual DbSet<OrderDetailStatus> OrderDetailStatuses { get; set; }
         public virtual DbSet<OrderStatus> OrderStatuses { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
-        public virtual DbSet<PaymentCategory> PaymentCategories { get; set; }
         public virtual DbSet<PaymentDetail> PaymentDetails { get; set; }
+        public virtual DbSet<PaymentLog> PaymentLogs { get; set; }
         public virtual DbSet<PaymentOrder> PaymentOrders { get; set; }
         public virtual DbSet<Questionnaire> Questionnaires { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
@@ -143,19 +144,19 @@ namespace InventoryManagementSystem.Models.EF
                 entity.ToTable("EquipCategory");
 
                 entity.HasIndex(e => e.CategoryName, "UQ_EquipCategory_CategoryName")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([CategoryName] IS NOT NULL)");
 
                 entity.Property(e => e.EquipCategoryId).HasColumnName("EquipCategoryID");
 
-                entity.Property(e => e.CategoryName)
-                    .IsRequired()
-                    .HasMaxLength(50);
+                entity.Property(e => e.CategoryName).HasMaxLength(50);
             });
 
             modelBuilder.Entity<Equipment>(entity =>
             {
                 entity.HasIndex(e => e.EquipmentSn, "UQ_Equipment_EquipmentSN")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([EquipmentSN] IS NOT NULL)");
 
                 entity.Property(e => e.EquipmentId).HasColumnName("EquipmentID");
 
@@ -186,12 +187,28 @@ namespace InventoryManagementSystem.Models.EF
                     .HasConstraintName("FK_Equipment_EquipCategory");
             });
 
+            modelBuilder.Entity<FeeCategory>(entity =>
+            {
+                entity.ToTable("FeeCategory");
+
+                entity.Property(e => e.FeeCategoryId)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("FeeCategoryID")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
             modelBuilder.Entity<Item>(entity =>
             {
                 entity.ToTable("Item");
 
                 entity.HasIndex(e => e.ItemSn, "UQ_Item_ItemSN")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([ItemSN] IS NOT NULL)");
 
                 entity.Property(e => e.ItemId).HasColumnName("ItemID");
 
@@ -417,44 +434,16 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
 
-                entity.Property(e => e.Fee).HasColumnType("decimal(18, 0)");
+                entity.Property(e => e.ExtraFee).HasColumnType("decimal(18, 0)");
 
-                entity.Property(e => e.PaymentCategoryId)
-                    .IsRequired()
-                    .HasMaxLength(1)
-                    .IsUnicode(false)
-                    .HasColumnName("PaymentCategoryID")
-                    .IsFixedLength(true);
-
-                entity.HasOne(d => d.PaymentCategory)
-                    .WithMany(p => p.Payments)
-                    .HasForeignKey(d => d.PaymentCategoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Payment_PaymentCategory");
-            });
-
-            modelBuilder.Entity<PaymentCategory>(entity =>
-            {
-                entity.ToTable("PaymentCategory");
-
-                entity.Property(e => e.PaymentCategoryId)
-                    .HasMaxLength(1)
-                    .IsUnicode(false)
-                    .HasColumnName("PaymentCategoryID")
-                    .IsFixedLength(true);
-
-                entity.Property(e => e.PaymentCategoryName)
-                    .IsRequired()
-                    .HasMaxLength(50);
+                entity.Property(e => e.RentalFee).HasColumnType("decimal(18, 0)");
             });
 
             modelBuilder.Entity<PaymentDetail>(entity =>
             {
-                entity.HasKey(e => e.PaymentDetail1);
-
                 entity.ToTable("PaymentDetail");
 
-                entity.Property(e => e.PaymentDetail1).HasColumnName("PaymentDetail");
+                entity.Property(e => e.PaymentDetailId).HasColumnName("PaymentDetailID");
 
                 entity.Property(e => e.AmountPaid).HasColumnType("decimal(18, 0)");
 
@@ -471,19 +460,46 @@ namespace InventoryManagementSystem.Models.EF
                     .HasConstraintName("FK_PaymentDetail_Payment");
             });
 
+            modelBuilder.Entity<PaymentLog>(entity =>
+            {
+                entity.ToTable("PaymentLog");
+
+                entity.Property(e => e.PaymentLogId).HasColumnName("PaymentLogID");
+
+                entity.Property(e => e.Description).HasMaxLength(200);
+
+                entity.Property(e => e.Fee).HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.FeeCategoryId)
+                    .IsRequired()
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("FeeCategoryID")
+                    .IsFixedLength(true);
+
+                entity.HasOne(d => d.FeeCategory)
+                    .WithMany(p => p.PaymentLogs)
+                    .HasForeignKey(d => d.FeeCategoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PaymentLog_FeeCategory");
+            });
+
             modelBuilder.Entity<PaymentOrder>(entity =>
             {
                 entity.HasKey(e => new { e.PaymentId, e.OrderId });
 
                 entity.ToTable("PaymentOrder");
 
+                entity.HasIndex(e => e.OrderId, "UQ_PaymentOrder_OrderID")
+                    .IsUnique();
+
                 entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
 
                 entity.Property(e => e.OrderId).HasColumnName("OrderID");
 
                 entity.HasOne(d => d.Order)
-                    .WithMany(p => p.PaymentOrders)
-                    .HasForeignKey(d => d.OrderId)
+                    .WithOne(p => p.PaymentOrder)
+                    .HasForeignKey<PaymentOrder>(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_PaymentOrder_Order");
 
@@ -585,13 +601,16 @@ namespace InventoryManagementSystem.Models.EF
                 entity.ToTable("User");
 
                 entity.HasIndex(e => e.Email, "UQ_User_Email")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([Email] IS NOT NULL)");
 
                 entity.HasIndex(e => e.PhoneNumber, "UQ_User_PhoneNumber")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([PhoneNumber] IS NOT NULL)");
 
                 entity.HasIndex(e => e.Username, "UQ_User_Username")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([Username] IS NOT NULL)");
 
                 entity.Property(e => e.UserId).HasColumnName("UserID");
 
@@ -603,8 +622,9 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.DateOfBirth).HasColumnType("date");
 
+                entity.Property(e => e.Deleted).HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.Email)
-                    .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
@@ -627,7 +647,6 @@ namespace InventoryManagementSystem.Models.EF
                     .IsUnicode(false);
 
                 entity.Property(e => e.PhoneNumber)
-                    .IsRequired()
                     .HasMaxLength(20)
                     .IsUnicode(false);
 
@@ -637,7 +656,6 @@ namespace InventoryManagementSystem.Models.EF
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Username)
-                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
 

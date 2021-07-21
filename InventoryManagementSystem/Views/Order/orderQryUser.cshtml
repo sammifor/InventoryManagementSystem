@@ -224,15 +224,15 @@
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">物品序號</label>
-                            <select class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)">
+                            <select class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)" v-model="reportOrder.reportItemSn">
                                 <option disabled selected>請先選擇序號</option>
-                                <option v-for="eachOrderDetails in currentOrder.orderDetails" :value="eachOrderDetails.reportItemSn">{{eachOrderDetails.itemSn}}</option>
+                                <option v-for="eachOrderDetails in currentOrder.orderDetails" :value="eachOrderDetails.itemSn">{{eachOrderDetails.itemSn}}</option>
                             </select>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <a :href="reportUrl" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">填寫設備報修申請</a>
+                        <a :href="reportUrl" class="btn btn-primary active" role="button" aria-pressed="true">填寫設備報修申請</a>
                     </div>
                     </div>
                 </div>
@@ -332,7 +332,7 @@
                 reportOrderDetailId:""
 
             },
-            reportUrl:""
+            reportUrl: ""
 
         },
 
@@ -431,11 +431,8 @@
 
             },
 
-            selectReportItem(orderDetailData) {
-                
+            selectReportItem: function(orderDetailData) {
                 this.reportOrder.reportOrderDetailId = orderDetailData[0].orderDetailId;
-                this.reportOrder.reportItemSn = orderDetailData[0].itemSn;
-                console.log(this.reportOrder.reportOrderDetailId);
                 this.reportUrl = 'orderReport?orderDetailId=' + this.reportOrder.reportOrderDetailId + '&ename='
                     + this.currentOrder.equipmentName +"&esn=" + this.currentOrder.equipmentSn + "&itemsn="+ this.reportOrder.reportItemSn
 

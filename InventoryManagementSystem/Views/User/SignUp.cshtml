@@ -5,122 +5,218 @@
 
 <div class="row justify-content-center">
     <div class="col-xl-8 col-12">
-        <section class="card">
+        <div class="card">
             <h1 class="card-header">會員註冊</h1>
             <form method="post" class="card-body">
                 <label for="email">電子信箱</label>
-                <div class="input-group">
+                <div class="form-group">
                     <input v-model="info.email"
-                           @@change="validateUniqueField(emailValidationClass, $event, 'email')"
+                           @@input="uniqueFieldInput(timers.email, emailValidationClass, $event, 'email')"
                            :class="['form-control', emailValidationClass]"
                            type="email"
                            name="email"
-                           id="email" />
-                    <div class="input-group-append">
-                        <span class="input-group-text">@@</span>
-                        @*<button class="btn btn-info input-group-text">檢查電子信箱</button>*@
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="username">使用者名稱</label>
-                    <input v-model="info.username"
-                           @@change="validateUniqueField(usernameValidationClass, $event, 'username')"
-                           :class="['form-control', usernameValidationClass]"
-                           type="text"
-                           name="username"
-                           id="username" />
-                </div>
-
-                <div class="form-group">
-                    <label for="password">密碼</label>
-                    <input v-model="info.password"
-                           @@input="validatePw()"
-                           :class="['form-control', pwClass]"
-                           type="password"
-                           name="password"
-                           id="password" />
-                </div>
-
-                <div class="form-group">
-                    <label for="pw-check">確認密碼</label>
-                    <input v-model="pwCheck"
-                           @@input="validatePw()"
-                           :class="['form-control', pwCheckClass]"
-                           type="password"
-                           id="pw-check" />
-                </div>
-
-                <div class="form-group">
-                    <label for="fullName">全名</label>
-                    <input v-model="info.fullname" class="form-control" type="text" name="fullName" id="fullName" />
-                </div>
-
-                <div class="form-group">
-                    <label>姓別</label>
-                    <input @@change="selectGender" type="radio" name="gender" id="male" value="M" />
-                    <label for="male">男</label>
-                    <input @@change="selectGender" type="radio" name="gender" id="female" value="F" />
-                    <label for="female">女</label>
-                    <input @@change="selectGender" type="radio" name="gender" id="unspecified" value="X" />
-                    <label for="unspecified">不透露</label>
-                </div>
-
-                <div class="form-group">
-                    <label for="dateOfBirth">生日</label>
-                    <input v-model="info.dateOfBirth" type="date" name="dateOfBirth" id="dateOfBirth" />
+                           id="email"
+                           placeholder="必填"
+                           required />
                 </div>
 
                 <div class="form-group">
                     <label for="phoneNumber">手機</label>
                     <input v-model="info.phoneNumber"
-                           @@change="validateUniqueField(phoneNumberValidationClass, $event, 'phoneNumber')"
+                           @@input="uniqueFieldInput(timers.phoneNumber, phoneNumberValidationClass, $event, 'phoneNumber')"
                            :class="['form-control', phoneNumberValidationClass]"
                            type="tel"
                            name="phoneNumber"
-                           id="phoneNumber" />
+                           id="phoneNumber"
+                           placeholder="必填"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label for="username">使用者名稱</label>
+                    <input v-model="info.username"
+                           @@input="uniqueFieldInput(timers.username, usernameValidationClass, $event, 'username')"
+                           :class="['form-control', usernameValidationClass]"
+                           type="text"
+                           name="username"
+                           id="username"
+                           placeholder="必填"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密碼</label>
+                    <input v-model="info.password"
+                           @@input="validatePw"
+                           :class="['form-control', pwClass]"
+                           type="password"
+                           name="password"
+                           id="password"
+                           placeholder="必填"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label for="pw-check">確認密碼</label>
+                    <input v-model="pwCheck"
+                           @@input="validatePw"
+                           :class="['form-control', pwCheckClass]"
+                           type="password"
+                           id="pw-check"
+                           placeholder="必填"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label for="fullName">全名</label>
+                    <input v-model="info.fullName"
+                           @@input="normalizeAndValidateName(fullNameValidationClass, $event)"
+                           :class="['form-control', fullNameValidationClass]"
+                           type="text"
+                           name="fullName"
+                           id="fullName"
+                           placeholder="必填"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">性別</label>
+                    <select class="form-control"
+                            v-model="info.gender"
+                            name="gender"
+                            id="gender">
+                        <option v-for="gender in genders"
+                                :value="gender.value">
+                            {{gender.text}}
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dateOfBirth">生日</label>
+                    <vuejs-datepicker :language="zh"
+                                      v-model="info.dateOfBirth"
+                                      bootstrap-styling="true"
+                                      :input-class="dateValidationClass"
+                                      :format="'yyyy 年 MM 月 dd 日'"
+                                      id="dateOfBirth"
+                                      name="dateOfBirth"
+                                      clear-button="true"
+                                      @@input="validateDate"
+                                      @@cleared="dateCleared">
+                    </vuejs-datepicker>
                 </div>
 
                 <div class="form-group">
                     <label for="address">地址</label>
-                    <input v-model="info.address" class="form-control" type="text" name="address" id="address" />
+                    <input v-model="info.address"
+                           class="form-control"
+                           type="text"
+                           name="address"
+                           id="address" />
+                </div>
+
+                <!-- May be removed -->
+                <div class="form-group">
+                    <label for="lineAccount">LINE 帳號</label>
+                    <input v-model="info.lineAccount"
+                           class="form-control"
+                           type="text"
+                           name="lineAccount"
+                           id="lineAccount" />
                 </div>
 
                 <div class="form-group">
-                    <label for="lineAccount">LINE 帳號</label>
-                    <input v-model="info.lineAccount" class="form-control" type="text" name="lineAccount" id="lineAccount" />
+                    <div class="form-check">
+                        <input v-model="info.allowNotification"
+                               class="form-check-input"
+                               type="checkbox"
+                               name="allowNotification"
+                               id="allowNotification" />
+                        <label class="form-check-label"
+                               for="allowNotification">
+                            我要接收逾期提醒
+                        </label>
+                    </div>
                 </div>
 
-                <div class="form-check">
-                    <input v-model="info.allowNotification" class="form-check-input" type="checkbox" name="allowNotification" id="allowNotification" />
-                    <label class="form-check-label" for="allowNotification">我要接收逾期提醒</label>
+                <div class="from-group">
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               v-model="agreeToToc"
+                               type="checkbox"
+                               name="agreeToToC"
+                               id="agreeToToC"
+                               required />
+                        <label class="form-check-label"
+                               for="agreeToToC">
+                            我已閱讀並同意<a href="#">服務條款</a>（必選）
+                        </label>
+                    </div>
                 </div>
 
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="agreeToToC" id="agreeToToC" />
-                    <label class="form-check-label" for="agreeToToC">我已閱讀並同意<a href="#">服務條款</a></label>
-                </div>
                 <div class="form-group text-center">
-                    <button @@click="clickSignUp" class="btn btn-primary btn-lg" :disabled="btnIsDisabled" type="button">註冊</button>
+                    <button @@click="clickSignUp"
+                            :class="['btn', 'btn-lg', submitBtnClass]"
+                            :disabled="btnIsDisabled" @*Not wrong. VS has no idea that this is Vue.js syntax.*@
+                            type="button">
+                        註冊
+                    </button>
                 </div>
             </form>
-        </section>
+            <div :hidden="messageHidden" @*Not wrong. VS has no idea that this is Vue.js syntax.*@
+                     class="card-footer text-center">
+                <p class="card-text">
+                    註冊成功，請等待跳轉。若 5 秒後沒有跳轉，請<a :href="redirectURL">按此連結跳轉</a>。
+                </p>
+            </div>
+        </div>
     </div>
 </div>
 
+@*
+    dateOfBirth is a readonly input field.
+    Because of Bootstrap's default settings, this field's background color is gray.
+    As a result, people might think this field is untypeable.
+    To avoid the confusion, I decided to change the background color to white.
+*@
+<style>
+    .form-control[readonly] {
+        background-color: white;
+    }
+</style>
+
+<script src="https://unpkg.com/vuejs-datepicker"></script>
+<script src="https://unpkg.com/vuejs-datepicker/dist/locale/translations/zh.js"></script>
 <script>
     let apiURLs = {
         signUp: "api/user",
         validate: "api/user/validate"
     };
-    let form = new Vue({
-        el: ".card-body",
+    let card = new Vue({
+        el: ".card",
         data() {
             return {
+                zh: vdp_translation_zh.js,
                 info: {
                     gender: "X",
                     allowNotification: false
                 },
+                agreeToToc: false,
+                genders: [
+                    {
+                        value: "X",
+                        text: "不指定"
+                    },
+                    {
+                        value: "M",
+                        text: "男性"
+                    },
+                    {
+                        value: "F",
+                        text: "女性"
+                    }
+                ],
                 emailValidationClass: {
                     "is-valid": false,
                     "is-invalid": false
@@ -141,7 +237,34 @@
                     "is-valid": false,
                     "is-invalid": false
                 },
-                pwCheck: ""
+                fullNameValidationClass: {
+                    "is-valid": false,
+                    "is-invalid": false
+                },
+                dateValidationClass: {
+                    "is-valid": false,
+                    "is-invalid": false,
+                    "has-validation": true
+                },
+                submitBtnClass: {
+                    "btn-primary": false,
+                    "btn-light": true
+                },
+                pwCheck: "",
+                // JS is passing "a copy of reference"
+                timers: {
+                    email: {
+                        timerID: undefined
+                    },
+                    username: {
+                        timerID: undefined
+                    },
+                    phoneNumber: {
+                        timerID: undefined
+                    }
+                },
+                messageHidden: true,
+                redirectURL: ""
             };
         },
         methods: {
@@ -161,26 +284,63 @@
                 }
 
                 console.log("OK");
+
+                this.redirectURL = response.url;
+                this.messageHidden = false;
+
+                setTimeout(() => window.location.href = response.url, 5000);
             },
             selectGender(e) {
                 this.info.gender = e.target.value;
             },
-            async validateUniqueField(validationClass, e, field) {
+            async validateUniqueField(validationClass, field, value) {
                 validationClass["is-valid"] = false;
                 validationClass["is-invalid"] = false;
-                let validationURL = apiURLs.validate + `?validatedField=${field}&value=${e.target.value}`;
-                let response = await fetch(validationURL, {
-                    method: "GET"
-                });
-                if (!response.ok)
-                    throw new Error(`HTTP error! status: ${response.status}`);
 
-                let available = await response.json();
+                // 先檢查格式。
+                // 因為一次只檢查一個 field，所以其他 field 就 don't care。
+                // 因此，全部都先給 true，格式不對了自然會有其中一個是 false 出現。
+                let emailIsValid = usernameIsValid = phoneNumberIsvalid = true;
+                switch (field) {
+                    case "email":
+                        let emailRule = /^\w+((-\w+)|(\.\w+))*\@@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+                        emailIsValid = emailRule.test(value);
+                        break;
+                    case "username":
+                        // TODO username validation logic
+                        break;
+                    case "phoneNumber":
+                        let phoneRule = /^09[0-9]{8}$/;
+                        phoneNumberIsvalid = phoneRule.test(value);
+                        break;
+                    default:
+                        return;
+                }
 
-                if(available)
+                // 格式對了才連到 API 檢查是否在 database 有重覆
+                // 因此如果下方的 if 出現 false，那就不連到 API
+                // 整個 availability 需直接判定為 false
+                // 故預設先給 false
+                let available = false;
+
+                if (emailIsValid && usernameIsValid && phoneNumberIsvalid) {
+                    console.log("connecting to db...", field);
+                    let validationURL = apiURLs.validate + `?validatedField=${field}&value=${value}`;
+                    let response = await fetch(validationURL, {
+                        method: "GET"
+                    });
+                    if (!response.ok)
+                        throw new Error(`HTTP error! status: ${response.status}`);
+
+                    // API 會回傳 true or false
+                    available = await response.json();
+                }
+
+                if (available)
                     validationClass["is-valid"] = true;
                 else
                     validationClass["is-invalid"] = true;
+
             },
             validatePw() {
                 this.pwClass["is-valid"] = false;
@@ -200,14 +360,69 @@
                 else
                     this.pwCheckClass["is-valid"] = true;
 
+
+            },
+            // 每次在不得重覆的欄位輸入時，停止上次的 timer，並開始新的 timer
+            uniqueFieldInput(timer, validationClass, e, fieldName) {
+                clearTimeout(timer.value);
+
+                timer.value = setTimeout(
+                    this.validateUniqueField, 500, // 500 ms 後才跟 API 要資料
+                    validationClass, // para1
+                    fieldName, // para2
+                    e.target.value // para3
+                );
+            },
+            // 驗證有無輸入姓名
+            normalizeAndValidateName(validationClass, e) {
+                validationClass["is-valid"] = false;
+                validationClass["is-invalid"] = false;
+
+                let name = this.info.fullName = e.target.value.trim();
+
+                if (name.length <= 0)
+                    validationClass["is-invalid"] = true;
+                else
+                    validationClass["is-valid"] = true;
+            },
+            validateDate(date) {
+                this.dateCleared.call(this);
+
+                if (date > new Date())
+                    this.dateValidationClass["is-invalid"] = true;
+                else
+                    this.dateValidationClass["is-valid"] = true;
+            },
+            dateCleared() {
+                this.dateValidationClass["is-valid"] = false;
+                this.dateValidationClass["is-invalid"] = false;
             }
         },
         computed: {
             btnIsDisabled() {
-                return !this.emailValidationClass["is-valid"] ||
+                let isDisabled = !this.emailValidationClass["is-valid"] ||
                     !this.usernameValidationClass["is-valid"] ||
-                    !this.phoneNumberValidationClass["is-valid"];
+                    !this.phoneNumberValidationClass["is-valid"] ||
+                    !this.pwClass["is-valid"] ||
+                    !this.pwCheckClass["is-valid"] ||
+                    !this.fullNameValidationClass["is-valid"] ||
+                    this.dateValidationClass["is-invalid"] ||
+                    !this.agreeToToc;
+
+                if (isDisabled) {
+                    this.submitBtnClass["btn-primary"] = false;
+                    this.submitBtnClass["btn-light"] = true;
+                    return true;
+                }
+                else {
+                    this.submitBtnClass["btn-primary"] = true;
+                    this.submitBtnClass["btn-light"] = false;
+                    return false;
+                }
             }
+        },
+        components: {
+            vuejsDatepicker
         }
     });
 </script>
