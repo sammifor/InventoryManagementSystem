@@ -7,6 +7,7 @@ namespace InventoryManagementSystem.Models.ResultModels
 {
     public class AdminResultModel
     {
+        public int AdminId { get; set; }
         public int RoleId { get; set; }
         public string RoleName { get; set; }
         public string Username { get; set; }

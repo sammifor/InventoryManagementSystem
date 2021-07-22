@@ -49,6 +49,7 @@ namespace InventoryManagementSystem.Controllers.Api
             AdminResultModel[] admins = await qryAdmins
                 .Select(a => new AdminResultModel
                 {
+                    AdminId = a.AdminId,
                     RoleId = a.RoleId,
                     RoleName = a.Role.RoleName,
                     Username = a.Username,
