@@ -31,7 +31,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         [Route("{id}")]
         [Authorize]
-        public async Task<string[]> GetEquipNamesByCatesId(int id)
+        public async Task<IActionResult> GetEquipNamesByCatesId(Guid id)
         {
             var results = await _dbContext.Equipment
                 .Where(e => e.EquipmentCategoryId == id)
@@ -39,7 +39,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Distinct()
                 .ToArrayAsync();
 
-            return results;
+            return Ok(results);
         }
 
         /*
@@ -49,7 +49,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet]
         [Route("{id}")]
         [Authorize]
-        public async Task<ActionResult<EquipResultModel>> GetEquipById(int id)
+        public async Task<ActionResult> GetEquipById(Guid id)
         {
             var result = await _dbContext.Equipment
                 .Where(e => e.EquipmentId == id)
@@ -72,11 +72,8 @@ namespace InventoryManagementSystem.Controllers.Api
                 return NotFound();
             }
 
-
-            return result;
-
+            return Ok(result);
         }
-
 
         /*
          * EquipApi/GetEquipByEquipName/{EquipmentName}
@@ -86,7 +83,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         [Route("{name}")]
         [Authorize]
-        public async Task<EquipResultModel[]> GetEquipByEquipName(string name)
+        public async Task<IActionResult> GetEquipByEquipName(string name)
         {
             var results = await _dbContext.Equipment
                 .Where(e => e.EquipmentName == name)
@@ -104,7 +101,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
                 })
                 .ToArrayAsync();
-            return results;
+            return Ok(results);
         }
 
         /*
@@ -115,7 +112,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         [Route("{id}")]
         [Authorize]
-        public async Task<EquipResultModel[]> GetEquipByCateId(int id)
+        public async Task<IActionResult> GetEquipByCateId(Guid id)
         {
             var results = await _dbContext.Equipment
                 .Where(e => e.EquipmentCategoryId == id)
@@ -133,7 +130,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
                 })
                 .ToArrayAsync();
-            return results;
+            return Ok(results);
         }
 
         /*
@@ -153,6 +150,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             Equipment equip = new Equipment
             {
+                EquipmentId = Guid.NewGuid(),
                 EquipmentCategoryId = model.EquipmentCategoryId,
                 EquipmentSn = model.EquipmentSn,
                 EquipmentName = model.EquipmentName,
@@ -161,10 +159,10 @@ namespace InventoryManagementSystem.Controllers.Api
                 UnitPrice = model.UnitPrice,
                 Description = model.Description
             };
+            _dbContext.Equipment.Add(equip);
 
             try
             {
-                _dbContext.Equipment.Add(equip);
                 await _dbContext.SaveChangesAsync();
             }
             catch
@@ -186,7 +184,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Route("{id}")]
         [Authorize(Roles = "admin")]
         // TODO 應使用 ViewModel 防止 overposting
-        public async Task<IActionResult> EditEquip(int id, Equipment equip)
+        public async Task<IActionResult> EditEquip(Guid id, Equipment equip)
         {
             if (equip.EquipmentId != id)
             {
@@ -199,7 +197,7 @@ namespace InventoryManagementSystem.Controllers.Api
             {
                 await _dbContext.SaveChangesAsync();
             }
-            catch (DbUpdateException e)
+            catch
             {
                 return Conflict();
             }
@@ -214,7 +212,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpDelete]
         [Consumes("application/json")]
         [Authorize(Roles = "admin")]
-        public async Task<ActionResult<int>> RemoveEquipByIds(int[] ids)
+        public async Task<ActionResult> RemoveEquipByIds(Guid[] ids)
         {
 
             // 查出所有待刪的 equip
@@ -246,7 +244,7 @@ namespace InventoryManagementSystem.Controllers.Api
             {
                 rowsAffected = await _dbContext.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException e)
+            catch
             {
                 // 資料庫端發生錯誤，刪除失敗
                 return Conflict(0);
@@ -286,7 +284,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         [Route("{categoryId}/{name?}")]
         [Authorize]
-        public async Task<EquipResultModel[]> GetEquipByCateOrName(int categoryId, string name = null)
+        public async Task<EquipResultModel[]> GetEquipByCateOrName(Guid categoryId, string name = null)
         {
             var results = _dbContext.Equipment.Where(e => e.EquipmentCategoryId == categoryId);
             if (!string.IsNullOrEmpty(name))

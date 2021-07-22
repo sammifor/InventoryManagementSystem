@@ -36,7 +36,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet("admin/{id?}")]
         [Produces("application/json")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetAdmin(int? id)
+        public async Task<IActionResult> GetAdmin(Guid? id)
         {
             IQueryable<Admin> qryAdmins = null;
             if(id != null)
@@ -119,7 +119,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPut("admin/{id}")]
         [Consumes("application/json")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> PutAdmin(int id, PutAdminViewModel model)
+        public async Task<IActionResult> PutAdmin(Guid id, PutAdminViewModel model)
         {
             if(id != model.AdminId)
             {
@@ -140,7 +140,7 @@ namespace InventoryManagementSystem.Controllers.Api
             string adminIdString = User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 .Value;
-            int adminId = int.Parse(adminIdString);
+            Guid adminId = Guid.Parse(adminIdString);
 
             // 只能改自己的密碼
             if(adminId == id)

@@ -12,7 +12,7 @@ namespace InventoryManagementSystem.Models.EF
             Admins = new HashSet<Admin>();
         }
 
-        public int RoleId { get; set; }
+        public Guid RoleId { get; set; }
         public string RoleName { get; set; }
 
         public virtual ICollection<Admin> Admins { get; set; }

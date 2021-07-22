@@ -7,8 +7,8 @@ namespace InventoryManagementSystem.Models.EF
 {
     public partial class Questionnaire
     {
-        public int QuestionnaireId { get; set; }
-        public int OrderId { get; set; }
+        public Guid QuestionnaireId { get; set; }
+        public Guid OrderId { get; set; }
         public byte SatisfactionScore { get; set; }
         public string Feedback { get; set; }
 

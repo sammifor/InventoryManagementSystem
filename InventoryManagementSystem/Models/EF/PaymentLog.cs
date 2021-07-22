@@ -7,7 +7,7 @@ namespace InventoryManagementSystem.Models.EF
 {
     public partial class PaymentLog
     {
-        public int PaymentLogId { get; set; }
+        public Guid PaymentLogId { get; set; }
         public string FeeCategoryId { get; set; }
         public decimal Fee { get; set; }
         public string Description { get; set; }

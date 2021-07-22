@@ -7,7 +7,7 @@ namespace InventoryManagementSystem.Models.ViewModels
 {
     public class PostReportViewModel
     {
-        public int OrderDetailId { get; set; }
+        public Guid OrderDetailId { get; set; }
         public string Description { get; set; }
     }
 }

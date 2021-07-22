@@ -7,8 +7,8 @@ namespace InventoryManagementSystem.Models.EF
 {
     public partial class PaymentOrder
     {
-        public int PaymentId { get; set; }
-        public int OrderId { get; set; }
+        public Guid PaymentId { get; set; }
+        public Guid OrderId { get; set; }
 
         public virtual Order Order { get; set; }
         public virtual Payment Payment { get; set; }

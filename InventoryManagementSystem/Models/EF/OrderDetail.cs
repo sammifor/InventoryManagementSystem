@@ -14,9 +14,9 @@ namespace InventoryManagementSystem.Models.EF
             Reports = new HashSet<Report>();
         }
 
-        public int OrderDetailId { get; set; }
-        public int OrderId { get; set; }
-        public int ItemId { get; set; }
+        public Guid OrderDetailId { get; set; }
+        public Guid OrderId { get; set; }
+        public Guid ItemId { get; set; }
         public string OrderDetailStatusId { get; set; }
 
         public virtual Item Item { get; set; }

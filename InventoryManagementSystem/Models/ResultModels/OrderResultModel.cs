@@ -9,9 +9,9 @@ namespace InventoryManagementSystem.Models.ResultModels
     public class OrderResultModel
     {
         // From Order table
-        public int OrderId { get; set; }
-        public int UserId { get; set; }
-        public int EquipmentId { get; set; }
+        public Guid OrderId { get; set; }
+        public Guid UserId { get; set; }
+        public Guid EquipmentId { get; set; }
         public int Quantity { get; set; }
         public DateTime EstimatedPickupTime { get; set; }
         public int Day { get; set; }
@@ -37,6 +37,6 @@ namespace InventoryManagementSystem.Models.ResultModels
         public OrderDetailResultModel[] OrderDetails { get; set; }
 
         // From Payment table
-        public int? PaymentId { get; set; }
+        public Guid? PaymentId { get; set; }
     }
 }

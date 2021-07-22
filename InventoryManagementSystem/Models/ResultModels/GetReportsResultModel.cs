@@ -7,8 +7,8 @@ namespace InventoryManagementSystem.Models.ResultModels
 {
     public class GetReportsResultModel
     {
-        public int ReportId { get; set; }
-        public int OrderDetailId { get; set; }
+        public Guid ReportId { get; set; }
+        public Guid OrderDetailId { get; set; }
         public string Description { get; set; }
         public DateTime? ReportTime { get; set; }
         public DateTime? CloseTime { get; set; }

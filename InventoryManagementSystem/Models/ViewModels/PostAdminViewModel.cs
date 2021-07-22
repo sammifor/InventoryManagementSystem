@@ -7,7 +7,7 @@ namespace InventoryManagementSystem.Models.ViewModels
 {
     public class PostAdminViewModel
     {
-        public int RoleId { get; set; }
+        public Guid RoleId { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
         public string FullName { get; set; }

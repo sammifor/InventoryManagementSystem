@@ -7,21 +7,24 @@ USE [InventoryManagementSystem]
 GO
 
 CREATE TABLE [Role](
-        [RoleID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_Role] PRIMARY KEY,
+        [RoleID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_Role] PRIMARY KEY NONCLUSTERED,
 
-        [RoleName] NVARCHAR(10) NOT NULL
+        [RoleName] NVARCHAR(10)
 );
 
-CREATE TABLE [Admin](
-        [AdminID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_Admin] PRIMARY KEY,
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_Role_RoleName]
+ON [Role]([RoleName])
+WHERE [RoleName] IS NOT NULL
 
-        [RoleID] INT NOT NULL
+CREATE TABLE [Admin](
+        [AdminID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_Admin] PRIMARY KEY NONCLUSTERED,
+
+        [RoleID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Admin_Role] FOREIGN KEY REFERENCES [Role]([RoleID]),
 
-        [Username] NVARCHAR(50) NOT NULL
-                CONSTRAINT [UQ_Admin_Username] UNIQUE,
+        [Username] NVARCHAR(50),
 
         [HashedPassword] BINARY(32) NOT NULL,
 
@@ -33,9 +36,13 @@ CREATE TABLE [Admin](
                 CONSTRAINT [DF_Admin_CreateTime] DEFAULT GETDATE()
 );
 
+CREATE UNIQUE NONCLUSTERED INDEX [UQ_Admin_Username]
+ON [Admin]([Username])
+WHERE [Username] IS NOT NULL
+
 CREATE TABLE [User](
-        [UserID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_User] PRIMARY KEY,
+        [UserID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_User] PRIMARY KEY NONCLUSTERED,
 
         [Username] VARCHAR(50),
 
@@ -91,8 +98,8 @@ ON [User]([PhoneNumber])
 WHERE [PhoneNumber] IS NOT NULL
 
 CREATE TABLE [EquipCategory](
-        [EquipCategoryID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_EquipCategory] PRIMARY KEY,
+        [EquipCategoryID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_EquipCategory] PRIMARY KEY NONCLUSTERED,
 
         [CategoryName] NVARCHAR(50)
 );
@@ -102,13 +109,13 @@ ON [EquipCategory]([CategoryName])
 WHERE [CategoryName] IS NOT NULL
 
 CREATE TABLE [Equipment](
-        [EquipmentID] INT IDENTITY(1, 1) NOT NULL 
-                CONSTRAINT [PK_Equipment] PRIMARY KEY,
+        [EquipmentID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_Equipment] PRIMARY KEY NONCLUSTERED,
 
-        [EquipmentCategoryID] INT NOT NULL
+        [EquipmentCategoryID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Equipment_EquipCategory] FOREIGN KEY REFERENCES [EquipCategory]([EquipCategoryID]),
 
-        [EquipmentSN] VARCHAR(50) NOT NULL,
+        [EquipmentSN] VARCHAR(50),
 
         [EquipmentName] NVARCHAR(50) NOT NULL,
 
@@ -138,16 +145,16 @@ CREATE TABLE [Condition](
 );
 
 CREATE TABLE [Item](
-        [ItemID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_Item] PRIMARY KEY,
+        [ItemID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_Item] PRIMARY KEY NONCLUSTERED,
 
-        [EquipmentID] INT NOT NULL
+        [EquipmentID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Item_Equipment] FOREIGN KEY REFERENCES [Equipment]([EquipmentID]),
 
         [ConditionID] CHAR(1) NOT NULL
                 CONSTRAINT [FK_Item_Condition] FOREIGN KEY REFERENCES [Condition]([ConditionID]),
 
-        [ItemSN] VARCHAR(50) NOT NULL,
+        [ItemSN] VARCHAR(50),
 
         [Description] NVARCHAR(100)
 );
@@ -170,13 +177,13 @@ CREATE TABLE [OrderStatus](
 );
 
 CREATE TABLE [Order](
-        [OrderID] INT IDENTITY(1, 1) NOT NULL 
-                CONSTRAINT [PK_Order] PRIMARY KEY,
+        [OrderID] UNIQUEIDENTIFIER NOT NULL 
+                CONSTRAINT [PK_Order] PRIMARY KEY NONCLUSTERED,
 
-        [UserID] INT NOT NULL
+        [UserID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Order_User] FOREIGN KEY REFERENCES [User]([UserID]),
 
-        [EquipmentID] INT NOT NULL 
+        [EquipmentID] UNIQUEIDENTIFIER NOT NULL 
                 CONSTRAINT [FK_Order_Equipment] FOREIGN KEY REFERENCES [Equipment]([EquipmentID]),
 
         [Quantity] INT NOT NULL,
@@ -194,10 +201,10 @@ CREATE TABLE [Order](
 );
 
 CREATE TABLE [CanceledOrder](
-        [UserID] INT NOT NULL
+        [UserID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_CanceledOrder_User] FOREIGN KEY REFERENCES [User]([UserID]),
 
-        [OrderID] INT NOT NULL
+        [OrderID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_CanceledOrder_Order] FOREIGN KEY REFERENCES [Order]([OrderID])
                 CONSTRAINT [UQ_CenceledOrder_OrderID] UNIQUE,
 
@@ -210,13 +217,13 @@ CREATE TABLE [CanceledOrder](
 );
 
 CREATE TABLE [Response](
-        [ResponseID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_Response] PRIMARY KEY,
+        [ResponseID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_Response] PRIMARY KEY NONCLUSTERED,
 
-        [OrderID] INT NOT NULL
+        [OrderID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Response_Order] FOREIGN KEY REFERENCES [Order]([OrderID]),
 
-        [AdminID] INT NOT NULL
+        [AdminID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Response_Admin] FOREIGN KEY REFERENCES [Admin]([AdminID]),
 
         [Reply] CHAR(1) NOT NULL
@@ -231,10 +238,10 @@ CREATE TABLE [Response](
 );
 
 CREATE TABLE [Questionnaire](
-        [QuestionnaireID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_Questionnaire] PRIMARY KEY,
+        [QuestionnaireID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_Questionnaire] PRIMARY KEY NONCLUSTERED,
 
-        [OrderID] INT NOT NULL
+        [OrderID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [UQ_Questionnaire_Order] FOREIGN KEY REFERENCES [Order]([OrderID]),
 
         [SatisfactionScore] TINYINT NOT NULL,
@@ -252,8 +259,8 @@ CREATE TABLE [FeeCategory](
 );
 
 CREATE TABLE [Payment](
-        [PaymentID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_Payment] PRIMARY KEY,
+        [PaymentID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_Payment] PRIMARY KEY NONCLUSTERED,
 
         [RentalFee] DECIMAL NOT NULL,
 
@@ -261,8 +268,8 @@ CREATE TABLE [Payment](
 );
 
 CREATE TABLE [PaymentLog](
-        [PaymentLogID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_PaymentLog] PRIMARY KEY,
+        [PaymentLogID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_PaymentLog] PRIMARY KEY NONCLUSTERED,
 
         [FeeCategoryID] CHAR(1) NOT NULL
                 CONSTRAINT [FK_PaymentLog_FeeCategory] FOREIGN KEY REFERENCES [FeeCategory]([FeeCategoryID]),
@@ -273,10 +280,10 @@ CREATE TABLE [PaymentLog](
 );
 
 CREATE TABLE [PaymentOrder](
-        [PaymentID] INT NOT NULL
+        [PaymentID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_PaymentOrder_Payment] FOREIGN KEY REFERENCES [Payment]([PaymentID]),
 
-        [OrderID] INT NOT NULL
+        [OrderID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_PaymentOrder_Order] FOREIGN KEY REFERENCES [Order]([OrderID])
                 CONSTRAINT [UQ_PaymentOrder_OrderID] UNIQUE,
 
@@ -284,10 +291,10 @@ CREATE TABLE [PaymentOrder](
 );
 
 CREATE TABLE [PaymentDetail](
-        [PaymentDetailID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_PaymentDetail] PRIMARY KEY,
+        [PaymentDetailID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_PaymentDetail] PRIMARY KEY NONCLUSTERED,
 
-        [PaymentID] INT NOT NULL
+        [PaymentID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_PaymentDetail_Payment] REFERENCES [Payment]([PaymentID]),
 
         [AmountPaid] DECIMAL NOT NULL,
@@ -309,13 +316,13 @@ CREATE TABLE [OrderDetailStatus](
 );
 
 CREATE TABLE [OrderDetail](
-        [OrderDetailID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_OrderDetail] PRIMARY KEY,
+        [OrderDetailID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_OrderDetail] PRIMARY KEY NONCLUSTERED,
 
-        [OrderID] INT NOT NULL
+        [OrderID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_OrderDetail_Order] FOREIGN KEY REFERENCES [Order]([OrderID]),
 
-        [ItemID] INT NOT NULL
+        [ItemID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_OrderDetail_Item] FOREIGN KEY REFERENCES [Item]([ItemID]),
 
         [OrderDetailStatusID] CHAR(1) NOT NULL
@@ -323,10 +330,10 @@ CREATE TABLE [OrderDetail](
 );
 
 CREATE TABLE [Report](
-        [ReportID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_Report] PRIMARY KEY,
+        [ReportID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_Report] PRIMARY KEY NONCLUSTERED,
 
-        [OrderDetailID] INT NOT NULL
+        [OrderDetailID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Report_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
 
         [Description] NVARCHAR(100) NOT NULL,
@@ -338,16 +345,16 @@ CREATE TABLE [Report](
 );
 
 CREATE TABLE [ItemLog](
-        [ItemLogID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_ItemLog] PRIMARY KEY,
+        [ItemLogID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_ItemLog] PRIMARY KEY NONCLUSTERED,
 
-        [OrderDetailID] INT NULL
+        [OrderDetailID] UNIQUEIDENTIFIER NULL
                 CONSTRAINT [FK_ItemLog_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
 
-        [AdminID] INT NULL
+        [AdminID] UNIQUEIDENTIFIER NULL
                 CONSTRAINT [FK_ItemLog_Admin] FOREIGN KEY REFERENCES [Admin]([AdminID]),
 
-        [ItemID] INT NOT NULL
+        [ItemID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_ItemLog_Item] FOREIGN KEY REFERENCES [Item]([ItemID]),
 
         [ConditionID] CHAR(1) NOT NULL
@@ -360,10 +367,10 @@ CREATE TABLE [ItemLog](
 );
 
 CREATE TABLE [LineNotification](
-        [LineNotificationID] INT IDENTITY(1, 1) NOT NULL
-                CONSTRAINT [PK_LineNotification] PRIMARY KEY,
+        [LineNotificationID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_LineNotification] PRIMARY KEY NONCLUSTERED,
 
-        [OrderDetailID] INT NOT NULL
+        [OrderDetailID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_LineNotification_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
 
         [CreateTime] DATETIME

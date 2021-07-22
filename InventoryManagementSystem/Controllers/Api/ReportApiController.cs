@@ -28,7 +28,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         [Route("{id}")]
         [Authorize]
-        public async Task<IActionResult> GetReportsByOrderDetailId(int id)
+        public async Task<IActionResult> GetReportsByOrderDetailId(Guid id)
         {
             GetReportsResultModel[] reports = await _dbContext.Reports
                 .Where(r => r.OrderDetailId == id)
@@ -69,7 +69,7 @@ namespace InventoryManagementSystem.Controllers.Api
             string userIdString = User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 .Value;
-            int userId = int.Parse(userIdString);
+            Guid userId = Guid.Parse(userIdString);
 
             // 確認反映問題的 user 是下訂這筆 order 的 user
             if(userId != o.UserId)
@@ -85,6 +85,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             Report report = new Report
             {
+                ReportId = Guid.NewGuid(),
                 OrderDetailId = model.OrderDetailId,
                 Description = model.Description,
                 ReportTime = DateTime.Now,

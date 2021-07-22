@@ -32,7 +32,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         [Route("{id}")]
         [Authorize]
-        public async Task<ItemResultModel[]> GetItemsByEquipId(int id)
+        public async Task<ItemResultModel[]> GetItemsByEquipId(Guid id)
         {
             var results = await _dbContext.Items
                 .Where(i => i.EquipmentId == id && i.ConditionId != "D")
@@ -66,41 +66,32 @@ namespace InventoryManagementSystem.Controllers.Api
                 return BadRequest();
             }
 
+            Guid itemId = Guid.NewGuid();
             Item item = new Item
             {
+                ItemId = itemId,
                 EquipmentId = model.EquipmentId,
                 ItemSn = model.ItemSn,
                 Description = model.Description,
                 ConditionId = "I",
             };
-
-            try
-            {
-                _dbContext.Items.Add(item);
-                await _dbContext.SaveChangesAsync();
-
-            }
-            catch
-            {
-                return Conflict();
-            }
+            _dbContext.Items.Add(item);
 
             // Get AdminID
             string adminIDString = User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 .Value;
-
             ItemLog log = new ItemLog
             {
-                AdminId = int.Parse(adminIDString),
-                ItemId = item.ItemId,
+                AdminId = Guid.Parse(adminIDString),
+                ItemId = itemId,
                 ConditionId = item.ConditionId,
                 CreateTime = DateTime.Now
             };
+            _dbContext.ItemLogs.Add(log);
 
             try
             {
-                _dbContext.ItemLogs.Add(log);
                 await _dbContext.SaveChangesAsync();
             }
             catch
@@ -136,7 +127,7 @@ namespace InventoryManagementSystem.Controllers.Api
             item.ItemSn = model.ItemSn;
             item.Description = model.Description;
 
-            _dbContext.Entry(item).State = EntityState.Modified;
+            //_dbContext.Entry(item).State = EntityState.Modified;
 
             try
             {
@@ -158,7 +149,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpDelete]
         [Consumes("application/json")]
         [Authorize(Roles = "admin")]
-        public async Task<ActionResult<int>> RemoveItemsByIds(int[] ids)
+        public async Task<ActionResult<int>> RemoveItemsByIds(Guid[] ids)
         {
 
             // 查出所有待刪的 items
@@ -197,9 +188,10 @@ namespace InventoryManagementSystem.Controllers.Api
                 // 新增刪除紀綠
                 ItemLog log = new ItemLog
                 {
+                    ItemLogId = Guid.NewGuid(),
                     ItemId = item.ItemId,
                     ConditionId = item.ConditionId,
-                    AdminId = int.Parse(adminIDString),
+                    AdminId = Guid.Parse(adminIDString),
                     CreateTime = DateTime.Now
                 };
                 _dbContext.Add(log);
