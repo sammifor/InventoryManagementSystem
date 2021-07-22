@@ -89,5 +89,31 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok(payments);
         }
+
+        /* method: POST
+         * 
+         * url: api/payment/new
+         * 
+         * intput: A JSON containing an array of OrderIDs.
+         * 
+         * output:
+         * 
+         */
+        // 使用者選取 Orders，準備付款。
+        [HttpPost("new")]
+        [Authorize(Roles = "user")]
+        public async Task<IActionResult> MakeNewPayment(int[] ids)
+        {
+            // 訂單是否都存在且屬於本人
+
+            // 新增 Payment
+
+            // 新增 PaymentLog
+
+            // 新增多包 PaymentOrder
+
+            // 如果付款成功，新增 PaymentDetail
+            throw new NotImplementedException();
+        }
     }
 }
