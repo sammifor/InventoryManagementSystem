@@ -226,6 +226,26 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok(rowsAffected / 2);
         }
 
+        [HttpGet]
+        [Produces("application/json")]
+        [Route("{id}")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> GetAvailableItemsByEquipId(int id)
+        {
+            ItemBaseResultModel[] items = await _dbContext.Items
+                .Where(i => i.EquipmentId == id)
+                .Where(i => i.ConditionId == "I")
+                .Select(i => new ItemBaseResultModel
+                {
+                    ItemId = i.ItemId,
+                    ItemSn = i.ItemSn,
+                    Description = i.Description
+                })
+                .ToArrayAsync();
+
+            return Ok(items);
+        }
+
         
 
     }

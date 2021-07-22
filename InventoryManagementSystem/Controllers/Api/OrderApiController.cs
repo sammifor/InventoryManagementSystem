@@ -203,7 +203,6 @@ namespace InventoryManagementSystem.Controllers.Api
          */
         // Admin 核准或拒絕訂單
         [HttpPost]
-        [Produces("application/json")]
         [Consumes("application/json")]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> RespondOrder(RespondOrderViewModel model)
