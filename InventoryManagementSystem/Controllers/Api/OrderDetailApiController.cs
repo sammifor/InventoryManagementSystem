@@ -23,8 +23,15 @@ namespace InventoryManagementSystem.Controllers.Api
             _dbContext = dbContext;
         }
 
-        /*
-         * OrderDetailApi/PickupItemsCheck/
+        /* method: POST
+         * 
+         * url: OrderDetailApi/PickupItemsCheck/
+         * 
+         * input: A json object having the same structrue as PickupItemsCheckViewModel class.
+         * 
+         * output: 1. 200 Ok if success.
+         *         2. 404 Not Found if the OrderDetailID does not exist or the item is not in stock.
+         *         3. 409 Conflit if failing to update the database.
          */
         // 管理員確認某筆 OrderDetail 底下的 Item 被領取
         [HttpPost]
@@ -49,15 +56,17 @@ namespace InventoryManagementSystem.Controllers.Api
                 .FindAsync(detail.ItemId);
 
             item.ConditionId = "O"; // OutStock
+            detail.OrderDetailStatusId = "T"; // Taken
 
             // Get AdminID
             string adminIdString = User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 .Value;
-            int adminId = int.Parse(adminIdString);
+            Guid adminId = Guid.Parse(adminIdString);
 
             ItemLog log = new ItemLog
             {
+                ItemLogId = Guid.NewGuid(),
                 OrderDetailId = detail.OrderDetailId,
                 AdminId = adminId,
                 ItemId = item.ItemId,
@@ -67,8 +76,6 @@ namespace InventoryManagementSystem.Controllers.Api
             };
 
             _dbContext.ItemLogs.Add(log);
-
-            detail.OrderDetailStatusId = "T"; // Taken
 
             try
             {
@@ -80,12 +87,19 @@ namespace InventoryManagementSystem.Controllers.Api
             }
 
             return Ok();
-
-
         }
 
-        /*
-         * OrderDetailApi/ReturnItemsCheck/
+        /* method: POST
+         * 
+         * url: OrderDetailApi/ReturnItemsCheck/
+         * 
+         * input: A JSON object with the same structure as ReturnItemsCheckViewModel class.
+         * 
+         * output: 1. 200 Ok if success.
+         *         2. 404 Not Found if the OrderDetailID does not exist or 
+         *                             the OrderDetail does not have the record that the item was taken or
+         *                             the Item's condition is not OutStock
+         *         3. 409 Conflit if failing to update the database.
          */
         // 管理員確認某筆 OrderDetail 底下的 Item 歸還與 Item 狀態
         [HttpPost]
@@ -119,10 +133,11 @@ namespace InventoryManagementSystem.Controllers.Api
             string adminIdString = User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 .Value;
-            int adminId = int.Parse(adminIdString);
+            Guid adminId = Guid.Parse(adminIdString);
 
             ItemLog log = new ItemLog
             {
+                ItemLogId = Guid.NewGuid(),
                 OrderDetailId = detail.OrderDetailId,
                 AdminId = adminId,
                 ItemId = item.ItemId,
@@ -145,8 +160,17 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok();
         }
 
-        /*
-         * OrderDetailApi/ItemLostCheck/
+        /* method: POST
+         * 
+         * url: OrderDetailApi/ItemLostCheck/
+         * 
+         * input: A JSON object with the same structure as ItemLostCheckViewModel class.
+         * 
+         * output: 1. 200 Ok if success.
+         *         2. 404 Not Found if the OrderDetailID does not exist or 
+         *                             the OrderDetail does not have the record that the item was taken or
+         *                             the Item's condition is not OutStock
+         *         3. 409 Conflit if failing to update the database.
          */
         // 管理員無法確認歸還時，將物品標記為遺失
         [HttpPost]
@@ -174,10 +198,11 @@ namespace InventoryManagementSystem.Controllers.Api
             string adminIdString = User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 .Value;
-            int adminId = int.Parse(adminIdString);
+            Guid adminId = Guid.Parse(adminIdString);
 
             ItemLog log = new ItemLog
             {
+                ItemLogId = Guid.NewGuid(),
                 OrderDetailId = detail.OrderDetailId,
                 AdminId = adminId,
                 ItemId = item.ItemId,

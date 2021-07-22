@@ -7,7 +7,7 @@ namespace InventoryManagementSystem.Models.ViewModels
 {
     public class MakeOrderViewModel
     {
-        public int EquipmentId { get; set; }
+        public Guid EquipmentId { get; set; }
         public int Quantity { get; set; }
         public DateTime EstimatedPickupTime { get; set; }
         public int Day { get; set; }

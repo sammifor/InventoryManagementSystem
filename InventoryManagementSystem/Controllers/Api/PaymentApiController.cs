@@ -49,7 +49,8 @@ namespace InventoryManagementSystem.Controllers.Api
                 string userIdString = User.Claims
                     .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                     .Value;
-                int userId = int.Parse(userIdString);
+
+                Guid userId = Guid.Parse(userIdString);
 
                 paymentOrders = paymentOrders
                     .Where(po => po.Order.UserId == userId);

@@ -12,7 +12,7 @@ namespace InventoryManagementSystem.Models.EF
             Equipment = new HashSet<Equipment>();
         }
 
-        public int EquipCategoryId { get; set; }
+        public Guid EquipCategoryId { get; set; }
         public string CategoryName { get; set; }
 
         public virtual ICollection<Equipment> Equipment { get; set; }

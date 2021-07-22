@@ -5,7 +5,7 @@ namespace InventoryManagementSystem.Models.ResultModels
     public class OrderInPaymentResultModel
     {
         // From Order table
-        public int OrderId { get; set; }
+        public Guid OrderId { get; set; }
         public int Quantity { get; set; }
         public DateTime? OrderTime { get; set; }
 

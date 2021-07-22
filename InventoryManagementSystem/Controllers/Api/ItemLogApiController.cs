@@ -30,7 +30,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         [Route("{id}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetLogsByItemId(int id)
+        public async Task<IActionResult> GetLogsByItemId(Guid id)
         {
             LogResultModel[] logs = await _dbContext.ItemLogs
                 .Where(il => il.ItemId == id)

@@ -57,12 +57,13 @@ namespace InventoryManagementSystem.Controllers.Api
 
             EquipCategory category = new EquipCategory
             {
+                EquipCategoryId = Guid.NewGuid(),
                 CategoryName = categoryName
             };
+            _dbContext.EquipCategories.Add(category);
 
             try
             {
-                _dbContext.EquipCategories.Add(category);
                 await _dbContext.SaveChangesAsync();
             }
             catch

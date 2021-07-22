@@ -7,9 +7,9 @@ namespace InventoryManagementSystem.Models.EF
 {
     public partial class Response
     {
-        public int ResponseId { get; set; }
-        public int OrderId { get; set; }
-        public int AdminId { get; set; }
+        public Guid ResponseId { get; set; }
+        public Guid OrderId { get; set; }
+        public Guid AdminId { get; set; }
         public string Reply { get; set; }
         public DateTime? ResponseTime { get; set; }
 

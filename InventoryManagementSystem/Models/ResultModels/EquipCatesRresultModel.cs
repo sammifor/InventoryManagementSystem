@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Models.ResultModels {
     public class EquipCatesRresultModel {
-        public int EquipCategoryId { get; set; }
+        public Guid EquipCategoryId { get; set; }
         public string CategoryName { get; set; }
     }
 }

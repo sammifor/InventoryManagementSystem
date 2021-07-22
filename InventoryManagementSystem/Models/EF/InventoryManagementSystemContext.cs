@@ -54,12 +54,18 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<Admin>(entity =>
             {
+                entity.HasKey(e => e.AdminId)
+                    .IsClustered(false);
+
                 entity.ToTable("Admin");
 
                 entity.HasIndex(e => e.Username, "UQ_Admin_Username")
-                    .IsUnique();
+                    .IsUnique()
+                    .HasFilter("([Username] IS NOT NULL)");
 
-                entity.Property(e => e.AdminId).HasColumnName("AdminID");
+                entity.Property(e => e.AdminId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("AdminID");
 
                 entity.Property(e => e.CreateTime)
                     .HasColumnType("datetime")
@@ -81,9 +87,7 @@ namespace InventoryManagementSystem.Models.EF
                     .HasMaxLength(32)
                     .IsFixedLength(true);
 
-                entity.Property(e => e.Username)
-                    .IsRequired()
-                    .HasMaxLength(50);
+                entity.Property(e => e.Username).HasMaxLength(50);
 
                 entity.HasOne(d => d.Role)
                     .WithMany(p => p.Admins)
@@ -141,24 +145,34 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<EquipCategory>(entity =>
             {
+                entity.HasKey(e => e.EquipCategoryId)
+                    .IsClustered(false);
+
                 entity.ToTable("EquipCategory");
 
                 entity.HasIndex(e => e.CategoryName, "UQ_EquipCategory_CategoryName")
                     .IsUnique()
                     .HasFilter("([CategoryName] IS NOT NULL)");
 
-                entity.Property(e => e.EquipCategoryId).HasColumnName("EquipCategoryID");
+                entity.Property(e => e.EquipCategoryId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("EquipCategoryID");
 
                 entity.Property(e => e.CategoryName).HasMaxLength(50);
             });
 
             modelBuilder.Entity<Equipment>(entity =>
             {
+                entity.HasKey(e => e.EquipmentId)
+                    .IsClustered(false);
+
                 entity.HasIndex(e => e.EquipmentSn, "UQ_Equipment_EquipmentSN")
                     .IsUnique()
                     .HasFilter("([EquipmentSN] IS NOT NULL)");
 
-                entity.Property(e => e.EquipmentId).HasColumnName("EquipmentID");
+                entity.Property(e => e.EquipmentId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("EquipmentID");
 
                 entity.Property(e => e.Brand).HasMaxLength(50);
 
@@ -171,7 +185,6 @@ namespace InventoryManagementSystem.Models.EF
                     .HasMaxLength(50);
 
                 entity.Property(e => e.EquipmentSn)
-                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("EquipmentSN");
@@ -204,13 +217,18 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<Item>(entity =>
             {
+                entity.HasKey(e => e.ItemId)
+                    .IsClustered(false);
+
                 entity.ToTable("Item");
 
                 entity.HasIndex(e => e.ItemSn, "UQ_Item_ItemSN")
                     .IsUnique()
                     .HasFilter("([ItemSN] IS NOT NULL)");
 
-                entity.Property(e => e.ItemId).HasColumnName("ItemID");
+                entity.Property(e => e.ItemId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("ItemID");
 
                 entity.Property(e => e.ConditionId)
                     .IsRequired()
@@ -224,7 +242,6 @@ namespace InventoryManagementSystem.Models.EF
                 entity.Property(e => e.EquipmentId).HasColumnName("EquipmentID");
 
                 entity.Property(e => e.ItemSn)
-                    .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("ItemSN");
@@ -244,9 +261,14 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<ItemLog>(entity =>
             {
+                entity.HasKey(e => e.ItemLogId)
+                    .IsClustered(false);
+
                 entity.ToTable("ItemLog");
 
-                entity.Property(e => e.ItemLogId).HasColumnName("ItemLogID");
+                entity.Property(e => e.ItemLogId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("ItemLogID");
 
                 entity.Property(e => e.AdminId).HasColumnName("AdminID");
 
@@ -292,9 +314,14 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<LineNotification>(entity =>
             {
+                entity.HasKey(e => e.LineNotificationId)
+                    .IsClustered(false);
+
                 entity.ToTable("LineNotification");
 
-                entity.Property(e => e.LineNotificationId).HasColumnName("LineNotificationID");
+                entity.Property(e => e.LineNotificationId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("LineNotificationID");
 
                 entity.Property(e => e.CreateTime)
                     .HasColumnType("datetime")
@@ -315,9 +342,14 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<Order>(entity =>
             {
+                entity.HasKey(e => e.OrderId)
+                    .IsClustered(false);
+
                 entity.ToTable("Order");
 
-                entity.Property(e => e.OrderId).HasColumnName("OrderID");
+                entity.Property(e => e.OrderId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("OrderID");
 
                 entity.Property(e => e.EquipmentId).HasColumnName("EquipmentID");
 
@@ -358,9 +390,14 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<OrderDetail>(entity =>
             {
+                entity.HasKey(e => e.OrderDetailId)
+                    .IsClustered(false);
+
                 entity.ToTable("OrderDetail");
 
-                entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
+                entity.Property(e => e.OrderDetailId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("OrderDetailID");
 
                 entity.Property(e => e.ItemId).HasColumnName("ItemID");
 
@@ -430,9 +467,14 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<Payment>(entity =>
             {
+                entity.HasKey(e => e.PaymentId)
+                    .IsClustered(false);
+
                 entity.ToTable("Payment");
 
-                entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
+                entity.Property(e => e.PaymentId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("PaymentID");
 
                 entity.Property(e => e.ExtraFee).HasColumnType("decimal(18, 0)");
 
@@ -441,9 +483,14 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<PaymentDetail>(entity =>
             {
+                entity.HasKey(e => e.PaymentDetailId)
+                    .IsClustered(false);
+
                 entity.ToTable("PaymentDetail");
 
-                entity.Property(e => e.PaymentDetailId).HasColumnName("PaymentDetailID");
+                entity.Property(e => e.PaymentDetailId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("PaymentDetailID");
 
                 entity.Property(e => e.AmountPaid).HasColumnType("decimal(18, 0)");
 
@@ -462,9 +509,14 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<PaymentLog>(entity =>
             {
+                entity.HasKey(e => e.PaymentLogId)
+                    .IsClustered(false);
+
                 entity.ToTable("PaymentLog");
 
-                entity.Property(e => e.PaymentLogId).HasColumnName("PaymentLogID");
+                entity.Property(e => e.PaymentLogId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("PaymentLogID");
 
                 entity.Property(e => e.Description).HasMaxLength(200);
 
@@ -512,9 +564,14 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<Questionnaire>(entity =>
             {
+                entity.HasKey(e => e.QuestionnaireId)
+                    .IsClustered(false);
+
                 entity.ToTable("Questionnaire");
 
-                entity.Property(e => e.QuestionnaireId).HasColumnName("QuestionnaireID");
+                entity.Property(e => e.QuestionnaireId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("QuestionnaireID");
 
                 entity.Property(e => e.Feedback).HasMaxLength(200);
 
@@ -529,9 +586,14 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<Report>(entity =>
             {
+                entity.HasKey(e => e.ReportId)
+                    .IsClustered(false);
+
                 entity.ToTable("Report");
 
-                entity.Property(e => e.ReportId).HasColumnName("ReportID");
+                entity.Property(e => e.ReportId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("ReportID");
 
                 entity.Property(e => e.CloseTime).HasColumnType("datetime");
 
@@ -554,9 +616,14 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<Response>(entity =>
             {
+                entity.HasKey(e => e.ResponseId)
+                    .IsClustered(false);
+
                 entity.ToTable("Response");
 
-                entity.Property(e => e.ResponseId).HasColumnName("ResponseID");
+                entity.Property(e => e.ResponseId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("ResponseID");
 
                 entity.Property(e => e.AdminId).HasColumnName("AdminID");
 
@@ -587,17 +654,27 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<Role>(entity =>
             {
+                entity.HasKey(e => e.RoleId)
+                    .IsClustered(false);
+
                 entity.ToTable("Role");
 
-                entity.Property(e => e.RoleId).HasColumnName("RoleID");
+                entity.HasIndex(e => e.RoleName, "UQ_Role_RoleName")
+                    .IsUnique()
+                    .HasFilter("([RoleName] IS NOT NULL)");
 
-                entity.Property(e => e.RoleName)
-                    .IsRequired()
-                    .HasMaxLength(10);
+                entity.Property(e => e.RoleId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("RoleID");
+
+                entity.Property(e => e.RoleName).HasMaxLength(10);
             });
 
             modelBuilder.Entity<User>(entity =>
             {
+                entity.HasKey(e => e.UserId)
+                    .IsClustered(false);
+
                 entity.ToTable("User");
 
                 entity.HasIndex(e => e.Email, "UQ_User_Email")
@@ -612,7 +689,9 @@ namespace InventoryManagementSystem.Models.EF
                     .IsUnique()
                     .HasFilter("([Username] IS NOT NULL)");
 
-                entity.Property(e => e.UserId).HasColumnName("UserID");
+                entity.Property(e => e.UserId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("UserID");
 
                 entity.Property(e => e.Address).HasMaxLength(50);
 

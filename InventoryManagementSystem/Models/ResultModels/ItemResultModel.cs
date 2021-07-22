@@ -7,7 +7,7 @@ namespace InventoryManagementSystem.Models.ResultModels
 {
     public class ItemResultModel
     {
-        public int ItemId { get; set; }
+        public Guid ItemId { get; set; }
         public string EquipmentName { get; set; }
         public string EquipmentSn { get; set; }
         public string ItemSn { get; set; }

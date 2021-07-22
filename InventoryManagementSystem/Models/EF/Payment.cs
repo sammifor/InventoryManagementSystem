@@ -13,7 +13,7 @@ namespace InventoryManagementSystem.Models.EF
             PaymentOrders = new HashSet<PaymentOrder>();
         }
 
-        public int PaymentId { get; set; }
+        public Guid PaymentId { get; set; }
         public decimal RentalFee { get; set; }
         public decimal? ExtraFee { get; set; }
 

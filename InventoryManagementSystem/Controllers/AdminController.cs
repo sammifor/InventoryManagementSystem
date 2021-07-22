@@ -49,7 +49,7 @@ namespace InventoryManagementSystem.Controllers
             {
 
                 List<Claim> claims = new List<Claim>();
-                claims.Add(new Claim(ClaimTypes.NameIdentifier, admin.AdminId.ToString(), ClaimValueTypes.Integer32));
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, admin.AdminId.ToString()));
                 claims.Add(new Claim(ClaimTypes.Name, admin.Username));
                 claims.Add(new Claim(ClaimTypes.Role, "admin"));
                 ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

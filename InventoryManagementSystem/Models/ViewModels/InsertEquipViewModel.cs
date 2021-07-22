@@ -7,7 +7,7 @@ namespace InventoryManagementSystem.Models.ViewModels
 {
     public class InsertEquipViewModel
     {
-        public int EquipmentCategoryId { get; set; }
+        public Guid EquipmentCategoryId { get; set; }
         public string EquipmentSn { get; set; }
         public string EquipmentName { get; set; }
         public string Brand { get; set; }

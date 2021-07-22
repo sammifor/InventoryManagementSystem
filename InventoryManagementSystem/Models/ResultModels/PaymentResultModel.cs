@@ -9,7 +9,7 @@ namespace InventoryManagementSystem.Models.ResultModels
     public class PaymentResultModel
     {
         // From Payment table
-        public int PaymentId { get; set; }
+        public Guid PaymentId { get; set; }
         public decimal RentalFee { get; set; }
         public decimal? ExtraFee { get; set; }
 

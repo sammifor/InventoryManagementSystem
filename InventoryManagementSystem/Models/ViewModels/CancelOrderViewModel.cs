@@ -7,7 +7,7 @@ namespace InventoryManagementSystem.Models.ViewModels
 {
     public class CancelOrderViewModel
     {
-        public int OrderID { get; set; }
+        public Guid OrderID { get; set; }
         public string Description { get; set; }
     }
 }

@@ -7,8 +7,8 @@ namespace InventoryManagementSystem.Models.EF
 {
     public partial class LineNotification
     {
-        public int LineNotificationId { get; set; }
-        public int OrderDetailId { get; set; }
+        public Guid LineNotificationId { get; set; }
+        public Guid OrderDetailId { get; set; }
         public DateTime? CreateTime { get; set; }
         public string Message { get; set; }
 

@@ -45,9 +45,10 @@ namespace InventoryManagementSystem.Controllers.Api
             string userIDString = User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 .Value;
+            Guid orderId = Guid.NewGuid();
             Order order = new Order
             {
-                UserId = int.Parse(userIDString),
+                UserId = Guid.Parse(userIDString),
                 EquipmentId = model.EquipmentId,
                 Quantity = model.Quantity,
                 EstimatedPickupTime = model.EstimatedPickupTime,
@@ -55,7 +56,8 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 // 前端沒權限給的
                 OrderStatusId = "P",
-                OrderTime = DateTime.Now
+                OrderTime = DateTime.Now,
+                OrderId = orderId
             };
 
             _dbContext.Orders.Add(order);
@@ -88,7 +90,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 string userIdString = User.Claims
                     .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                     .Value;
-                int userId = int.Parse(userIdString);
+                Guid userId = Guid.Parse(userIdString);
 
                 tempOrders = _dbContext.Orders
                     .Where(o => o.UserId == userId);
@@ -211,7 +213,8 @@ namespace InventoryManagementSystem.Controllers.Api
             var order = await _dbContext.Orders
                 .FirstOrDefaultAsync(o => o.OrderId == model.OrderID &&
                     o.OrderStatusId == "P" && // 待審核的 order
-                    o.EstimatedPickupTime > DateTime.Now); // 尚未過期
+                    o.EstimatedPickupTime > DateTime.Now && // 尚未過期
+                    o.PaymentOrder == null); // 尚未付款
 
             // 找不到訂單
             if(order == null)
@@ -220,7 +223,7 @@ namespace InventoryManagementSystem.Controllers.Api
             }
 
             // 防止同個 item 被分配多次
-            int[] itemIDs = model.ItemIDs.Distinct().ToArray();
+            Guid[] itemIDs = model.ItemIDs.Distinct().ToArray();
 
             Item[] items = await _dbContext.Items
                 .Where(i => itemIDs.Contains(i.ItemId))
@@ -230,10 +233,11 @@ namespace InventoryManagementSystem.Controllers.Api
             string adminIdString = User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 .Value;
-            int adminId = int.Parse(adminIdString);
+            Guid adminId = Guid.Parse(adminIdString);
 
             Response response = new Response
             {
+                ResponseId = Guid.NewGuid(),
                 OrderId = model.OrderID,
                 AdminId = adminId
             };
@@ -266,7 +270,6 @@ namespace InventoryManagementSystem.Controllers.Api
                 }
 
 
-                response.Reply = "Y";
 
                 // 這裡 condition 也可以用 itemIDs.length
                 // 因為執行到這邊已經保證 items 跟 itemIDs 長度一樣
@@ -277,42 +280,32 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 // 每個 item 都要新增一筆 OrderDetail 的記錄
                 OrderDetail[] details = new OrderDetail[items.Length];
+                ItemLog[] logs = new ItemLog[items.Length];
+
                 for(int i = 0; i < items.Length; i++)
                 {
                     details[i] = new OrderDetail
                     {
+                        OrderDetailId = Guid.NewGuid(),
                         OrderId = model.OrderID,
                         ItemId = items[i].ItemId,
                         OrderDetailStatusId = "P" // Pending
                     };
 
-                }
-                _dbContext.OrderDetails.AddRange(details);
-
-                try
-                {
-                    await _dbContext.SaveChangesAsync();
-                }
-                catch
-                {
-                    return Conflict();
-                }
-
-
-                ItemLog[] logs = new ItemLog[items.Length];
-                for(int i = 0; i < items.Length; i++)
-                {
                     logs[i] = new ItemLog
                     {
+                        ItemLogId = new Guid(),
                         OrderDetailId = details[i].OrderDetailId,
                         AdminId = adminId,
                         ItemId = details[i].ItemId,
                         ConditionId = "P"  // Pending
                     };
                 }
+                _dbContext.OrderDetails.AddRange(details);
                 _dbContext.ItemLogs.AddRange(logs);
 
                 order.OrderStatusId = "A"; // Approved
+                response.Reply = "Y"; // Yes
             }
             else 
             {
@@ -379,7 +372,7 @@ namespace InventoryManagementSystem.Controllers.Api
             // 2. 把 order detail 的 status 改成取消
             if(details.Length != 0)
             {
-                int[] itemIDs = details
+                Guid[] itemIDs = details
                     .Select(od => od.ItemId)
                     .ToArray();
 
@@ -402,6 +395,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     // ItemLog 新增一筆資料
                     ItemLog log = new ItemLog
                     {
+                        ItemLogId = Guid.NewGuid(),
                         OrderDetailId = detail.OrderDetailId,
                         ItemId = detail.ItemId,
                         ConditionId = "I",
@@ -413,7 +407,7 @@ namespace InventoryManagementSystem.Controllers.Api
                         string adminIdString = User.Claims
                             .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                             .Value;
-                        int adminId = int.Parse(adminIdString);
+                        Guid adminId = Guid.Parse(adminIdString);
 
                         log.AdminId = adminId;
                     }
@@ -441,7 +435,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPost]
         [Route("{id}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> CompleteOrder(int id)
+        public async Task<IActionResult> CompleteOrder(Guid id)
         {
             Order order = await _dbContext.Orders
                 .Where(o => o.OrderId == id &&

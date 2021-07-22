@@ -7,10 +7,10 @@ namespace InventoryManagementSystem.Models.EF
 {
     public partial class ItemLog
     {
-        public int ItemLogId { get; set; }
-        public int? OrderDetailId { get; set; }
-        public int? AdminId { get; set; }
-        public int ItemId { get; set; }
+        public Guid ItemLogId { get; set; }
+        public Guid? OrderDetailId { get; set; }
+        public Guid? AdminId { get; set; }
+        public Guid ItemId { get; set; }
         public string ConditionId { get; set; }
         public string Description { get; set; }
         public DateTime? CreateTime { get; set; }

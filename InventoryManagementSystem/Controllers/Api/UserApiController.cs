@@ -27,13 +27,14 @@ namespace InventoryManagementSystem.Controllers.Api
             _dbContext = dbContext;
         }
 
-        /* GET
-         * api/user/validate?validatedField={FieldName}&value={Value}
+        /* method: GET
          * 
-         * FieldName accepts 3 values: 'username', 'email', 'phoneNumber'.
+         * url: api/user/validate?validatedField={FieldName}&value={Value}
          * 
-         * output: True meaning the field value is available;
-         *         False meaning the field value is unavailable.
+         * input: FieldName accepts 3 values: 'username', 'email', 'phoneNumber'.
+         * 
+         * output: True if the field value is available;
+         *         False if the field value is not available.
          */
         // 驗證 username、email、phoneNumber 是否可被註冊
         [HttpGet("validate")]
@@ -66,8 +67,9 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok(true);
         }
 
-        /* POST
-         * api/user/
+        /* method: POST
+         * 
+         * url: api/user/
          * 
          * input: A JSON object having the same structure as PostUserViewModel
          *        in which Username, Email, Password, Fullname and PhoneNumber
@@ -108,6 +110,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             User user = new User
             {
+                UserId = Guid.NewGuid(),
                 Username = model.Username,
                 Email = model.Email,
                 HashedPassword = hashedPassword,
@@ -135,7 +138,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             // 註冊成功後直接發 cookie，視同登入。
             List<Claim> claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString(), ClaimValueTypes.Integer32));
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()));
             claims.Add(new Claim(ClaimTypes.Name, user.Username));
             claims.Add(new Claim(ClaimTypes.Role, "user"));
             ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

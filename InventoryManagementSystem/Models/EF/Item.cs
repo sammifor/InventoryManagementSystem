@@ -13,8 +13,8 @@ namespace InventoryManagementSystem.Models.EF
             OrderDetails = new HashSet<OrderDetail>();
         }
 
-        public int ItemId { get; set; }
-        public int EquipmentId { get; set; }
+        public Guid ItemId { get; set; }
+        public Guid EquipmentId { get; set; }
         public string ConditionId { get; set; }
         public string ItemSn { get; set; }
         public string Description { get; set; }

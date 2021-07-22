@@ -7,8 +7,8 @@ namespace InventoryManagementSystem.Models.ResultModels
 {
     public class OrderDetailResultModel
     {
-        public int OrderDetailId { get; set; }
-        public int ItemId { get; set; }
+        public Guid OrderDetailId { get; set; }
+        public Guid ItemId { get; set; }
         public string ItemSn { get; set; }
         public string OrderDetailStatusId { get; set; }
         public string OrderDetailStatus { get; set; }
