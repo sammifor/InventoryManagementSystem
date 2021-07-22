@@ -47,6 +47,43 @@
                 </div>
             </b-tab>
 
+            <!-- 待付款 -->
+            <b-tab title="待付款" active>
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>訂單ID</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>預計取貨時間</th>
+                                <th>租借天數</th>
+                                <th>總價</th>
+                                <th>訂單狀態</th>
+                                <th>下單時間</th>
+                                <th>取消租借</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="order in orders_1">
+                                <td>{{order.orderId}}</td>
+                                <td>{{order.equipmentSn}}</td>
+                                <td>{{order.equipmentName}}</td>
+                                <td>{{order.quantity}}</td>
+                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                <td>{{order.day}}</td>
+                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                <td>處理中</td>
+                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </b-tab>
+
+
             <!-- 待領取 -->
             <b-tab title="待領取">
                 <div>
@@ -66,7 +103,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders_1">
+                            <tr v-for="order in orders_2">
                                 <td>{{order.orderId}}</td>
                                 <td>{{order.equipmentSn}}</td>
                                 <td>{{order.equipmentName}}</td>
@@ -102,7 +139,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders_2">
+                            <tr v-for="order in orders_3">
                                 <td>{{order.orderId}}</td>
                                 <td>{{order.equipmentSn}}</td>
                                 <td>{{order.equipmentName}}</td>
@@ -137,7 +174,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders_3">
+                            <tr v-for="order in orders_4">
                                 <td>{{order.orderId}}</td>
                                 <td>{{order.equipmentSn}}</td>
                                 <td>{{order.equipmentName}}</td>
@@ -172,7 +209,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders_4">
+                            <tr v-for="order in orders_5">
                                 <td>{{order.orderId}}</td>
                                 <td>{{order.equipmentSn}}</td>
                                 <td>{{order.equipmentName}}</td>
@@ -317,6 +354,7 @@
             orders_2: [],
             orders_3: [],
             orders_4: [],
+            orders_5: [],
             tabIndex: 0,
             currentTab: ["待核可", "待領取", "租借中", "已結束", "已逾期"],
             currentOrder: {
@@ -360,17 +398,19 @@
                                 case "待核可":
                                     this.orders_0.push(order);
                                     break;
-                                case "待領取":
+                                case "待付款":
                                     this.orders_1.push(order);
-                                    break;
-                                case "租借中":
+                                case "待領取":
                                     this.orders_2.push(order);
                                     break;
-                                case "已結束":
+                                case "租借中":
                                     this.orders_3.push(order);
                                     break;
-                                case "已逾期":
+                                case "已結束":
                                     this.orders_4.push(order);
+                                    break;
+                                case "已逾期":
+                                    this.orders_5.push(order);
                                     break;
                             }
                         });
