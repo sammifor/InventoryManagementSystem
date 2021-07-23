@@ -162,7 +162,8 @@ namespace InventoryManagementSystem.Controllers.Api
             //"租借中"
             OrderResultModel[] ongoinOrders = orders.Where(o =>
                 o.OrderStatusId == "A" && // 被核准的 order
-                o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") && // 所訂的物品已被取貨
+                o.OrderDetails.Any(od => od.OrderDetailStatusId == "T") && 
+                o.OrderDetails.All(od => od.OrderDetailStatusId != "P") && // 所訂的物品已被取貨
                 o.EstimatedPickupTime.AddDays(o.Day) > DateTime.Now) // 尚未逾期
                 .ToArray();
 
@@ -431,6 +432,7 @@ namespace InventoryManagementSystem.Controllers.Api
          * OrderApi/CompleteOrder/{OrderID}
          */
         // 管理員確認訂單完成（該標記歸還的已標記歸還、該標記遺失的已標記遺失）
+        // 可能用不到了。
         [HttpPost]
         [Route("{id}")]
         [Authorize(Roles = "admin")]
