@@ -10,7 +10,7 @@
 
 <div id="app">
     <b-card>
-        <b-tabs content-class="mt-3" fill v-model="tabIndex">
+        <b-tabs content-class="mt-3" fill>
             <!-- 待核可 -->
             <b-tab title="待核可" active>
                 <div>
@@ -48,7 +48,7 @@
             </b-tab>
 
             <!-- 待付款 -->
-            <b-tab title="待付款" active>
+            <b-tab title="待付款">
                 <div>
                     <table class="table table-hover">
                         <thead>
@@ -90,7 +90,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <b-btn variant="danger" @@click="countTotalPrice">結帳 (總金額: {{countTotalPrice}})</b-btn>
+                    <b-btn variant="danger" @@click="cashOut" >結帳 (總金額: {{countTotalPrice}})</b-btn>
                 </div>
             </b-tab>
 
@@ -365,8 +365,6 @@
             orders_3: [],
             orders_4: [],
             orders_5: [],
-            tabIndex: 0,
-            currentTab: ["待核可", "待領取", "租借中", "已結束", "已逾期"],
             currentOrder: {
 
             },
@@ -385,7 +383,6 @@
             selectAll: false,
             totalPrice: [0],
             cashTotalPrice: 0
-
         },
 
         beforeCreate() {
@@ -498,6 +495,37 @@
                     }
                     
                 }
+            },
+
+            cashOut: function () {
+                let requestData= []
+                this.selected.forEach(order => {
+                    requestData.push(order.orderId)
+                })
+
+                let url = "/api/payment/new";
+                let request = {
+                    body: JSON.stringify(requestData),
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                }
+                fetch(url, request)
+                    .then(r => {
+                        if (r.ok) {
+                            alert("訂單送出成功");
+                            location.reload(true);
+
+                        } else {
+                            alert("資料有誤");
+                        }
+                    })
+                    .catch(error => {
+
+                        alert("訂單送出失敗");
+                        console.log(error);
+                    })
             }
 
         },
