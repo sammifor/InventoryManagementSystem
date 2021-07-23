@@ -19,7 +19,7 @@ namespace InventoryManagementSystem.Models.EF
         public string EquipmentName { get; set; }
         public string Brand { get; set; }
         public string Model { get; set; }
-        public decimal? UnitPrice { get; set; }
+        public decimal UnitPrice { get; set; }
         public string Description { get; set; }
 
         public virtual EquipCategory EquipmentCategory { get; set; }
