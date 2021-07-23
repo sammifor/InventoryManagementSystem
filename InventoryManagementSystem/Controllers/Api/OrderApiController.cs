@@ -293,7 +293,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     logs[i] = new ItemLog
                     {
-                        ItemLogId = new Guid(),
+                        ItemLogId = Guid.NewGuid(),
                         OrderDetailId = details[i].OrderDetailId,
                         AdminId = adminId,
                         ItemId = details[i].ItemId,
