@@ -12,7 +12,7 @@ namespace InventoryManagementSystem.Models.ViewModels
         public string EquipmentName { get; set; }
         public string Brand { get; set; }
         public string Model { get; set; }
-        public decimal? UnitPrice { get; set; }
+        public decimal UnitPrice { get; set; }
         public string Description { get; set; }
     }
 }

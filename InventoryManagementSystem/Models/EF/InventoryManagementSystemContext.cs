@@ -529,11 +529,19 @@ namespace InventoryManagementSystem.Models.EF
                     .HasColumnName("FeeCategoryID")
                     .IsFixedLength(true);
 
+                entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
+
                 entity.HasOne(d => d.FeeCategory)
                     .WithMany(p => p.PaymentLogs)
                     .HasForeignKey(d => d.FeeCategoryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_PaymentLog_FeeCategory");
+
+                entity.HasOne(d => d.Payment)
+                    .WithMany(p => p.PaymentLogs)
+                    .HasForeignKey(d => d.PaymentId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PaymentLog_Payment");
             });
 
             modelBuilder.Entity<PaymentOrder>(entity =>

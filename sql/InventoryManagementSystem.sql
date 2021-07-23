@@ -123,7 +123,7 @@ CREATE TABLE [Equipment](
 
         [Model] NVARCHAR(50),
 
-        [UnitPrice] DECIMAL,
+        [UnitPrice] DECIMAL NOT NULL,
 
         [Description] NVARCHAR(100)
 );
@@ -273,6 +273,9 @@ CREATE TABLE [PaymentLog](
 
         [FeeCategoryID] CHAR(1) NOT NULL
                 CONSTRAINT [FK_PaymentLog_FeeCategory] FOREIGN KEY REFERENCES [FeeCategory]([FeeCategoryID]),
+
+        [PaymentID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [FK_PaymentLog_Payment] FOREIGN KEY REFERENCES [Payment]([PaymentID]),
 
         [Fee] DECIMAL NOT NULL,
 

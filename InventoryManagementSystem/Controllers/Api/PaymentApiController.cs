@@ -103,18 +103,111 @@ namespace InventoryManagementSystem.Controllers.Api
         // 使用者選取 Orders，準備付款。
         [HttpPost("new")]
         [Authorize(Roles = "user")]
-        public async Task<IActionResult> MakeNewPayment(int[] ids)
+        public async Task<IActionResult> MakeNewPayment(Guid[] ids)
         {
-            // 訂單是否都存在且屬於本人
+            #region 訂單合法且屬於本人
+            string userIdString = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
 
-            // 新增 Payment
+            Guid userId = Guid.Empty;
+            userId = Guid.Parse(userIdString);
 
-            // 新增 PaymentLog
+            Guid[] distinctOIDs = ids.Distinct().ToArray();
+            if(distinctOIDs.Length != ids.Length)
+            {
+                return BadRequest("訂單編號有重覆");
+            }
 
-            // 新增多包 PaymentOrder
+            // distinctOIDs 只拿來檢查 ids 是否有重覆
+            // 只要能執行到這邊，保證兩個 array 的 elements 都一致
+            // 為了不產生混淆，以下一律採用 ids
+            Order[] orders = await _dbContext.Orders
+                .Where(o => ids.Contains(o.OrderId))
+                .Where(o => o.OrderStatusId == "A")
+                .Where(o => o.PaymentOrder == null)
+                .Where(o => o.EstimatedPickupTime > DateTime.Now)
+                .ToArrayAsync();
 
-            // 如果付款成功，新增 PaymentDetail
-            throw new NotImplementedException();
+            // 訂單不合法
+            if(orders.Length != ids.Length)
+                return BadRequest("有訂單不可執行付款或不存在");
+
+            bool belongToTheUser = orders.All(o => o.UserId == userId);
+
+            // 訂單不屬於本人
+            if(!belongToTheUser)
+                return BadRequest("有訂單不屬於本人");
+            #endregion
+
+            #region 新增 Payment
+            var pricesQry = await (from eq in _dbContext.Equipment
+                                   join o in _dbContext.Orders on eq.EquipmentId equals o.EquipmentId
+                                   where ids.Contains(o.OrderId)
+                                   select eq.UnitPrice * o.Day * o.Quantity)
+                             .ToArrayAsync();
+
+            var totalPrice = pricesQry
+                .Aggregate((total, next) => total + next);
+
+            Guid paymentId = Guid.NewGuid();
+            Payment payment = new Payment
+            {
+                PaymentId = paymentId,
+                RentalFee = totalPrice,
+                ExtraFee = 0
+            };
+            _dbContext.Payments.Add(payment);
+            #endregion
+
+            #region 新增 PaymentLog
+            PaymentLog pLog = new PaymentLog
+            {
+                PaymentLogId = Guid.NewGuid(),
+                PaymentId = paymentId,
+                Fee = totalPrice,
+                FeeCategoryId = "R", // Rental fee
+                Description = string.Empty
+            };
+            _dbContext.PaymentLogs.Add(pLog);
+            #endregion
+
+            #region 新增 PaymentOrder （一對多關聯表）
+            foreach(Order order in orders)
+            {
+                PaymentOrder po = new PaymentOrder
+                {
+                    PaymentId = paymentId,
+                    OrderId = order.OrderId
+                };
+                _dbContext.PaymentOrders.Add(po);
+            }
+            #endregion
+
+            // TODO 串金流
+            #region 新增 PaymentDetail
+            PaymentDetail pd = new PaymentDetail
+            {
+                PaymentDetailId = Guid.NewGuid(),
+                PaymentId = paymentId,
+                AmountPaid = totalPrice,
+                PayTime = DateTime.Now
+            };
+            _dbContext.PaymentDetails.Add(pd);
+            #endregion
+
+            #region 更新資料庫
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+            #endregion
+
+            return Ok();
         }
     }
 }
