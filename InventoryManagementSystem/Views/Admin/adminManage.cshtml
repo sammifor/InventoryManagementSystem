@@ -1,57 +1,142 @@
 ﻿<div id="app">
     <div>
-        <input type="text" placeholder="請輸入關鍵字" />
-        <button type="button" class="btn btn-primary">搜尋</button>
+        <label>查詢：</label>
+        <input type="text" placeholder="請輸入姓名" v-model="search" />
     </div>
     <div class="float-lg-right">
-        <button type="button" class="btn btn-success" onclick="window.location.href='https://localhost:44397/Admin/addAdmin'">新增</button>
+        <button type="button" class="btn btn-success" onclick="window.location.href='/Admin/addAdmin'">新增</button>
     </div>
-</div>
-<br />
-<div id="view">
+    <br />
     <table class="table table-hover">
         <thead class="badge-secondary">
             <tr>
                 <th>管理員ID</th>
-                <th>角色ID</th>
+                <th>角色名稱</th>
                 <th>使用者名稱</th>
-                <th>密碼</th>
-                <th>名稱</th>
+                <th>姓名</th>
                 <th>建立時間</th>
                 <th>操作</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>{{}}</td>
-                <td>{{}}</td>
-                <td>{{}}</td>
-                <td>{{}}</td>
-                <td>{{}}</td>
-                <td>{{}}</td>
+            <tr v-for="admin in adminSearch" :key="admin.adminId">
+                <td>{{admin.adminId}}</td>
+                <td>{{admin.roleName}}</td>
+                <td>{{admin.username}}</td>
+                <td>{{admin.fullName}}</td>
+                <td>{{admin.createTime}}</td>
                 <td>
-                    <button type="button" class="btn btn-secondary">修改</button>
-                    <button type="button" class="btn btn-danger" v-on:click="deleteAdmin">刪除</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#adminUpdate" v-on:click="updateClickAdmin(admin)">修改</button>
+                    <button type="button" class="btn btn-danger">刪除</button>
                 </td>
             </tr>
         </tbody>
     </table>
+
+    @*管理員修改Modal*@
+    <div class="modal fade" id="adminUpdate" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">管理員修改</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label class="col-form-label">管理員ID:</label>
+                            <input type="text" class="form-control" readonly v-model="tempAdmin.adminId">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">角色ID:</label>
+                            <br />
+                            <select size="1" v-model="tempAdmin.roleId">
+                                <option disabled selected>請選擇權限</option>
+                                <option value="1">高級管理員</option>
+                                <option value="2">一般管理員</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">使用者名稱：</label>
+                            <input type="text" class="form-control" v-model="tempAdmin.username">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">姓名：</label>
+                            <input type="text" class="form-control" v-model="tempAdmin.fullName">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">密碼：</label>
+                            <input type="text" class="form-control" placeholder="只允許更改自己的密碼" v-model="tempAdmin.password">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" v-on:click="updateAdmin">確認</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
     var app = new Vue({
         el: '#app',
         data: {
-            admins: []
+            admins: [],
+            tempAdmin: {},
+            search: ''
+        },
+
+        beforeCreate: function () {
+            fetch('/api/admin', { method: 'GET' })
+                .then(response => {
+                    return response.json();
+                })
+                .then(response => {
+                    this.admins = response;
+                    console.log(this.admins);
+                })
+                .catch(error => {
+                    console.log(error);
+                })
         },
 
         methods: {
-            deleteAdmin: function () {
-                fetch('', {
-                    method: 'DELETE',
+            updateClickAdmin: function (adminData) {
+                this.tempAdmin = Object.assign({}, adminData);
+            },
+            updateAdmin: function (adminData) {
+                fetch('/api/admin/' + this.tempAdmin.adminId, {
+                    method: 'PUT',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(this.tempAdmin)
                 })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('修改成功');
+                            $("#adminUpdate").modal("hide");
+                            for (i = 0; i < app.admins.length; i++) {
+                                if (app.admins[i].adminId == this.tempAdmin.adminId) {
+                                    app.admins[i] = Object.assign({}, this.tempAdmin);
+                                }
+                            }
+                            location.href = 'adminManage';
+                        } else {
+                            alert("修改失敗");
+                        }
+                    })
             },
 
         },
+
+        computed: {
+            adminSearch: function () {
+                return this.admins.filter((admin) => {
+                    return admin.fullName.match(this.search)
+                })
+            }
+        }
+
     })
 </script>

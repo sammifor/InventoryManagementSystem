@@ -10,7 +10,7 @@
 
 <div id="app">
     <b-card>
-        <b-tabs content-class="mt-3" fill v-model="tabIndex">
+        <b-tabs content-class="mt-3" fill>
             <!-- 待核可 -->
             <b-tab title="待核可" active>
                 <div>
@@ -48,11 +48,16 @@
             </b-tab>
 
             <!-- 待付款 -->
-            <b-tab title="待付款" active>
+            <b-tab title="待付款">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>
+                                    <label class="form-checkbox">
+                                        <input type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i>
+                                    </label>
+                                </th>
                                 <th>訂單ID</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
@@ -67,6 +72,11 @@
                         </thead>
                         <tbody>
                             <tr v-for="order in orders_1">
+                                <td>
+                                    <label class="form-checkbox">
+                                        <input type="checkbox" v-model="selected" :value="order"><i class="form-icon"></i>
+                                    </label>
+                                </td>
                                 <td>{{order.orderId}}</td>
                                 <td>{{order.equipmentSn}}</td>
                                 <td>{{order.equipmentName}}</td>
@@ -80,9 +90,9 @@
                             </tr>
                         </tbody>
                     </table>
+                    <b-btn variant="danger" @@click="cashOut" >結帳 (總金額: {{countTotalPrice}})</b-btn>
                 </div>
             </b-tab>
-
 
             <!-- 待領取 -->
             <b-tab title="待領取">
@@ -348,86 +358,87 @@
 
         el: '#app',
         data: {
-            orders:[],
+            orders: [],
             orders_0: [],
             orders_1: [],
             orders_2: [],
             orders_3: [],
             orders_4: [],
             orders_5: [],
-            tabIndex: 0,
-            currentTab: ["待核可", "待領取", "租借中", "已結束", "已逾期"],
             currentOrder: {
-                
+
             },
             cancelOrder: {
-                cancelDiscription:""
+                cancelDiscription: ""
 
             },
 
             reportOrder: {
-                reportItemSn:"",
-                reportOrderDetailId:""
+                reportItemSn: "",
+                reportOrderDetailId: ""
 
             },
-            reportUrl: ""
-
+            reportUrl: "",
+            selected: [],
+            selectAll: false,
+            totalPrice: [0],
+            cashTotalPrice: 0
         },
 
         beforeCreate() {
 
-                let url = '/OrderApi/GetOrders';
-                let request = {
+            let url = '/OrderApi/GetOrders';
+            let request = {
                 method: "GET",
-                headers: {"content-type": "application/json"}
-                };
-                fetch(url, request)
-                    .then(response => {
-                        if (response.ok) {
-                            console.log("資料庫連線成功");
-                            return response.json();
+                headers: { "content-type": "application/json" }
+            };
+            fetch(url, request)
+                .then(response => {
+                    if (response.ok) {
+                        console.log("資料庫連線成功");
+                        return response.json();
 
-                        } else {
-                            console.log("資料擷取失敗");
+                    } else {
+                        console.log("資料擷取失敗");
+                    }
+                }).then(response => {
+                    console.log(response);
+                    this.orders = response;
+                    this.orders.forEach(order => {
+                        switch (order.tabName) {
+                            case "待核可":
+                                this.orders_0.push(order);
+                                break;
+                            case "待付款":
+                                this.orders_1.push(order);
+                            case "待領取":
+                                this.orders_2.push(order);
+                                break;
+                            case "租借中":
+                                this.orders_3.push(order);
+                                break;
+                            case "已結束":
+                                this.orders_4.push(order);
+                                break;
+                            case "已逾期":
+                                this.orders_5.push(order);
+                                break;
                         }
-                    }).then(response => {
-                        console.log(response);
-                        this.orders = response;
-                        this.orders.forEach(order => {
-                            switch (order.tabName) {
-                                case "待核可":
-                                    this.orders_0.push(order);
-                                    break;
-                                case "待付款":
-                                    this.orders_1.push(order);
-                                case "待領取":
-                                    this.orders_2.push(order);
-                                    break;
-                                case "租借中":
-                                    this.orders_3.push(order);
-                                    break;
-                                case "已結束":
-                                    this.orders_4.push(order);
-                                    break;
-                                case "已逾期":
-                                    this.orders_5.push(order);
-                                    break;
-                            }
-                        });
-                         
-                    }).catch(error => {
-                        alert("資料庫連線失敗");
-                        console.log(error);
-                    })
+                    });
 
-            
+                }).catch(error => {
+                    alert("資料庫連線失敗");
+                    console.log(error);
+                })
+
+
         },
+
 
         methods: {
 
             cancelOrderAction: function (orderData) {
                 this.currentOrder = orderData;
-           
 
             },
 
@@ -435,7 +446,7 @@
 
                 console.log(this.currentOrder.orderId);
                 console.log(this.cancelOrder.cancelDiscription);
-                
+
                 let requestData = {
                     orderID: this.currentOrder.orderId,
                     description: this.cancelOrder.cancelDiscription
@@ -468,25 +479,72 @@
             reportAction: function (orderData) {
                 this.currentOrder = orderData;
                 console.log(this.currentOrder);
-
             },
 
-            selectReportItem: function(orderDetailData) {
+            selectReportItem: function (orderDetailData) {
                 this.reportOrder.reportOrderDetailId = orderDetailData[0].orderDetailId;
                 this.reportUrl = 'orderReport?orderDetailId=' + this.reportOrder.reportOrderDetailId + '&ename='
-                    + this.currentOrder.equipmentName +"&esn=" + this.currentOrder.equipmentSn + "&itemsn="+ this.reportOrder.reportItemSn
+                    + this.currentOrder.equipmentName + "&esn=" + this.currentOrder.equipmentSn + "&itemsn=" + this.reportOrder.reportItemSn
+            },
 
+            selectAllAction: function () {
+                this.selected = [];
+                if (!this.selectAll) {
+                    for (let i = 0; i < this.orders_1.length; i++) {
+                        this.selected.push(this.orders_1[i]);
+                    }
+                    
+                }
+            },
 
-                
+            cashOut: function () {
+                let requestData= []
+                this.selected.forEach(order => {
+                    requestData.push(order.orderId)
+                })
+
+                let url = "/api/payment/new";
+                let request = {
+                    body: JSON.stringify(requestData),
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    }
+                }
+                fetch(url, request)
+                    .then(r => {
+                        if (r.ok) {
+                            alert("訂單送出成功");
+                            location.reload(true);
+
+                        } else {
+                            alert("資料有誤");
+                        }
+                    })
+                    .catch(error => {
+
+                        alert("訂單送出失敗");
+                        console.log(error);
+                    })
             }
 
+        },
+
+        computed: {
+            countTotalPrice: function () {
+                this.cashTotalPrice = 0
+                this.totalPrice = [0]
+                this.selected.forEach(order => {
+
+                    var orderPrice = order.unitPrice * order.quantity * order.day;
+                    this.totalPrice.push(orderPrice);
+                })
+
+                var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                return this.cashTotalPrice = this.totalPrice.reduce(reducer);
+
+            }
         }
+})
 
-        
-
-
-        
-    })
-
- 
 </script> 
