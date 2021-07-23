@@ -443,7 +443,6 @@
             cancelOrderAction: function (orderData) {
                 this.currentOrder = orderData;
 
-
             },
 
             cancelConfirm: function () {
@@ -483,16 +482,12 @@
             reportAction: function (orderData) {
                 this.currentOrder = orderData;
                 console.log(this.currentOrder);
-
             },
 
             selectReportItem: function (orderDetailData) {
                 this.reportOrder.reportOrderDetailId = orderDetailData[0].orderDetailId;
                 this.reportUrl = 'orderReport?orderDetailId=' + this.reportOrder.reportOrderDetailId + '&ename='
                     + this.currentOrder.equipmentName + "&esn=" + this.currentOrder.equipmentSn + "&itemsn=" + this.reportOrder.reportItemSn
-
-
-
             },
 
             selectAllAction: function () {
@@ -504,8 +499,6 @@
                     
                 }
             }
-
-            
 
         },
 
@@ -522,10 +515,8 @@
                 var reducer = (accumulator, currentValue) => accumulator + currentValue;
                 return this.cashTotalPrice = this.totalPrice.reduce(reducer);
 
-
             }
         }
 })
 
- 
 </script> 
