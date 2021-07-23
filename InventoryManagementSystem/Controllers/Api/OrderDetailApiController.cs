@@ -42,7 +42,7 @@ namespace InventoryManagementSystem.Controllers.Api
             // 查詢 detail 是否存在且 item 在庫
             OrderDetail detail = await _dbContext.OrderDetails
                 .Where(od => od.OrderDetailId == model.OrderDetailId &&
-                    od.Item.ConditionId == "I") // 待領取到領取的過程中，分配的物品都在庫
+                    od.Item.ConditionId == "P") // 待領取到領取的過程中，分配的物品都在待命狀態
                 .FirstOrDefaultAsync();
 
             if(detail == null)
@@ -120,7 +120,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             detail.OrderDetailStatusId = "R"; // Returned
 
-            // detail 若不是空，已保證可以找到 item
+            // detail 若不是空，因 FK，已保證可以找到 item
             // 故不需檢查 item 是否為 null
             Item item = await _dbContext.Items.FindAsync(detail.ItemId);
 
@@ -128,6 +128,20 @@ namespace InventoryManagementSystem.Controllers.Api
                 item.ConditionId = "I"; // InStock
             else
                 item.ConditionId = "F"; // Failure
+
+            // 若東西全部都歸還、報遺失了，直接把這筆 order 歸類為已結束
+            var details = _dbContext.OrderDetails
+                .Where(od => od.OrderId == detail.OrderId)
+                .AsEnumerable();
+
+            bool allReturned = details
+                .All(od => od.OrderDetailStatusId != "T");
+
+            if(allReturned)
+            {
+                Order order = await _dbContext.Orders.FindAsync(detail.OrderId);
+                order.OrderStatusId = "E";
+            }
 
             // Get AdminID
             string adminIdString = User.Claims
