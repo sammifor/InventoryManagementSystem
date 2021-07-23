@@ -222,7 +222,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Produces("application/json")]
         [Route("{id}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetAvailableItemsByEquipId(int id)
+        public async Task<IActionResult> GetAvailableItemsByEquipId(Guid id)
         {
             ItemBaseResultModel[] items = await _dbContext.Items
                 .Where(i => i.EquipmentId == id)
