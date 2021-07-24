@@ -15,6 +15,10 @@
         color: #ffffff;
     }
 
+    form input {
+        width: 78%;
+    }
+
     .field {
         height: 300px;
         width: 100%;
@@ -49,6 +53,18 @@
 <div id="app">
     <form>
         <div class="title">設備問題反應</div>
+        <div>
+            <label class="label">設備名稱：</label>
+            <input type="text" readonly :value="eName" />
+        </div>
+        <div>
+            <label class="label">設備序號：</label>
+            <input type="text" readonly :value="eSn" />
+        </div>
+        <div>
+            <label class="label">物品序號：</label>
+            <input type="text" readonly :value="iSn" />
+        </div>
         <div class="field">
             <label class="label">問題描述：</label>
             <textarea class="input" name="description" v-model="addDescription"></textarea>
@@ -66,12 +82,14 @@
         el: '#app',
         data: {
             addDescription: '',
-            queries: []
+            queries: [],
+            eName: '',
+            eSn: '',
+            iSn: ''
         },
 
         created: function () {
             //window.location.search =======> ?orderDetailId=1&ename=筆電&esn=SN12&itemsn=SN29
-
             let queryStrArr = window.location.search.slice(1).split("&");
             // queryStrArr =======> ["orderDetailId=1","ename=筆電","esn=SN12","itemsn=SN29"]
             console.log(queryStrArr);
@@ -81,6 +99,9 @@
                 console.log(keyvaluePair);
             }
             console.log(this.queries);
+            this.eName = this.queries.ename;
+            this.eSn = this.queries.esn;
+            this.iSn = this.queries.itemsn;
         },
 
         methods: {
@@ -93,7 +114,7 @@
                 fetch('/ReportApi/PostReport',
                     {
                         method: 'POST',
-                        body: decodeURI(JSON.stringify(requestData)),
+                        body: JSON.stringify(requestData),
                         headers: {
                             'Content-Type': 'application/json',
                         }
@@ -110,9 +131,7 @@
                         console.log(err, err.message);
                         alert('送出失敗');
                     })
-            },
-
+            }
         }
-
     })
 </script>

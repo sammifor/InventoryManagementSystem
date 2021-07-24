@@ -347,6 +347,9 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.ToTable("Order");
 
+                entity.HasIndex(e => e.OrderSn, "UQ_Order_OrderSN")
+                    .IsUnique();
+
                 entity.Property(e => e.OrderId)
                     .ValueGeneratedNever()
                     .HasColumnName("OrderID");
@@ -354,6 +357,10 @@ namespace InventoryManagementSystem.Models.EF
                 entity.Property(e => e.EquipmentId).HasColumnName("EquipmentID");
 
                 entity.Property(e => e.EstimatedPickupTime).HasColumnType("datetime");
+
+                entity.Property(e => e.OrderSn)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("OrderSN");
 
                 entity.Property(e => e.OrderStatusId)
                     .IsRequired()
@@ -395,11 +402,18 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.ToTable("OrderDetail");
 
+                entity.HasIndex(e => e.OrderDetailSn, "UQ_OrderDetail_OrderDetailSN")
+                    .IsUnique();
+
                 entity.Property(e => e.OrderDetailId)
                     .ValueGeneratedNever()
                     .HasColumnName("OrderDetailID");
 
                 entity.Property(e => e.ItemId).HasColumnName("ItemID");
+
+                entity.Property(e => e.OrderDetailSn)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("OrderDetailSN");
 
                 entity.Property(e => e.OrderDetailStatusId)
                     .IsRequired()
@@ -488,6 +502,9 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.ToTable("PaymentDetail");
 
+                entity.HasIndex(e => e.PaymentDetailSn, "UQ_PaymentDetail_PaymentDetailSN")
+                    .IsUnique();
+
                 entity.Property(e => e.PaymentDetailId)
                     .ValueGeneratedNever()
                     .HasColumnName("PaymentDetailID");
@@ -497,6 +514,13 @@ namespace InventoryManagementSystem.Models.EF
                 entity.Property(e => e.PayTime)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.PaymentDetailSn)
+                    .IsRequired()
+                    .HasMaxLength(18)
+                    .IsUnicode(false)
+                    .HasColumnName("PaymentDetailSN")
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
 
@@ -693,6 +717,9 @@ namespace InventoryManagementSystem.Models.EF
                     .IsUnique()
                     .HasFilter("([PhoneNumber] IS NOT NULL)");
 
+                entity.HasIndex(e => e.UserSn, "UQ_User_UserSN")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.Username, "UQ_User_Username")
                     .IsUnique()
                     .HasFilter("([Username] IS NOT NULL)");
@@ -741,6 +768,10 @@ namespace InventoryManagementSystem.Models.EF
                     .IsRequired()
                     .HasMaxLength(32)
                     .IsFixedLength(true);
+
+                entity.Property(e => e.UserSn)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("UserSN");
 
                 entity.Property(e => e.Username)
                     .HasMaxLength(50)

@@ -44,6 +44,9 @@ CREATE TABLE [User](
         [UserID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_User] PRIMARY KEY NONCLUSTERED,
 
+        [UserSN] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [UQ_User_UserSN] UNIQUE,
+
         [Username] VARCHAR(50),
 
         [Email] VARCHAR(100),
@@ -180,6 +183,9 @@ CREATE TABLE [Order](
         [OrderID] UNIQUEIDENTIFIER NOT NULL 
                 CONSTRAINT [PK_Order] PRIMARY KEY NONCLUSTERED,
 
+        [OrderSN] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [UQ_Order_OrderSN] UNIQUE,
+
         [UserID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Order_User] FOREIGN KEY REFERENCES [User]([UserID]),
 
@@ -297,6 +303,9 @@ CREATE TABLE [PaymentDetail](
         [PaymentDetailID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_PaymentDetail] PRIMARY KEY NONCLUSTERED,
 
+        [PaymentDetailSN] CHAR(18) NOT NULL
+                CONSTRAINT [UQ_PaymentDetail_PaymentDetailSN] UNIQUE,
+
         [PaymentID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_PaymentDetail_Payment] REFERENCES [Payment]([PaymentID]),
 
@@ -321,6 +330,9 @@ CREATE TABLE [OrderDetailStatus](
 CREATE TABLE [OrderDetail](
         [OrderDetailID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_OrderDetail] PRIMARY KEY NONCLUSTERED,
+
+        [OrderDetailSN] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [UQ_OrderDetail_OrderDetailSN] UNIQUE,
 
         [OrderID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_OrderDetail_Order] FOREIGN KEY REFERENCES [Order]([OrderID]),

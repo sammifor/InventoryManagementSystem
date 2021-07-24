@@ -14,6 +14,7 @@ namespace InventoryManagementSystem.Models.EF
         }
 
         public Guid UserId { get; set; }
+        public int UserSn { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
         public byte[] HashedPassword { get; set; }

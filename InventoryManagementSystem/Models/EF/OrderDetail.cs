@@ -15,6 +15,7 @@ namespace InventoryManagementSystem.Models.EF
         }
 
         public Guid OrderDetailId { get; set; }
+        public int OrderDetailSn { get; set; }
         public Guid OrderId { get; set; }
         public Guid ItemId { get; set; }
         public string OrderDetailStatusId { get; set; }
