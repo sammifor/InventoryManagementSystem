@@ -51,7 +51,9 @@ namespace InventoryManagementSystem.Controllers
 
                 List<Claim> claims = new List<Claim>();
                 claims.Add(new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()));
+                claims.Add(new Claim(ClaimTypes.SerialNumber, user.UserSn.ToString()));
                 claims.Add(new Claim(ClaimTypes.Name, user.Username));
+                claims.Add(new Claim(ClaimTypes.Email, user.Email));
                 claims.Add(new Claim(ClaimTypes.Role, "user"));
                 ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 ClaimsPrincipal principal = new ClaimsPrincipal(identity);

@@ -30,6 +30,7 @@ namespace InventoryManagementSystem.Models.EF
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
         public virtual DbSet<OrderDetailStatus> OrderDetailStatuses { get; set; }
         public virtual DbSet<OrderStatus> OrderStatuses { get; set; }
+        public virtual DbSet<PayingAttempt> PayingAttempts { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
         public virtual DbSet<PaymentDetail> PaymentDetails { get; set; }
         public virtual DbSet<PaymentLog> PaymentLogs { get; set; }
@@ -477,6 +478,22 @@ namespace InventoryManagementSystem.Models.EF
                 entity.Property(e => e.StatusName)
                     .IsRequired()
                     .HasMaxLength(10);
+            });
+
+            modelBuilder.Entity<PayingAttempt>(entity =>
+            {
+                entity.HasKey(e => new { e.PaymentDetailSn, e.OrderSn })
+                    .IsClustered(false);
+
+                entity.ToTable("PayingAttempt");
+
+                entity.Property(e => e.PaymentDetailSn)
+                    .HasMaxLength(18)
+                    .IsUnicode(false)
+                    .HasColumnName("PaymentDetailSN")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.OrderSn).HasColumnName("OrderSN");
             });
 
             modelBuilder.Entity<Payment>(entity =>

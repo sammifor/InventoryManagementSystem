@@ -1,0 +1,47 @@
+﻿@model InventoryManagementSystem.Models.PaymentProviderModels.MPG
+
+@{
+    ViewData["Title"] = "確認付款";
+}
+
+<h1>ReadyToPay</h1>
+
+<form class="row justify-content-center" method="post" action="/simulator">
+    <div class="col-6">
+        @* 送給藍星的資料，隱藏起來 *@
+        <input type="text"
+               name="MerchantID"
+               value="@Model.MerchantID"
+               hidden
+               readonly />
+        <input type="text"
+               name="TradeInfo"
+               value="@Model.TradeInfo"
+               hidden
+               readonly />
+        <input type="text"
+               name="TradeSha"
+               value="@Model.TradeSha"
+               hidden
+               readonly />
+        <input type="text"
+               name="Version"
+               value="@Model.Version"
+               hidden readonly />
+
+        @* 顯示用的資料，不賦予 name *@
+        <div class="form-group">
+            <label for="amt">應付金額</label>
+            <input id="amt"
+                   class="form-control"
+                   type="number"
+                   value="@ViewData["Price"]" />
+        </div>
+        <div class="form-group">
+            <button class="btn btn-danger form-control">付款</button>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-secondary form-control">返回</button>
+        </div>
+    </div>
+</form>

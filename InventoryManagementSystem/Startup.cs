@@ -1,3 +1,4 @@
+using InventoryManagementSystem.Models.PaymentProviderModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,6 +28,7 @@ namespace InventoryManagementSystem {
                     {
                         options.LoginPath = "/login";
                     });
+            services.Configure<PaymentProviderConfig>(Configuration.GetSection("PaymentProvider"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

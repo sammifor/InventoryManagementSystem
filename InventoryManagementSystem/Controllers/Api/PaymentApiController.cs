@@ -1,9 +1,11 @@
 ﻿using InventoryManagementSystem.Models.EF;
+using InventoryManagementSystem.Models.PaymentProviderModels;
 using InventoryManagementSystem.Models.ResultModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,6 +92,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok(payments);
         }
+
 
         /* method: POST
          * 

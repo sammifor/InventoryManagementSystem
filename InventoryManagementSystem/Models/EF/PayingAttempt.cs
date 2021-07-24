@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+
+#nullable disable
+
+namespace InventoryManagementSystem.Models.EF
+{
+    public partial class PayingAttempt
+    {
+        public string PaymentDetailSn { get; set; }
+        public int OrderSn { get; set; }
+    }
+}

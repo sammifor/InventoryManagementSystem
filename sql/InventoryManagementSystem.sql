@@ -393,3 +393,11 @@ CREATE TABLE [LineNotification](
 
         [Message] NVARCHAR(200) NOT NULL
 );
+
+CREATE TABLE [PayingAttempt](
+        [PaymentDetailSN] CHAR(18) NOT NULL,
+
+        [OrderSN] INT NOT NULL,
+
+        CONSTRAINT [PK_PayingAttempt] PRIMARY KEY NONCLUSTERED (PaymentDetailSN, OrderSN)
+);
