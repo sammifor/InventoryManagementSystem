@@ -151,6 +151,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>清單</th>
                                 <th>訂單ID</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
@@ -164,18 +165,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders_3">
-                                <td>{{order.orderId}}</td>
-                                <td>{{order.equipmentSn}}</td>
-                                <td>{{order.equipmentName}}</td>
-                                <td>{{order.quantity}}</td>
-                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                <td>{{order.day}}</td>
-                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td>租借中</td>
-                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
-                            </tr>
+                            <template v-for="order in orders_3">
+                                <tr>
+                                    <td><i class="fa fa-bars" @@click="toggle(order.orderId)"></i></td>
+                                    <td>{{order.orderId}}</td>
+                                    <td>{{order.equipmentSn}}</td>
+                                    <td>{{order.equipmentName}}</td>
+                                    <td>{{order.quantity}}</td>
+                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td>{{order.day}}</td>
+                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                    <td>租借中</td>
+                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
+                                </tr>
+                                <tr v-if="opened.includes(order.orderId)">
+                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
+                                        <ul>
+
+                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
+
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
@@ -187,6 +200,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>清單</th>
                                 <th>訂單ID</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
@@ -199,17 +213,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders_4">
-                                <td>{{order.orderId}}</td>
-                                <td>{{order.equipmentSn}}</td>
-                                <td>{{order.equipmentName}}</td>
-                                <td>{{order.quantity}}</td>
-                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                <td>{{order.day}}</td>
-                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td>已歸還</td>
-                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                            </tr>
+                            <template v-for="order in orders_4">
+                                <tr>
+                                    <td><i class="fa fa-bars" @@click="toggle(order.orderId)"></i></td>
+                                    <td>{{order.orderId}}</td>
+                                    <td>{{order.equipmentSn}}</td>
+                                    <td>{{order.equipmentName}}</td>
+                                    <td>{{order.quantity}}</td>
+                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td>{{order.day}}</td>
+                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                    <td>已歸還</td>
+                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                </tr>
+                                <tr v-if="opened.includes(order.orderId)">
+                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
+                                        <ul>
+
+                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
+
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
@@ -221,6 +247,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>清單</th>
                                 <th>訂單ID</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
@@ -234,18 +261,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders_5">
-                                <td>{{order.orderId}}</td>
-                                <td>{{order.equipmentSn}}</td>
-                                <td>{{order.equipmentName}}</td>
-                                <td>{{order.quantity}}</td>
-                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                <td>{{order.day}}</td>
-                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td>已逾期</td>
-                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
-                            </tr>
+                            <template v-for="order in orders_5">
+                                <tr>
+                                    <td><i class="fa fa-bars" @@click="toggle(order.orderId)"></i></td>
+                                    <td>{{order.orderId}}</td>
+                                    <td>{{order.equipmentSn}}</td>
+                                    <td>{{order.equipmentName}}</td>
+                                    <td>{{order.quantity}}</td>
+                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td>{{order.day}}</td>
+                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                    <td>已逾期</td>
+                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
+                                </tr>
+                                <tr v-if="opened.includes(order.orderId)">
+                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
+                                        <ul>
+
+                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
+
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
@@ -517,7 +556,7 @@
             cashOut: function () {
                 let requestData = []
                 this.selected.forEach(order => {
-                    requestData.push(order.orderId)
+                    requestData.push(order.orderId);
                 })
 
                 let url = "/api/payment/new";
