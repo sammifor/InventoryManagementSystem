@@ -49,20 +49,25 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th scope="col">設備序號</th>
+                    <th scope="col">設備種類</th>
                     <th scope="col">設備名稱</th>
                     <th scope="col">物品序號</th>
                     <th scope="col">物品描述</th>
                     <th scope="col">刪除</th>
+                    <th scope="col">修改</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="item in items">
-                    <td>{{item.equipmentSn}}</td>
-                    <td>{{item.equipmentName}}</td>
-                    <td>{{item.itemSn}}</td>
-                    <td>{{item.description}}</td>
+                    <td>{{selectCateName}}</td>
+                    <td><select class="btn btn-light dropdown-toggle" v-if="updateItem.includes(item.itemId)" v-on:change="changeItemEquip($event)" v-model="item.equipmentName">
+                        <option v-for="ename in equips" :value="ename.equipmentName">{{ename.equipmentName}}</option>
+                        </select><span v-else>{{item.equipmentName}}</span></td>
+                    <td><input v-if="updateItem.includes(item.itemId)" v-model="item.itemSn" class="form-control" size="1"/><span v-else>{{item.itemSn}}</span></td>
+                    <td><input v-if="updateItem.includes(item.itemId)" v-model="item.description" class="form-control" size="1"/><span v-else>{{item.description}}</span></td>
                     <td><button class="btn btn-primary" @@click="btnDelItem(item.itemId)">刪除</button></td>
+                    <td><button v-if="updateItem.includes(item.itemId)" class="btn btn-primary" @@click="btnUpdConfirm(item)">確認</button>
+                    <span v-else><button class="btn btn-primary" @@click="btnUpdItem(item.itemId)">修改</button></span></td>
                 </tr>
             </tbody>
         </table>
@@ -168,6 +173,7 @@
             category: {},
             items: {},
             selectCateId: '',
+            selectCateName:'',
             selectEquipId: '',
             selectEquipSn: '',
             selectEquipName:'',
@@ -185,7 +191,11 @@
             indexofSelectEquip: '',
             selectEquipName: '',
             selectEquipSn: '',
-            delectItemId:''
+            delectItemId: '',
+            updateItem: [],
+            selectEquipName_Sn:''
+
+            
         },
 
         beforeCreate: function () {
@@ -202,7 +212,12 @@
         },
         methods: {
             onCategoryChange: function (data) {
+
                 this.selectCateId = data.target.value;
+
+                let index = this.category.findIndex(element => element.equipCategoryId === this.selectCateId);
+                this.selectCateName = this.category[index].categoryName;
+
                 addNewEquip.tempSelectCate = this.selectCateId
 
                 fetch('/equipapi/GetEquipByCateId/' + data.target.value, { method: 'GET' })
@@ -372,9 +387,26 @@
                             
                         }
                     })
-            }
+            },
 
-                
+            btnUpdItem: function (itemId) {
+                this.updateItem = []
+                this.updateItem.push(itemId);
+
+            },
+
+            btnUpdConfirm: function () {
+                this.updateItem=[]
+            },
+
+            changeItemEquip: function (data) {
+                let selectEquipSn = data.target.value;
+                let index = this.equips.findIndex(e => e.equipmentSn == selectEquipSn);
+                let selectEquipName = this.equips[index].equipmentName
+                this.selectEquipName_Sn = selectEquipName.append(selectEquipSn);
+
+
+            }
 
         }
 
