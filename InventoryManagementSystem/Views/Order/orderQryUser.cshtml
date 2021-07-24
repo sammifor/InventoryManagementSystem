@@ -520,29 +520,26 @@
                     requestData.push(order.orderId)
                 })
 
-                let url = "/api/payment/new";
-                let request = {
-                    body: JSON.stringify(requestData),
-                    method: "POST",
-                    headers: {
-                        "content-type": "application/json"
-                    }
+                if (requestData.length === 0) {
+                    // TODO 改用 modal 比較漂亮
+                    alert("請至少選擇一筆訂單");
+                    return;
                 }
-                fetch(url, request)
-                    .then(r => {
-                        if (r.ok) {
-                            alert("訂單送出成功");
-                            location.reload(true);
 
-                        } else {
-                            alert("資料有誤");
-                        }
-                    })
-                    .catch(error => {
+                let form = document.createElement("form");
+                form.setAttribute("method", "POST");
+                form.setAttribute("action", "/paying");
+                form.setAttribute("hidden", "true");
 
-                        alert("訂單送出失敗");
-                        console.log(error);
-                    })
+                let input = document.createElement("input");
+                input.setAttribute("type", "text");
+                input.setAttribute("name", "idsRaw");
+                input.setAttribute("value", requestData);
+
+                form.appendChild(input);
+                document.body.appendChild(form);
+
+                form.submit();
             },
 
             toggle: function (orderId) {

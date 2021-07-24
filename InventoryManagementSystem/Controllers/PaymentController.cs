@@ -24,10 +24,27 @@ namespace InventoryManagementSystem.Controllers
         }
 
         [HttpPost("paying")]
-        [Consumes("application/json")]
         [Authorize(Roles = "user")]
-        public async Task<IActionResult> Paying([FromBody] Guid[] ids)
+        public async Task<IActionResult> Paying(string idsRaw)
         {
+            #region Parse POST data
+            string[] idsArr = idsRaw.Split(',');
+            Guid[] ids = new Guid[idsArr.Length];
+
+            for(int i = 0; i < idsArr.Length; i++)
+            {
+                try
+                {
+                    ids[i] = Guid.Parse(idsArr[i]);
+                    Console.WriteLine(ids[i]);
+                }
+                catch
+                {
+                    return BadRequest("格式錯誤");
+                }
+            }
+            #endregion
+
             // userId, userSn, email
             #region Get user info
             string userIdString = User.Claims
@@ -149,7 +166,10 @@ namespace InventoryManagementSystem.Controllers
         [Authorize(Roles = "user")]
         public IActionResult LanXinSimulator(string merchantID, string tradeInfo, string tradeSha, string version)
         {
-            return Content($"{merchantID}\n{tradeInfo}\n{tradeSha}\n{version}");
+            return Content($"MerchantID: {merchantID}\n\n" +
+                $"TradeInfo: {tradeInfo}\n\n" +
+                $"TradeSha: {tradeSha}\n\n" +
+                $"Version: {version}");
         }
     }
 }
