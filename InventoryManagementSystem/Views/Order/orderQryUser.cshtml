@@ -4,6 +4,8 @@
 <link type="text/css"
       rel="stylesheet"
       href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <script src="https://unpkg.com/vue"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
@@ -90,7 +92,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <b-btn variant="danger" @@click="cashOut" >結帳 (總金額: {{countTotalPrice}})</b-btn>
+                    <b-btn variant="danger" @@click="cashOut">結帳 (總金額: {{countTotalPrice}})</b-btn>
                 </div>
             </b-tab>
 
@@ -100,6 +102,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>清單</th>
                                 <th>訂單ID</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
@@ -113,18 +116,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="order in orders_2">
-                                <td>{{order.orderId}}</td>
-                                <td>{{order.equipmentSn}}</td>
-                                <td>{{order.equipmentName}}</td>
-                                <td>{{order.quantity}}</td>
-                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                <td>{{order.day}}</td>
-                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td>待領取</td>
-                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
-                            </tr>
+                            <template v-for="order in orders_2">
+                                <tr>
+                                    <td><i class="fa fa-bars" @@click="toggle(order.orderId)"></i></td>
+                                    <td>{{order.orderId}}</td>
+                                    <td>{{order.equipmentSn}}</td>
+                                    <td>{{order.equipmentName}}</td>
+                                    <td>{{order.quantity}}</td>
+                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td>{{order.day}}</td>
+                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                    <td>待領取</td>
+                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
+                                </tr>
+                                <tr v-if="opened.includes(order.orderId)">
+                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
+                                       <ul>
+
+                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
+
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
                 </div>
@@ -281,10 +296,10 @@
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
                         <a :href="reportUrl" class="btn btn-primary active" role="button" aria-pressed="true">填寫設備報修申請</a>
                     </div>
-                    </div>
                 </div>
+            </div>
         </div>
-    </div>  
+    </div>
 
     <!-- 取消訂單Modal -->
     <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -337,12 +352,12 @@
                             <input type="text" class="form-control" v-model="cancelOrder.cancelDiscription" required>
                         </div>
                     </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                            <button type="button" class="btn btn-primary" @@click="cancelConfirm($event)">確定</button>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @@click="cancelConfirm($event)">確定</button>
                     </div>
                 </div>
+            </div>
         </div>
     </div>
 
@@ -382,7 +397,9 @@
             selected: [],
             selectAll: false,
             totalPrice: [0],
-            cashTotalPrice: 0
+            cashTotalPrice: 0,
+            opened: []
+    
         },
 
         beforeCreate() {
@@ -493,12 +510,12 @@
                     for (let i = 0; i < this.orders_1.length; i++) {
                         this.selected.push(this.orders_1[i]);
                     }
-                    
+
                 }
             },
 
             cashOut: function () {
-                let requestData= []
+                let requestData = []
                 this.selected.forEach(order => {
                     requestData.push(order.orderId)
                 })
@@ -526,8 +543,18 @@
                         alert("訂單送出失敗");
                         console.log(error);
                     })
-            }
+            },
 
+            toggle: function (orderId) {
+                
+                let index = this.opened.indexOf(orderId);
+                if (index > -1) {
+                    this.opened.splice(index, 1)
+                } else {
+                    this.opened = []
+                    this.opened.push(orderId)
+                }
+            }
         },
 
         computed: {
@@ -545,6 +572,6 @@
 
             }
         }
-})
+    })
 
 </script> 
