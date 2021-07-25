@@ -104,6 +104,7 @@ namespace InventoryManagementSystem.Controllers.Api
             OrderResultModel[] orders = await tempOrders.Select(o => new OrderResultModel
             {
                 OrderId = o.OrderId,
+                OrderSn = o.OrderSn,
                 UserId = o.UserId,
                 EquipmentId = o.EquipmentId,
                 Quantity = o.Quantity,
@@ -126,6 +127,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
                 {
                     OrderDetailId = od.OrderDetailId,
+                    OrderDetailSn = od.OrderDetailSn,
                     ItemId = od.ItemId,
                     ItemSn = od.Item.ItemSn,
 

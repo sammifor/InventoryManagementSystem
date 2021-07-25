@@ -10,6 +10,7 @@ namespace InventoryManagementSystem.Models.ResultModels
     {
         // From Order table
         public Guid OrderId { get; set; }
+        public int OrderSn { get; set; }
         public Guid UserId { get; set; }
         public Guid EquipmentId { get; set; }
         public int Quantity { get; set; }
