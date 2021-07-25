@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace InventoryManagementSystem.Models.EF
 {
-    public partial class PayingAttempt
+    public partial class NewPayingAttempt
     {
         public string PaymentDetailSn { get; set; }
-        public Guid PaymentId { get; set; }
+        public int OrderSn { get; set; }
     }
 }
