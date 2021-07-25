@@ -7,7 +7,7 @@ namespace InventoryManagementSystem.Models.ViewModels
 {
     public class EditItemViewModel
     {
-        public int ItemId { get; set; }
+        public Guid ItemId { get; set; }
         public string ItemSn { get; set; }
         public string Description { get; set; }
     }

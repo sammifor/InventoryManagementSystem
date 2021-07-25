@@ -110,7 +110,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Consumes("application/json")]
         [Route("{id}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> EditItem(int id, EditItemViewModel model)
+        public async Task<IActionResult> EditItem(Guid id, EditItemViewModel model)
         {
             if(id != model.ItemId)
             {
