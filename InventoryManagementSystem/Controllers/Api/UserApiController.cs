@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.Interfaces;
+using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -67,6 +68,71 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok(true);
         }
 
+        /* method:  GET
+         * 
+         * url:     1. /api/user/
+         *                          For admins, this returns all users' info
+         *                          For users, this returns their own info
+         *          2. /api/user/{UserID}
+         *                          For admins, this returns the specific user's info
+         * 
+         * input: A user's id or null
+         * 
+         * output: A JSON array containing one or more serialized GetUserResultModel objects.
+         */
+        [HttpGet("{id?}")]
+        [Authorize]
+        public async Task<IActionResult> GetUser(Guid? id)
+        {
+            bool isAdmin = User.HasClaim(ClaimTypes.Role, "admin");
+
+            IQueryable<User> userQry = _dbContext.Users;
+
+            if(!isAdmin)
+            {
+                // If it's a user,
+                string userIdString = User.Claims
+                    .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                    .Value;
+                Guid userId = Guid.Parse(userIdString);
+
+                // then they only get their own info.
+                userQry = userQry.Where(u => u.UserId == userId);
+            }
+            else 
+            {
+                // If it's an admin, they can get all users' info 
+                // by leaving the id null.
+
+
+                // Or they can specify the id of the user they would like
+                // to get info about.
+                if(id != null)
+                    userQry = userQry.Where(u => u.UserId == id);
+            }
+
+            GetUserResultModel[] users = await userQry
+                .Select(u => new GetUserResultModel
+                {
+                    UserId = u.UserId,
+                    UserSn = u.UserSn,
+                    Username = u.Username,
+                    Email = u.Email,
+                    FullName = u.FullName,
+                    AllowNotification = u.AllowNotification,
+                    Address = u.Address,
+                    PhoneNumber = u.PhoneNumber,
+                    Gender = u.Gender,
+                    DateOfBirth = u.DateOfBirth,
+                    CreateTime = u.CreateTime,
+                    ViolationTimes = u.ViolationTimes,
+                    Banned = u.Banned,
+                    LineAccount = u.LineAccount
+                })
+                .ToArrayAsync();
+
+            return Ok(users);
+        }
         /* method: POST
          * 
          * url: api/user/
@@ -161,12 +227,15 @@ namespace InventoryManagementSystem.Controllers.Api
          *         2. Unauthorized 401 if you are not an admin or the owner of the account.
          *         3. Bad Request 400 if any required field is empty or OldPassword is wrong.
          *         4. Conflict 409 if failing to update the database.
+         *         
+         * Note that PutUserViewModel is a subclass of PostUserViewModel.
+         * 
          */
         // 修改 User 資訊的 API。Admin 可改所有 User 的資訊；而 User 只能改自己的。
         [HttpPut("{id}")]
         [Consumes("application/json")]
         [Authorize]
-        public async Task<IActionResult> PutUser(int id, PutUserViewModel model)
+        public async Task<IActionResult> PutUser(Guid id, PutUserViewModel model)
         {
             #region 檢查目前正在修改的人是否為管理員或本人
             // Admin 可以改所有 User 的資料
@@ -179,7 +248,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     .FirstOrDefault(c => c.Type == ClaimTypes.Role)
                     .Value;
 
-                int userId = int.Parse(userIdString);
+                Guid userId = Guid.Parse(userIdString);
 
                 if(userId != id)
                     return Unauthorized();
