@@ -50,6 +50,11 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>
+                        <label class="form-checkbox">
+                            <input type="checkbox" v-model="deletAll" @@click="deletAllSelect($event)"><i class="form-icon"></i>
+                        </label>    
+                    </th>
                     <th scope="col">設備種類</th>
                     <th scope="col">設備名稱</th>
                     <th scope="col">物品序號</th>
@@ -59,25 +64,31 @@
             </thead>
             <tbody>
                 <tr v-for="item in items">
+                    <td>
+                        <label class="form-checkbox">
+                            <input type="checkbox" v-model="deletItems" :value="item.itemId"><i class="form-icon"></i>
+                        </label>
+                    </td>
                     <td>{{selectCateName}}</td>
                     @*<td><select class="btn btn-light dropdown-toggle" v-if="updateItem.includes(item.itemId)" v-on:change="changeEquip($event)">
-                        <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}},{{ename.equipmentSn}}</option>
-                        </select><span v-else>{{item.equipmentName}},{{item.equipmentSn}}</span></td>*@
+        <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}},{{ename.equipmentSn}}</option>
+        </select><span v-else>{{item.equipmentName}},{{item.equipmentSn}}</span></td>*@
                     <td>{{item.equipmentName}}-{{item.equipmentSn}}</td>
                     <td><input v-if="updateItem.includes(item.itemId)" v-model="item.itemSn" class="form-control" size="1" /><span v-else>{{item.itemSn}}</span></td>
                     <td><input v-if="updateItem.includes(item.itemId)" v-model="item.description" class="form-control" size="1" /><span v-else>{{item.description}}</span></td>
                     <td>
                         <i class="bi bi-trash-fill" @@click="btnDelItem(item.itemId)" style="font-size: 20px;"></i>
                         <span v-if="updateItem.includes(item.itemId)">
-                            <i class="bi bi-check-square fa-3x" @@click="btnUpdConfirm(item)"  style="font-size: 20px;"></i>
+                            <i class="bi bi-check-square fa-3x" @@click="btnUpdConfirm(item)" style="font-size: 20px;"></i>
                         </span>
                         <span v-else>
-                            <i class="bi bi-pencil-square fa-10x" @@click="btnUpdItem(item.itemId)"  style="font-size: 20px;"></i>
+                            <i class="bi bi-pencil-square fa-10x" @@click="btnUpdItem(item.itemId)" style="font-size: 20px;"></i>
                         </span>
                     </td>
                 </tr>
             </tbody>
         </table>
+        <buttion v-if="deletItems.length>0" type="button" class="btn btn-danger" @@click="deletAllAction($event)">一次刪除</buttion>
     </div>
 
     <!-- addNewCateModal -->
@@ -194,6 +205,7 @@
             addEquipPrice: 0,
             addEquipDiscrip: "",
             deletItems: [],
+            deletAll:false,
             indexofSelectEquip: '',
             selectEquipName: '',
             selectEquipSn: '',
@@ -397,9 +409,7 @@
             btnUpdItem: function (itemId) {
                 this.updateItem = []
                 this.updateItem.push(itemId);
-
             },
-
             btnUpdConfirm: function (item) {
                 this.updateItem = [];
                 let temp = {
@@ -410,14 +420,14 @@
 
                 let url = '/ItemApi/EditItem/' + item.itemId;
                 let request = {
-                    method: 'PUT',
+                    method: 'PUT', 
                     headers: { 'content-type': 'application/json' },
                     body: JSON.stringify(temp)
                 }
                 fetch(url, request)
                     .then(response => {
                         if (response.ok) {
-                            alert("修改成功,請確認資料!!!");
+                            alert("修改成功");
 
 
                         } else {
@@ -425,8 +435,48 @@
                             this.getdata();
                         }
                     })
-            }
+            },
+            deletAllSelect: function () {
+                this.deletItems=[];
+                if (!this.deletAll) {
+                    for (let i = 0; i < this.items.length; i++) {
+                        this.deletItems.push(this.items[i].itemId);
+                    }
+                }
+            },
 
+            deletAllAction: function () {
+
+                let url = '/ItemApi/RemoveItemsByIds/';
+                let request = {
+                    method: 'Delete',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(this.deletItems)
+                };
+
+                let msg = "是否確定刪除？";
+                if (confirm(msg) == true) {
+                    fetch(url, request)
+                        .then(response => {
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data === 0) {
+                                alert("刪除失敗!!!");
+                            } else {
+                                alert("刪除" + data + "筆");
+                                this.items = [];
+                                this.deletAll = false;
+                                this.deletItems = [];
+
+                            }
+                        })
+                } else {
+                    return false;
+                };
+
+
+            }
         }
 
     })
