@@ -465,9 +465,16 @@
                                 alert("刪除失敗!!!");
                             } else {
                                 alert("刪除" + data + "筆");
-                                this.items = [];
-                                this.deletAll = false;
+                                
+                                this.items.forEach(item => {
+                                    if (this.deletItems.includes(item.itemId)) {
+                                        let index = this.items.indexOf(item);
+                                        this.items.splice(index, 1);
+                                    }
+                                })
                                 this.deletItems = [];
+                                this.deletAll = false;
+                                
 
                             }
                         })
