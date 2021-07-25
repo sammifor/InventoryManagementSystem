@@ -161,15 +161,5 @@ namespace InventoryManagementSystem.Controllers
             ViewData["Price"] = info.Amt;
             return View(mpg);
         }
-
-        [HttpPost("simulator")]
-        [Authorize(Roles = "user")]
-        public IActionResult LanXinSimulator(string merchantID, string tradeInfo, string tradeSha, string version)
-        {
-            return Content($"MerchantID: {merchantID}\n\n" +
-                $"TradeInfo: {tradeInfo}\n\n" +
-                $"TradeSha: {tradeSha}\n\n" +
-                $"Version: {version}");
-        }
     }
 }
