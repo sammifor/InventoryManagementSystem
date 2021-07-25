@@ -60,10 +60,10 @@
             <tbody>
                 <tr v-for="item in items">
                     <td>{{selectCateName}}</td>
-                    <td><select class="btn btn-light dropdown-toggle" v-if="updateItem.includes(item.itemId)" v-on:change="changeItemEquip($event)" v-model="item.equipmentName">
-                        <option v-for="ename in equips" :value="ename.equipmentName">{{ename.equipmentName}}</option>
-                        </select><span v-else>{{item.equipmentName}}</span></td>
-                    <td><input v-if="updateItem.includes(item.itemId)" v-model="item.itemSn" class="form-control" size="1"/><span v-else>{{item.itemSn}}</span></td>
+                    <td><select class="btn btn-light dropdown-toggle" v-if="updateItem.includes(item.itemId)" v-on:change="changeEquip($event)">
+                        <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}},{{ename.equipmentSn}}</option>
+                        </select><span v-else>{{item.equipmentName}},{{item.equipmentSn}}</span></td>
+                    <td><input v-if="updateItem.includes(item.itemId)" v-model="item.itemSn" class="form-control" size="1" /><span v-else>{{item.itemSn}}</span></td>
                     <td><input v-if="updateItem.includes(item.itemId)" v-model="item.description" class="form-control" size="1"/><span v-else>{{item.description}}</span></td>
                     <td><button class="btn btn-primary" @@click="btnDelItem(item.itemId)">刪除</button></td>
                     <td><button v-if="updateItem.includes(item.itemId)" class="btn btn-primary" @@click="btnUpdConfirm(item)">確認</button>
@@ -193,7 +193,7 @@
             selectEquipSn: '',
             delectItemId: '',
             updateItem: [],
-            selectEquipName_Sn:''
+            editEquipId: ''
 
             
         },
@@ -395,18 +395,45 @@
 
             },
 
-            btnUpdConfirm: function () {
-                this.updateItem=[]
+            btnUpdConfirm: function (item) {
+                this.updateItem = [];
+                console.log(item.itemId);
+                console.log(item.itemSn);
+                console.log(item.description);
+                console.log(this.editEquipId);
+
+                let temp = {
+                    
+                    itemId: item.itemId,
+                    itemSn: item.itemSn,
+                    description: item.description
+                };
+
+                let url = '/ItemApi/EditItem/' + item.itemId;
+                let request = {
+                    method: 'PUT',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(temp)
+                }
+                fetch(url, request)
+                    .then(response => {
+                        if (response.ok) {
+                            alert("修改成功,請確認資料!!!");
+                            this.getdata();
+
+                        } else {
+                            alert("修改失敗");
+                            this.getdata();
+                        }
+                    })
             },
 
-            changeItemEquip: function (data) {
-                let selectEquipSn = data.target.value;
-                let index = this.equips.findIndex(e => e.equipmentSn == selectEquipSn);
-                let selectEquipName = this.equips[index].equipmentName
-                this.selectEquipName_Sn = selectEquipName.append(selectEquipSn);
-
+            changeEquip: function (data) {
+                this.editEquipId=data.target.value;
 
             }
+
+
 
         }
 
