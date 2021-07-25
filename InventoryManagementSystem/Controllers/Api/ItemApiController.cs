@@ -83,6 +83,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Value;
             ItemLog log = new ItemLog
             {
+                ItemLogId = Guid.NewGuid(),
                 AdminId = Guid.Parse(adminIDString),
                 ItemId = itemId,
                 ConditionId = item.ConditionId,
