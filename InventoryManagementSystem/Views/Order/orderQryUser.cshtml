@@ -92,7 +92,13 @@
                             </tr>
                         </tbody>
                     </table>
-                    <b-btn variant="danger" @@click="cashOut">結帳 (總金額: {{countTotalPrice}})</b-btn>
+                    <b-btn variant="danger" 
+                           @*@@click="cashOut"*@
+                           @@click="confirmAmount"
+                           :disabled="noItemSelected"
+                           data-toggle="modal"
+                           data-target="#confirmAmountModal"
+                           >結帳 (總金額: {{countTotalPrice}})</b-btn>
                 </div>
             </b-tab>
 
@@ -360,6 +366,65 @@
             </div>
         </div>
     </div>
+    
+    <!-- TODO 確認金額Modal -->
+    <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">確認金額</h5>
+                </div>
+                <form method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
+                    <div class="modal-body">
+                        @* 這四個值要送給藍新，但不用顯示給 User 看 *@
+                        <input type="text"
+                               name="MerchantID"
+                               :value="mpgInfo.merchantID"
+                               hidden 
+                               readonly 
+                               required />
+                        <input type="text"
+                               name="TradeInfo"
+                               :value="mpgInfo.tradeInfo"
+                               hidden 
+                               readonly 
+                               required />
+                        <input type="text"
+                               name="TradeSha"
+                               :value="mpgInfo.tradeSha"
+                               hidden 
+                               readonly 
+                               required />
+                        <input type="text"
+                               name="Version"
+                               :value="mpgInfo.version"
+                               hidden 
+                               readonly 
+                               required />
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="col-form-label">應付金額</label>
+                                @* 顯示用的 Input，這個值不會送給藍新，故不給 name*@
+                                <input type="number"
+                                       class="form-control" 
+                                       :value="mpgInfo.totalPrice"
+                                       readonly />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" 
+                                class="btn btn-secondary" 
+                                data-dismiss="modal"
+                                @@click="clearMpgInfo">返回</button>
+                        <button type="submit" 
+                                class="btn btn-primary"
+                                :disabled="isLoadingTradeInfo">確定</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
 </div>
@@ -398,11 +463,18 @@
             selectAll: false,
             totalPrice: [0],
             cashTotalPrice: 0,
-            opened: []
+            opened: [],
+            mpgInfo: {
+                merchantID: "",
+                tradeInfo: "",
+                tradeSha: "",
+                version: "",
+                totalPrice: 0
+            }
     
         },
 
-        beforeCreate() {
+        created() {
 
             let url = '/OrderApi/GetOrders';
             let request = {
@@ -514,32 +586,26 @@
                 }
             },
 
-            cashOut: function () {
+            confirmAmount: async function () {
                 let requestData = []
                 this.selected.forEach(order => {
                     requestData.push(order.orderId)
+                });
+
+                let response = await fetch("/api/payment", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(requestData)
                 })
 
-                if (requestData.length === 0) {
-                    // TODO 改用 modal 比較漂亮
-                    alert("請至少選擇一筆訂單");
+                if (!response.ok) {
+                    alert("付款資料讀取失敗");
                     return;
                 }
 
-                let form = document.createElement("form");
-                form.setAttribute("method", "POST");
-                form.setAttribute("action", "/paying");
-                form.setAttribute("hidden", "true");
-
-                let input = document.createElement("input");
-                input.setAttribute("type", "text");
-                input.setAttribute("name", "idsRaw");
-                input.setAttribute("value", requestData);
-
-                form.appendChild(input);
-                document.body.appendChild(form);
-
-                form.submit();
+                this.mpgInfo = await response.json()
             },
 
             toggle: function (orderId) {
@@ -551,11 +617,18 @@
                     this.opened = []
                     this.opened.push(orderId)
                 }
+            },
+            clearMpgInfo: function() {
+                let info = this.mpgInfo;
+                info.merchantId = "";
+                info.tradeInfo = "";
+                info.tradeSha = "";
+                info.version = "";
             }
         },
 
         computed: {
-            countTotalPrice: function () {
+            countTotalPrice() {
                 this.cashTotalPrice = 0
                 this.totalPrice = [0]
                 this.selected.forEach(order => {
@@ -567,6 +640,17 @@
                 var reducer = (accumulator, currentValue) => accumulator + currentValue;
                 return this.cashTotalPrice = this.totalPrice.reduce(reducer);
 
+            },
+
+            isLoadingTradeInfo() {
+                return this.mpgInfo.merchantID === "" ||
+                    this.mpgInfo.tradeInfo === "" ||
+                    this.mpgInfo.tradeSha === "" ||
+                    this.mpgInfo.version === "";
+            },
+
+            noItemSelected() {
+                return this.selected.length <= 0;
             }
         }
     })
