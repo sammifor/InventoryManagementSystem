@@ -395,3 +395,5 @@ FodyWeavers.xsd
 /InventoryManagementSystem/Views/Test/testDeletEquip_Sammi.cshtml
 /InventoryManagementSystem/Views/Test/testDeletEquip_Sophie.cshtml
 /InventoryManagementSystem/Views/Test/testOrderFollow.cshtml
+/InventoryManagementSystem/.config
+/InventoryManagementSystem/Properties/ServiceDependencies/
