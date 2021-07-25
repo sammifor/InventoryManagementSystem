@@ -40,20 +40,8 @@ namespace InventoryManagementSystem.Models.PaymentProviderModels
             return ByteArrayToHex(transform.TransformFinalBlock(sourceBytes, 0, sourceBytes.Length)).ToLower();
         }
 
-        public static string DecryptAES256(string encryptData, string hashKey, string hashIV)//解密 
-        {
-            var encryptBytes = HexStringToByteArray(encryptData.ToUpper());
-            var aes = new RijndaelManaged();
-            aes.Key = Encoding.UTF8.GetBytes(hashKey);
-            aes.IV = Encoding.UTF8.GetBytes(hashIV);
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.None;
-            ICryptoTransform transform = aes.CreateDecryptor();
 
-            return Encoding.UTF8.GetString(RemovePKCS7Padding(transform.TransformFinalBlock(encryptBytes, 0, encryptBytes.Length)));
-        }
-
-        private byte[] AddPKCS7Padding(byte[] data, int iBlockSize)
+        protected byte[] AddPKCS7Padding(byte[] data, int iBlockSize)
         {
             int iLength = data.Length;
             byte cPadding = (byte)(iBlockSize - (iLength % iBlockSize));
@@ -64,7 +52,7 @@ namespace InventoryManagementSystem.Models.PaymentProviderModels
             return output;
         }
 
-        private static byte[] RemovePKCS7Padding(byte[] data)
+        protected static byte[] RemovePKCS7Padding(byte[] data)
         {
             int iLength = data[data.Length - 1];
             var output = new byte[data.Length - iLength];
@@ -72,7 +60,7 @@ namespace InventoryManagementSystem.Models.PaymentProviderModels
             return output;
         }
 
-        private string ByteArrayToHex(byte[] barray)
+        protected string ByteArrayToHex(byte[] barray)
         {
             char[] c = new char[barray.Length * 2];
             byte b;
@@ -87,7 +75,7 @@ namespace InventoryManagementSystem.Models.PaymentProviderModels
             return new string(c);
         }
 
-        private static byte[] HexStringToByteArray(string hexString)
+        protected static byte[] HexStringToByteArray(string hexString)
         {
             int hexStringLength = hexString.Length;
             byte[] b = new byte[hexStringLength / 2];
@@ -100,7 +88,7 @@ namespace InventoryManagementSystem.Models.PaymentProviderModels
             return b;
         }
 
-        private string GetHashSha256(string text)
+        public string GetHashSha256(string text)
         {
             using(SHA256 mySHA256 = SHA256.Create())
             {
@@ -115,6 +103,29 @@ namespace InventoryManagementSystem.Models.PaymentProviderModels
                 return builder.ToString();
             }
         }
+    }
+
+    public class MPGReturn : MPG
+    {
+        public string Status { get; set; }
+
+        public new string TradeInfo { get; set; }
+
+        public new string TradeSha { get; set; }
+
+        public string DecryptAES256(string hashKey, string hashIV)//解密 
+        {
+            var encryptBytes = HexStringToByteArray(TradeInfo.ToUpper());
+            var aes = new RijndaelManaged();
+            aes.Key = Encoding.UTF8.GetBytes(hashKey);
+            aes.IV = Encoding.UTF8.GetBytes(hashIV);
+            aes.Mode = CipherMode.CBC;
+            aes.Padding = PaddingMode.None;
+            ICryptoTransform transform = aes.CreateDecryptor();
+
+            return Encoding.UTF8.GetString(RemovePKCS7Padding(transform.TransformFinalBlock(encryptBytes, 0, encryptBytes.Length)));
+        }
+
     }
 
     public class TradeInfo
@@ -150,4 +161,37 @@ namespace InventoryManagementSystem.Models.PaymentProviderModels
             return resultPairs;
         }
     }
+
+
+    public class TradeResult
+    {
+        public string Status { get; set; }
+        public string Message { get; set; }
+        public ResultInfo Result { get; set; }
+    }
+
+    public class ResultInfo
+    {
+        public string MerchantID { get; set; }
+        public int Amt { get; set; }
+        public string TradeNo { get; set; }
+        public string MerchantOrderNo { get; set; }
+        public string RespondType { get; set; }
+        public string IP { get; set; }
+        public string EscrowBank { get; set; }
+        public string PaymentType { get; set; }
+        public string PayTime { get; set; }
+        public string RespondCode { get; set; }
+        public string Auth { get; set; }
+        public string Card6No { get; set; }
+        public string Card4No { get; set; }
+        public string Exp { get; set; }
+        public int TokenUseStatus { get; set; }
+        public int InstFirst { get; set; }
+        public int InstEach { get; set; }
+        public int Inst { get; set; }
+        public string ECI { get; set; }
+        public string PaymentMethod { get; set; }
+    }
+
 }

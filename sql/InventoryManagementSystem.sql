@@ -311,6 +311,10 @@ CREATE TABLE [PaymentDetail](
 
         [AmountPaid] DECIMAL NOT NULL,
 
+        [TradeNo] VARCHAR(20) NOT NULL,
+
+        [IP] VARCHAR(15) NOT NULL,
+
         [PayTime] DATETIME
                 CONSTRAINT [DF_PaymentDetail_PayTime] DEFAULT GETDATE()
 );

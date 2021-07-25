@@ -545,6 +545,12 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.AmountPaid).HasColumnType("decimal(18, 0)");
 
+                entity.Property(e => e.Ip)
+                    .IsRequired()
+                    .HasMaxLength(15)
+                    .IsUnicode(false)
+                    .HasColumnName("IP");
+
                 entity.Property(e => e.PayTime)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
@@ -557,6 +563,11 @@ namespace InventoryManagementSystem.Models.EF
                     .IsFixedLength(true);
 
                 entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
+
+                entity.Property(e => e.TradeNo)
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .IsUnicode(false);
 
                 entity.HasOne(d => d.Payment)
                     .WithMany(p => p.PaymentDetails)

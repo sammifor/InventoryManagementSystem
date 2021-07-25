@@ -83,6 +83,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Value;
             ItemLog log = new ItemLog
             {
+                ItemLogId = Guid.NewGuid(),
                 AdminId = Guid.Parse(adminIDString),
                 ItemId = itemId,
                 ConditionId = item.ConditionId,
@@ -110,7 +111,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Consumes("application/json")]
         [Route("{id}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> EditItem(int id, EditItemViewModel model)
+        public async Task<IActionResult> EditItem(Guid id, EditItemViewModel model)
         {
             if(id != model.ItemId)
             {
