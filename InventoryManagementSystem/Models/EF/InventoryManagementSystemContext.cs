@@ -26,6 +26,7 @@ namespace InventoryManagementSystem.Models.EF
         public virtual DbSet<Item> Items { get; set; }
         public virtual DbSet<ItemLog> ItemLogs { get; set; }
         public virtual DbSet<LineNotification> LineNotifications { get; set; }
+        public virtual DbSet<NewPayingAttempt> NewPayingAttempts { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
         public virtual DbSet<OrderDetailStatus> OrderDetailStatuses { get; set; }
@@ -45,7 +46,7 @@ namespace InventoryManagementSystem.Models.EF
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Name=InventoryDB");
+                optionsBuilder.UseSqlServer("name=InventoryDB");
             }
         }
 
@@ -341,6 +342,22 @@ namespace InventoryManagementSystem.Models.EF
                     .HasConstraintName("FK_LineNotification_OrderDetail");
             });
 
+            modelBuilder.Entity<NewPayingAttempt>(entity =>
+            {
+                entity.HasKey(e => new { e.PaymentDetailSn, e.OrderSn })
+                    .IsClustered(false);
+
+                entity.ToTable("NewPayingAttempt");
+
+                entity.Property(e => e.PaymentDetailSn)
+                    .HasMaxLength(18)
+                    .IsUnicode(false)
+                    .HasColumnName("PaymentDetailSN")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.OrderSn).HasColumnName("OrderSN");
+            });
+
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.HasKey(e => e.OrderId)
@@ -482,7 +499,7 @@ namespace InventoryManagementSystem.Models.EF
 
             modelBuilder.Entity<PayingAttempt>(entity =>
             {
-                entity.HasKey(e => new { e.PaymentDetailSn, e.OrderSn })
+                entity.HasKey(e => new { e.PaymentDetailSn, e.PaymentId })
                     .IsClustered(false);
 
                 entity.ToTable("PayingAttempt");
@@ -493,7 +510,7 @@ namespace InventoryManagementSystem.Models.EF
                     .HasColumnName("PaymentDetailSN")
                     .IsFixedLength(true);
 
-                entity.Property(e => e.OrderSn).HasColumnName("OrderSN");
+                entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
             });
 
             modelBuilder.Entity<Payment>(entity =>

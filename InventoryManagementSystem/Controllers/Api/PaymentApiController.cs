@@ -151,17 +151,17 @@ namespace InventoryManagementSystem.Controllers.Api
                 return BadRequest("有訂單不屬於本人");
             #endregion
 
-            #region 把 OrderSN 資料存在 PayingAttempt Table
+            #region 把 OrderSN 資料存在 NewPayingAttempt Table
             int[] orderSNs = orders.Select(o => o.OrderSn).ToArray();
 
             foreach(int sn in orderSNs)
             {
-                PayingAttempt pa = new PayingAttempt
+                NewPayingAttempt pa = new NewPayingAttempt
                 {
                     PaymentDetailSn = paymentDetailSn,
                     OrderSn = sn
                 };
-                _dbContext.PayingAttempts.Add(pa);
+                _dbContext.NewPayingAttempts.Add(pa);
             }
 
             try
