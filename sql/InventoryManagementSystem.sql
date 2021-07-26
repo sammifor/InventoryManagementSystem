@@ -268,6 +268,9 @@ CREATE TABLE [Payment](
         [PaymentID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_Payment] PRIMARY KEY NONCLUSTERED,
 
+        [PaymentSN] VARCHAR(16) NOT NULL
+                CONSTRAINT [UQ_Payment_PaymentSN] UNIQUE,
+
         [RentalFee] DECIMAL NOT NULL,
 
         [ExtraFee] DECIMAL

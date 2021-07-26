@@ -119,7 +119,8 @@ namespace InventoryManagementSystem.Controllers.Api
 
             #region Generating OrderDetailSN for MerchantOrderNo
             DateTimeOffset time = DateTimeOffset.Now;
-            string paymentDetailSn = $"{userSn:D5}{time.ToString("yyMMddHHmmssf")}";
+            // Initial payment starts with 0
+            string paymentDetailSn = $"0{userSn:D4}{time.ToString("yyMMddHHmmssf")}";
             #endregion
 
             #region 訂單合法且屬於本人

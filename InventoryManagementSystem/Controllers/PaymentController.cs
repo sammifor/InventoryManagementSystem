@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.PaymentProviderModels;
+using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,18 +28,20 @@ namespace InventoryManagementSystem.Controllers
         [HttpPost("/payment/result")]
         public async Task<IActionResult> PaymentResult(MPGReturn result)
         {
+            PaymentViewModel model = new PaymentViewModel();
+
             if(result.MerchantID != _payConfig.MerchantID || result.Version != _payConfig.Version)
             {
-                ViewData["TradeResult"] = "交易資料錯誤";
-                return View();
+                model.Message = "交易資料錯誤";
+                return View(model);
             }
 
             string hashed = result.GetHashSha256($"HashKey={_payConfig.HashKey}&{result.TradeInfo}&HashIV={_payConfig.HashIV}");
 
             if(hashed != result.TradeSha)
             {
-                ViewData["TradeResult"] = "檢查碼驗證錯誤";
-                return View();
+                model.Message = "檢查碼驗證錯誤";
+                return View(model);
             }
 
             string decryptedInfo = result.DecryptAES256(_payConfig.HashKey, _payConfig.HashIV);
@@ -47,8 +50,8 @@ namespace InventoryManagementSystem.Controllers
             if(info.Status != "SUCCESS")
             {
                 // 其他交易失敗訊息
-                ViewData["TradeResult"] = info.Status;
-                return View();
+                model.Message = info.Message;
+                return View(model);
             }
 
             int totalPrice = info.Result.Amt;
@@ -57,6 +60,8 @@ namespace InventoryManagementSystem.Controllers
             string ip = info.Result.IP;
             DateTime payTime = DateTime.Parse(info.Result.PayTime);
 
+            string paymentSn = string.Empty;
+
             bool isFirstPay = paymentDetailSn.StartsWith('0');
 
             Guid paymentId;
@@ -64,9 +69,16 @@ namespace InventoryManagementSystem.Controllers
             {
                 #region 新增 Payment
                 paymentId = Guid.NewGuid();
+
+                // paymentSn is created using the first associated paymentDetailSn
+                int left = int.Parse(paymentDetailSn.Substring(0, 9));
+                int right = int.Parse(paymentDetailSn.Substring(9, 9));
+                paymentSn = left.ToString("X") + right.ToString("X");
+
                 Payment payment = new Payment
                 {
                     PaymentId = paymentId,
+                    PaymentSn = paymentSn,
                     RentalFee = totalPrice,
                     ExtraFee = 0
                 };
@@ -113,6 +125,10 @@ namespace InventoryManagementSystem.Controllers
                     .Where(pa => pa.PaymentDetailSn == paymentDetailSn)
                     .Select(pa => pa.PaymentId)
                     .FirstOrDefaultAsync();
+                paymentSn = await _dbContext.Payments
+                    .Where(p => p.PaymentId == paymentId)
+                    .Select(p => p.PaymentSn)
+                    .FirstOrDefaultAsync();
             }
 
             #region 新增 PaymentDetail
@@ -136,14 +152,18 @@ namespace InventoryManagementSystem.Controllers
             }
             catch
             {
-                ViewData["TradeResult"] = "資料庫更新錯誤";
-                return View();
+                model.Message = "資料庫更新錯誤";
+                return View(model);
             }
             #endregion
 
-            ViewData["TradeResult"] = "交易成功";
-            return View();
+            model.Message = "交易成功";
+            model.PaymentDetailSn = paymentDetailSn;
+            model.PaymentSn = paymentSn;
+            model.Success = true;
+            model.PayTime = payTime;
+            model.Ip = ip;
+            return View(model);
         }
-
     }
 }

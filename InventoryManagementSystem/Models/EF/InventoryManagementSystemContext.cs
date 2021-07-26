@@ -46,7 +46,7 @@ namespace InventoryManagementSystem.Models.EF
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("name=InventoryDB");
+                optionsBuilder.UseSqlServer("Name=InventoryDB");
             }
         }
 
@@ -520,11 +520,20 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.ToTable("Payment");
 
+                entity.HasIndex(e => e.PaymentSn, "UQ_Payment_PaymentSN")
+                    .IsUnique();
+
                 entity.Property(e => e.PaymentId)
                     .ValueGeneratedNever()
                     .HasColumnName("PaymentID");
 
                 entity.Property(e => e.ExtraFee).HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.PaymentSn)
+                    .IsRequired()
+                    .HasMaxLength(16)
+                    .IsUnicode(false)
+                    .HasColumnName("PaymentSN");
 
                 entity.Property(e => e.RentalFee).HasColumnType("decimal(18, 0)");
             });

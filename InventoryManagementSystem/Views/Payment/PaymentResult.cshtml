@@ -1,7 +1,53 @@
-﻿
+﻿@model InventoryManagementSystem.Models.ViewModels.PaymentViewModel;
 @{
-    ViewData["Title"] = "付款結果";
+    ViewData["Title"] = "交易結果";
 }
-
-<p>@ViewData["TradeResult"]</p>
-
+<div class="row justify-content-center">
+    <div class="col-xl-6 col-12">
+        <section class="card">
+            <h1 class="card-header h3 text-center">@ViewData["Title"]</h1>
+            <div class="card-body">
+                <div class="form-group">
+                    <span class="text-secondary">交易訊息</span>
+                    @if(!Model.Success)
+                    {
+                    <span class="form-control text-danger">@Model.Message</span>
+                    }
+                    else
+                    {
+                    <span class="form-control text-success">@Model.Message</span>
+                    }
+                </div>
+                @if(Model.Success)
+                {
+                <div class="form-group">
+                    <span class="text-secondary">付款明細編號</span>
+                    <span class="form-control">@Model.PaymentDetailSn</span>
+                </div>
+                <div class="form-group">
+                    <span class="text-secondary">付款編號</span>
+                    <span class="form-control">@Model.PaymentSn</span>
+                </div>
+                <div class="form-group">
+                    <span class="text-secondary">交易 IP 位址</span>
+                    <span class="form-control">@Model.Ip</span>
+                </div>
+                <div class="form-group">
+                    <span class="text-secondary">交易時間</span>
+                    <span class="form-control">@Model.PayTime</span>
+                </div>
+                }
+                <div class="form-group text-center">
+                    @if(Model.Success)
+                    {
+                    <a class="btn btn-success btn-lg" href="/Equips/equipQryUser">確認並返回</a>
+                    }
+                    else
+                    {
+                    <a class="btn btn-danger btn-lg" href="/Equips/equipQryUser">確認並返回</a>
+                    }
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
