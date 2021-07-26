@@ -30,7 +30,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
         /* method: GET
          * 
-         * url: api/payment
+         * url: /api/payment
          * 
          * input: none
          * 
@@ -65,6 +65,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     .Select(po => new PaymentResultModel
                     {
                         PaymentId = po.PaymentId,
+                        PaymentSn = po.Payment.PaymentSn,
                         RentalFee = po.Payment.RentalFee,
                         ExtraFee = po.Payment.ExtraFee,
 
@@ -72,13 +73,15 @@ namespace InventoryManagementSystem.Controllers.Api
                             .Select(po => new OrderInPaymentResultModel
                             {
                                 OrderId = po.OrderId,
+                                OrderSn = po.Order.OrderSn,
                                 Quantity = po.Order.Quantity,
                                 OrderTime = po.Order.OrderTime,
                                 EquipmentSn = po.Order.Equipment.EquipmentSn,
                                 EquipmentName = po.Order.Equipment.EquipmentName,
                                 Brand = po.Order.Equipment.Brand,
                                 Model = po.Order.Equipment.Brand,
-                                Price = po.Order.Quantity * po.Order.Day * po.Order.Equipment.UnitPrice
+                                Price = po.Order.Quantity * po.Order.Day * po.Order.Equipment.UnitPrice,
+                                StatusName = po.Order.OrderStatus.StatusName
                             })
                             .ToArray(),
 
@@ -86,12 +89,20 @@ namespace InventoryManagementSystem.Controllers.Api
                             .Select(pd => new PaymentDetailResultModel
                             {
                                 PaymentDetailId = pd.PaymentDetailId,
+                                PaymentDetailSn = pd.PaymentDetailSn,
                                 AmountPaid = pd.AmountPaid,
                                 PayTime = pd.PayTime
                             })
-                            .ToArray()
+                            .ToArray(),
                     })
                     .ToArrayAsync();
+
+            foreach(PaymentResultModel p in payments)
+            {
+                p.Completed = p.PaymentDetails
+                    .Select(pd => pd.AmountPaid)
+                    .Aggregate((acc, next) => acc + next) >= p.RentalFee + p.ExtraFee;
+            }
 
             return Ok(payments);
         }
