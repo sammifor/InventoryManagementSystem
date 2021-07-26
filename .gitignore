@@ -386,6 +386,9 @@ FodyWeavers.xsd
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+appsettings.json
+
 /InventoryManagementSystem/Views/Test/test.cshtml
 /InventoryManagementSystem/Controllers/Test.cs
 /InventoryManagementSystem/Views/Test/test1.cshtml
