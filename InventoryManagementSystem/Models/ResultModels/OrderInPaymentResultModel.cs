@@ -6,6 +6,7 @@ namespace InventoryManagementSystem.Models.ResultModels
     {
         // From Order table
         public Guid OrderId { get; set; }
+        public int OrderSn { get; set; }
         public int Quantity { get; set; }
         public DateTime? OrderTime { get; set; }
 
@@ -16,6 +17,6 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string Model { get; set; }
         public decimal? Price { get; set; }
 
-        public string TabName { get; set; }
+        public string StatusName { get; set; }
     }
 }

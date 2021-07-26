@@ -30,7 +30,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
         /* method: GET
          * 
-         * url: api/payment
+         * url: /api/payment
          * 
          * input: none
          * 
@@ -65,6 +65,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     .Select(po => new PaymentResultModel
                     {
                         PaymentId = po.PaymentId,
+                        PaymentSn = po.Payment.PaymentSn,
                         RentalFee = po.Payment.RentalFee,
                         ExtraFee = po.Payment.ExtraFee,
 
@@ -72,13 +73,15 @@ namespace InventoryManagementSystem.Controllers.Api
                             .Select(po => new OrderInPaymentResultModel
                             {
                                 OrderId = po.OrderId,
+                                OrderSn = po.Order.OrderSn,
                                 Quantity = po.Order.Quantity,
                                 OrderTime = po.Order.OrderTime,
                                 EquipmentSn = po.Order.Equipment.EquipmentSn,
                                 EquipmentName = po.Order.Equipment.EquipmentName,
                                 Brand = po.Order.Equipment.Brand,
                                 Model = po.Order.Equipment.Brand,
-                                Price = po.Order.Quantity * po.Order.Day * po.Order.Equipment.UnitPrice
+                                Price = po.Order.Quantity * po.Order.Day * po.Order.Equipment.UnitPrice,
+                                StatusName = po.Order.OrderStatus.StatusName
                             })
                             .ToArray(),
 
@@ -86,12 +89,20 @@ namespace InventoryManagementSystem.Controllers.Api
                             .Select(pd => new PaymentDetailResultModel
                             {
                                 PaymentDetailId = pd.PaymentDetailId,
+                                PaymentDetailSn = pd.PaymentDetailSn,
                                 AmountPaid = pd.AmountPaid,
                                 PayTime = pd.PayTime
                             })
-                            .ToArray()
+                            .ToArray(),
                     })
                     .ToArrayAsync();
+
+            foreach(PaymentResultModel p in payments)
+            {
+                p.Completed = p.PaymentDetails
+                    .Select(pd => pd.AmountPaid)
+                    .Aggregate((acc, next) => acc + next) >= p.RentalFee + p.ExtraFee;
+            }
 
             return Ok(payments);
         }
@@ -119,7 +130,8 @@ namespace InventoryManagementSystem.Controllers.Api
 
             #region Generating OrderDetailSN for MerchantOrderNo
             DateTimeOffset time = DateTimeOffset.Now;
-            string paymentDetailSn = $"{userSn:D5}{time.ToString("yyMMddHHmmssf")}";
+            // Initial payment starts with 0
+            string paymentDetailSn = $"0{userSn:D4}{time.ToString("yyMMddHHmmssf")}";
             #endregion
 
             #region 訂單合法且屬於本人

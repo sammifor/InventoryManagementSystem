@@ -10,6 +10,7 @@ namespace InventoryManagementSystem.Models.ResultModels
     {
         // From Payment table
         public Guid PaymentId { get; set; }
+        public string PaymentSn { get; set; }
         public decimal RentalFee { get; set; }
         public decimal? ExtraFee { get; set; }
 
@@ -18,5 +19,7 @@ namespace InventoryManagementSystem.Models.ResultModels
 
         // from PaymentDetail table
         public PaymentDetailResultModel[] PaymentDetails { get; set; }
+
+        public bool Completed { get; set; }
     }
 }

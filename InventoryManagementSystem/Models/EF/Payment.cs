@@ -15,6 +15,7 @@ namespace InventoryManagementSystem.Models.EF
         }
 
         public Guid PaymentId { get; set; }
+        public string PaymentSn { get; set; }
         public decimal RentalFee { get; set; }
         public decimal? ExtraFee { get; set; }
 
