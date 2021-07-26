@@ -50,5 +50,12 @@ namespace InventoryManagementSystem.Controllers
             return View();        
         
         }
+
+        public IActionResult EquipManagement()
+        {
+
+            return View();
+        
+        }
     }
 }

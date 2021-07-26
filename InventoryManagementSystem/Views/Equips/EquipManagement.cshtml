@@ -100,7 +100,6 @@
             addEquipPrice: 0,
             addEquipDiscrip:""
         },
-
         beforeCreate: function () {
             fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
                 .then(response => {
@@ -111,11 +110,8 @@
                 .then(response => {
                     this.category = response;
                 });
-
         },
-
         methods: {
-
             getdata: function (data) {
                 fetch('/equipapi/GetEquipByCateId/' + this.equipCategoryId, { method: 'GET' })
                     .then(response => {
@@ -125,16 +121,12 @@
                     })
                     .then(response => {
                         this.equips = response;
-
                     })
             },
-
             onCategoryChange: function (data) {
                 this.equipCategoryId=data.target.value;
                 this.getdata();
-
             },
-
             addNewEquip: function () {
                 let requestData = {
                     equipmentCategoryId: this.equipCategoryId,
@@ -144,7 +136,7 @@
                     model: this.addEquipModel,
                     unitPrice: this.addEquipPrice,
                     description: this.addEquipDiscrip
-                
+
                 };
                 let url = "/EquipApi/InsertEquip";
                 let request = {
@@ -159,31 +151,17 @@
                         if (r.ok) {
                             alert("新增成功");
                             this.getdata();
-
                         } else {
                             alert("資料有誤");
                         }
                     })
                     .catch(error => {
-
                         console.log(error);
                         alert("新增失敗");
                     })
-
-
-
-
-
             }
-
-
         }
     })
-
-
-
-
 </script>
-
 
 
