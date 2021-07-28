@@ -1,0 +1,230 @@
+﻿<link type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+<link type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+<script src="https://unpkg.com/vue"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+
+<div id="app">
+    <b-card>
+        <b-tabs content-class="mt-3" fill>
+            <!-- 未付款 -->
+            <b-tab title="未付款" active>
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <label class="form-checkbox">
+                                        <input type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i>
+                                    </label>
+                                </th>
+                                <th>訂單序號</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>租借天數</th>
+                                <th>下單時間</th>
+                                <th>總價</th>
+                                <th>付款期限</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="od in unPaidOd">
+                                <tr>
+                                    <td>{{od.paymentSn}}</td>
+                                    <td>{{od.extraFee}}</td>
+                                    <td>???</td>
+                                    <td>尚未結清款項</td>
+                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.paymentSn)" style="font-size: 20px;"></i></td>
+                                </tr>
+                                <tr v-if="paymentDetail.includes(od.paymentSn)">
+                                    <td colspan="5" class="p-3 mb-2 bg-light text-dark">
+                                        <ul>
+                                            <li></li>
+                                            <li></li>
+                                            <li></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </b-tab>
+
+            <!-- 額外費用 -->
+            <b-tab title="額外費用">
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>訂單序號</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>租借天數</th>
+                                <th>下單時間</th>
+                                <th>總金額</th>
+                                <th>額外費用</th>
+                                <th>繳費明細</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="od in unPaidOd">
+                                <tr>
+                                    <td>{{od.paymentSn}}</td>
+                                    <td>{{od.rentalFee}}</td>
+                                    <td>???</td>
+                                    <td>未付款</td>
+                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.paymentSn)" style="font-size: 20px;"></i></td>
+                                </tr>
+                                <tr v-if="paymentDetail.includes(od.paymentSn)">
+                                    <td colspan="5" class="p-3 mb-2 bg-light text-dark">
+                                        <ul>
+                                            <li></li>
+                                            <li></li>
+                                            <li></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </b-tab>
+
+            <!-- 已結清 -->
+            <b-tab title="已結清">
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>訂單序號</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>租借天數</th>
+                                <th>下單時間</th>
+                                <th>總金額</th>
+                                <th>結清日期</th>
+                                <th>訂單明細</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="od in unPaidOd">
+                                <tr>
+                                    <td>{{od.paymentSn}}</td>
+                                    <td>{{od.rentalFee}}</td>
+                                    <td>???</td>
+                                    <td>未付款</td>
+                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.paymentSn)" style="font-size: 20px;"></i></td>
+                                </tr>
+                                <tr v-if="paymentDetail.includes(od.paymentSn)">
+                                    <td colspan="5" class="p-3 mb-2 bg-light text-dark">
+                                        <ul>
+                                            <li></li>
+                                            <li></li>
+                                            <li></li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </b-tab>
+        </b-tabs>
+    </b-card>
+</div>
+
+<script>
+    Vue.filter('timeString', function (value, myFormat) {
+        return moment(value).format(myFormat || 'YYYY-MM-DD, HH:mm:ss');
+    });
+    var app = new Vue({
+
+        el: '#app',
+        data: {
+            unPaidOd:
+                [
+                    {
+                paymentId: "5f84bc38-58ce-40d1-bfd3-5b92b8741efe",
+                paymentSn: "2F4BF8A628C",
+                rentalFee: 30,
+                extraFee: 0,
+
+                orders: [
+                    {
+                        orderId: "64c90d82-b4d3-4985-9c1e-790ca54b5f17",
+                        orderSn: 2,
+                        quantity: 1,
+                        orderTime: "2021-07-26T07:27:13.96",
+                        equipmentSn: "SN9",
+                        equipmentName: "原子筆",
+                        brand: "Brand7",
+                        model: "Brand7",
+                        price: 30,
+                        statusName: "已取消"
+                       
+                    },
+                    {
+                        orderId: "706e577a-9d1f-43be-923b-f84be6de4fef",
+                        orderSn: 3,
+                        quantity: 2,
+                        orderTime: "2021-07-26T08:13:10.3",
+                        equipmentSn: "SN16",
+                        equipmentName: "掃把",
+                        brand: "Brand9",
+                        Model: "Brand9",
+                        price: 200,
+                        statusName: "已成立"
+                    },
+                    {
+                        orderId: "f2ae018d-6a4d-4e56-b752-48df1e7668b1",
+                        orderSn: 1,
+                        quantity: 2,
+                        orderTime: "2021-07-26T06:51:08.403",
+                        equipmentSn: "SN16",
+                        equipmentName: "掃把",
+                        brand: "Brand9",
+                        model: "Brand9",
+                        price: 200,
+                        statusName: "已成立"
+                    }
+                ],
+                paymentDetails: [
+                    {
+                        paymentDetailId: "774adcb5-5a40-47a4-9e96-0d10d8abd558",
+                        paymentDetailSn: "000012107260727436",
+                        amountPaid: 30,
+                        payTime: "2021-07-26T15:27:58"
+                    }
+                ],
+                completed: true
+                    }
+                ],
+
+            paidOd: [],
+            paymentDetail:[]
+            
+        },
+
+        methods:{
+            paymentDetailCheck: function (paymentSn) {
+                let index = this.paymentDetail.indexOf(paymentSn);
+                if (index > -1) {
+                    this.paymentDetail.splice(index, 1)
+                } else {
+                    this.paymentDetail = []
+                    this.paymentDetail.push(paymentSn)
+                }
+            }
+        }
+    })
+
+</script> 

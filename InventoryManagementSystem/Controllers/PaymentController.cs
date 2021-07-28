@@ -165,5 +165,11 @@ namespace InventoryManagementSystem.Controllers
             model.Ip = ip;
             return View(model);
         }
+
+        public IActionResult PaymentResultView() {
+
+            return View();
+        
+        }
     }
 }
