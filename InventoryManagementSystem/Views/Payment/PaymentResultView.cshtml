@@ -13,16 +13,12 @@
     <b-card>
         <b-tabs content-class="mt-3" fill>
             <!-- 未付款 -->
-            <b-tab title="未付款" active>
+            <b-tab title="待付款" active>
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>
-                                    <label class="form-checkbox">
-                                        <input type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i>
-                                    </label>
-                                </th>
+                                <th><input aria-label="Checkbox" type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i></th>
                                 <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
@@ -34,32 +30,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <template v-for="od in unPaidOd">
-                                <tr>
-                                    <td>{{od.paymentSn}}</td>
-                                    <td>{{od.extraFee}}</td>
-                                    <td>???</td>
-                                    <td>尚未結清款項</td>
-                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.paymentSn)" style="font-size: 20px;"></i></td>
-                                </tr>
-                                <tr v-if="paymentDetail.includes(od.paymentSn)">
-                                    <td colspan="5" class="p-3 mb-2 bg-light text-dark">
-                                        <ul>
-                                            <li></li>
-                                            <li></li>
-                                            <li></li>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </template>
+                            <tr v-for="od in unPaidOd">
+                                <td><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od"><i class="form-icon"></i></td>
+                                <td>{{od.orderSn}}</td>
+                                <td>{{od.equipmentSn}}</td>
+                                <td>{{od.equipmentName}}</td>
+                                <td>{{od.quantity}}</td>
+                                <td>{{od.day}}</td>
+                                <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                <td>{{od.unitPrice * od.day * od.quantity}}</td>
+                                <td>{{od.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                            </tr>
                         </tbody>
                     </table>
+                    <b-btn variant="danger"
+                           @@click="confirmAmount"
+                           :disabled="noItemSelected"
+                           data-toggle="modal"
+                           data-target="#confirmAmountModal">結帳 (總金額: {{countTotalPrice}})</b-btn>
                 </div>
             </b-tab>
 
             <!-- 額外費用 -->
             <b-tab title="額外費用">
-                <div>
+                <!--<div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -82,25 +76,25 @@
                                     <td>???</td>
                                     <td>未付款</td>
                                     <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.paymentSn)" style="font-size: 20px;"></i></td>
-                                </tr>
-                                <tr v-if="paymentDetail.includes(od.paymentSn)">
-                                    <td colspan="5" class="p-3 mb-2 bg-light text-dark">
-                                        <ul>
-                                            <li></li>
-                                            <li></li>
-                                            <li></li>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </template>
+                                </tr>-->
+                @*<tr v-if="paymentDetail.includes(od.paymentSn)">
+                        <td colspan="5" class="p-3 mb-2 bg-light text-dark">
+                            <ul>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </td>
+                    </tr>*@
+                <!--</template>
                         </tbody>
                     </table>
-                </div>
+                </div>-->
             </b-tab>
 
             <!-- 已結清 -->
             <b-tab title="已結清">
-                <div>
+                <!--<div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -123,23 +117,84 @@
                                     <td>???</td>
                                     <td>未付款</td>
                                     <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.paymentSn)" style="font-size: 20px;"></i></td>
-                                </tr>
-                                <tr v-if="paymentDetail.includes(od.paymentSn)">
-                                    <td colspan="5" class="p-3 mb-2 bg-light text-dark">
-                                        <ul>
-                                            <li></li>
-                                            <li></li>
-                                            <li></li>
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </template>
+                                </tr>-->
+                @*<tr v-if="paymentDetail.includes(od.paymentSn)">
+                        <td colspan="5" class="p-3 mb-2 bg-light text-dark">
+                            <ul>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </td>
+                    </tr>*@
+                <!--</template>
                         </tbody>
                     </table>
-                </div>
+                </div>-->
             </b-tab>
         </b-tabs>
     </b-card>
+
+    <!--確認金額Modal-->
+    <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">確認金額</h5>
+                </div>
+                <form method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
+                    <div class="modal-body">
+                        @* 這四個值要送給藍星，但不用顯示給 User 看 *@
+                        <input type="text"
+                               name="MerchantID"
+                               :value="mpgInfo.merchantID"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="TradeInfo"
+                               :value="mpgInfo.tradeInfo"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="TradeSha"
+                               :value="mpgInfo.tradeSha"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="Version"
+                               :value="mpgInfo.version"
+                               hidden
+                               readonly
+                               required />
+                        <div class="form-group">
+                            <label>請確認應付金額是否正確</label>
+                            @* 顯示用的 Input，這個值不會送給藍新，故不給 name*@
+                            <input type="number"
+                                   class="form-control"
+                                   :value="mpgInfo.totalPrice"
+                                   readonly />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                                @@click="clearMpgInfo">
+                            返回
+                        </button>
+                        <button type="submit"
+                                class="btn btn-primary"
+                                :disabled="isLoadingTradeInfo">
+                            確定
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -150,81 +205,134 @@
 
         el: '#app',
         data: {
-            unPaidOd:
-                [
-                    {
-                paymentId: "5f84bc38-58ce-40d1-bfd3-5b92b8741efe",
-                paymentSn: "2F4BF8A628C",
-                rentalFee: 30,
-                extraFee: 0,
-
-                orders: [
-                    {
-                        orderId: "64c90d82-b4d3-4985-9c1e-790ca54b5f17",
-                        orderSn: 2,
-                        quantity: 1,
-                        orderTime: "2021-07-26T07:27:13.96",
-                        equipmentSn: "SN9",
-                        equipmentName: "原子筆",
-                        brand: "Brand7",
-                        model: "Brand7",
-                        price: 30,
-                        statusName: "已取消"
-                       
-                    },
-                    {
-                        orderId: "706e577a-9d1f-43be-923b-f84be6de4fef",
-                        orderSn: 3,
-                        quantity: 2,
-                        orderTime: "2021-07-26T08:13:10.3",
-                        equipmentSn: "SN16",
-                        equipmentName: "掃把",
-                        brand: "Brand9",
-                        Model: "Brand9",
-                        price: 200,
-                        statusName: "已成立"
-                    },
-                    {
-                        orderId: "f2ae018d-6a4d-4e56-b752-48df1e7668b1",
-                        orderSn: 1,
-                        quantity: 2,
-                        orderTime: "2021-07-26T06:51:08.403",
-                        equipmentSn: "SN16",
-                        equipmentName: "掃把",
-                        brand: "Brand9",
-                        model: "Brand9",
-                        price: 200,
-                        statusName: "已成立"
-                    }
-                ],
-                paymentDetails: [
-                    {
-                        paymentDetailId: "774adcb5-5a40-47a4-9e96-0d10d8abd558",
-                        paymentDetailSn: "000012107260727436",
-                        amountPaid: 30,
-                        payTime: "2021-07-26T15:27:58"
-                    }
-                ],
-                completed: true
-                    }
-                ],
-
+            orders:[],
+            unPaidOd:[],
             paidOd: [],
-            paymentDetail:[]
+            paymentDetail: [],
+            selectAll: false,
+            selected: [],
+            mpgInfo: {
+                merchantID: "",
+                tradeInfo: "",
+                tradeSha: "",
+                version: "",
+                totalPrice: 0
+            },
+            cashTotalPrice: 0,
+            totalPrice:[0]
             
         },
 
-        methods:{
-            paymentDetailCheck: function (paymentSn) {
-                let index = this.paymentDetail.indexOf(paymentSn);
-                if (index > -1) {
-                    this.paymentDetail.splice(index, 1)
-                } else {
-                    this.paymentDetail = []
-                    this.paymentDetail.push(paymentSn)
+        created() {
+
+            let url = '/OrderApi/GetOrders';
+            let request = {
+                method: "GET",
+                headers: { "content-type": "application/json" }
+            };
+            fetch(url, request)
+                .then(response => {
+                    if (response.ok) {
+                        console.log("資料庫連線成功");
+                        return response.json();
+
+                    } else {
+                        console.log("資料擷取失敗");
+                    }
+                }).then(response => {
+                    
+                    this.orders = response;
+                   
+                    this.unPaidOd = this.orders.filter(od => od.tabName === "待付款");
+                    console.log(this.unPaidOd);
+
+                }).catch(error => {
+                     alert("資料庫連線失敗");
+                     console.log(error);
+                })
+        },
+
+        methods: {
+
+             paymentDetailCheck: function (paymentSn) {
+                        let index = this.paymentDetail.indexOf(paymentSn);
+                        if (index > -1) {
+                            this.paymentDetail.splice(index, 1)
+                        } else {
+                            this.paymentDetail = []
+                            this.paymentDetail.push(paymentSn)
+                        }
+             },
+
+             selectAllAction: function () {
+                        this.selected = [];
+                        if (!this.selectAll) {
+                            for (let i = 0; i < this.unPaidOd.length; i++) {
+                                this.selected.push(this.unPaidOd[i]);
+                            }
+
+                        }
+             },
+
+             confirmAmount: async function () {
+                let requestData = []
+                this.selected.forEach(order => {
+                    requestData.push(order.orderId)
+                });
+
+                let response = await fetch("/api/payment", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(requestData)
+                })
+
+                if (!response.ok) {
+                    alert("付款資料讀取失敗");
+                    return;
                 }
+
+                this.mpgInfo = await response.json()
+            },
+
+            clearMpgInfo: function () {
+                let info = this.mpgInfo;
+                info.merchantId = "";
+                info.tradeInfo = "";
+                info.tradeSha = "";
+                info.version = "";
+            }
+
+        },
+
+        computed: {
+            countTotalPrice() {
+                this.cashTotalPrice = 0
+                this.totalPrice = [0]
+                this.selected.forEach(od => {
+
+                    var orderPrice = od.unitPrice * od.quantity * od.day;
+                    this.totalPrice.push(orderPrice);
+                })
+
+                var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                return this.cashTotalPrice = this.totalPrice.reduce(reducer);
+
+            },
+
+            isLoadingTradeInfo() {
+                return this.mpgInfo.merchantID === "" ||
+                    this.mpgInfo.tradeInfo === "" ||
+                    this.mpgInfo.tradeSha === "" ||
+                    this.mpgInfo.version === "";
+            },
+
+            noItemSelected() {
+                return this.selected.length <= 0;
             }
         }
+
     })
 
 </script> 

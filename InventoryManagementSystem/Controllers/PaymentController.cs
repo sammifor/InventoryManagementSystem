@@ -166,6 +166,7 @@ namespace InventoryManagementSystem.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "user")]
         public IActionResult PaymentResultView() {
 
             return View();
