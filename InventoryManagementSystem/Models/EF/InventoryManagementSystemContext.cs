@@ -25,8 +25,8 @@ namespace InventoryManagementSystem.Models.EF
         public virtual DbSet<FeeCategory> FeeCategories { get; set; }
         public virtual DbSet<Item> Items { get; set; }
         public virtual DbSet<ItemLog> ItemLogs { get; set; }
-        public virtual DbSet<LineNotification> LineNotifications { get; set; }
         public virtual DbSet<NewPayingAttempt> NewPayingAttempts { get; set; }
+        public virtual DbSet<Notification> Notifications { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderDetail> OrderDetails { get; set; }
         public virtual DbSet<OrderDetailStatus> OrderDetailStatuses { get; set; }
@@ -314,34 +314,6 @@ namespace InventoryManagementSystem.Models.EF
                     .HasConstraintName("FK_ItemLog_OrderDetail");
             });
 
-            modelBuilder.Entity<LineNotification>(entity =>
-            {
-                entity.HasKey(e => e.LineNotificationId)
-                    .IsClustered(false);
-
-                entity.ToTable("LineNotification");
-
-                entity.Property(e => e.LineNotificationId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("LineNotificationID");
-
-                entity.Property(e => e.CreateTime)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
-
-                entity.Property(e => e.Message)
-                    .IsRequired()
-                    .HasMaxLength(200);
-
-                entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
-
-                entity.HasOne(d => d.OrderDetail)
-                    .WithMany(p => p.LineNotifications)
-                    .HasForeignKey(d => d.OrderDetailId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_LineNotification_OrderDetail");
-            });
-
             modelBuilder.Entity<NewPayingAttempt>(entity =>
             {
                 entity.HasKey(e => new { e.PaymentDetailSn, e.OrderSn })
@@ -356,6 +328,34 @@ namespace InventoryManagementSystem.Models.EF
                     .IsFixedLength(true);
 
                 entity.Property(e => e.OrderSn).HasColumnName("OrderSN");
+            });
+
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(e => e.NotificationId)
+                    .IsClustered(false);
+
+                entity.ToTable("Notification");
+
+                entity.Property(e => e.NotificationId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("NotificationID");
+
+                entity.Property(e => e.CreateTime)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Message)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
+
+                entity.HasOne(d => d.OrderDetail)
+                    .WithMany(p => p.Notifications)
+                    .HasForeignKey(d => d.OrderDetailId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Notification_OrderDetail");
             });
 
             modelBuilder.Entity<Order>(entity =>
@@ -810,9 +810,10 @@ namespace InventoryManagementSystem.Models.EF
                     .HasMaxLength(32)
                     .IsFixedLength(true);
 
-                entity.Property(e => e.LineAccount)
-                    .HasMaxLength(64)
-                    .IsUnicode(false);
+                entity.Property(e => e.LineId)
+                    .HasMaxLength(33)
+                    .IsUnicode(false)
+                    .HasColumnName("LineID");
 
                 entity.Property(e => e.PhoneNumber)
                     .HasMaxLength(20)

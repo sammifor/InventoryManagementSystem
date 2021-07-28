@@ -51,9 +51,7 @@
             <thead>
                 <tr>
                     <th>
-                        <label class="form-checkbox">
-                            <input type="checkbox" v-model="deletAll" @@click="deletAllSelect($event)"><i class="form-icon"></i>
-                        </label>    
+                            <input aria-label="Checkbox" type="checkbox" v-model="deletAll" @@click="deletAllSelect($event)"><i class="form-icon"></i>
                     </th>
                     <th scope="col">設備種類</th>
                     <th scope="col">設備名稱</th>
@@ -65,9 +63,7 @@
             <tbody>
                 <tr v-for="item in items">
                     <td>
-                        <label class="form-checkbox">
-                            <input type="checkbox" v-model="deletItems" :value="item.itemId"><i class="form-icon"></i>
-                        </label>
+                       <input aria-label="Checkbox" type="checkbox" v-model="deletItems" :value="item.itemId"><i class="form-icon"></i>
                     </td>
                     <td>{{selectCateName}}</td>
                     @*<td><select class="btn btn-light dropdown-toggle" v-if="updateItem.includes(item.itemId)" v-on:change="changeEquip($event)">
@@ -88,7 +84,7 @@
                 </tr>
             </tbody>
         </table>
-        <buttion v-if="deletItems.length>0" type="button" class="btn btn-danger" @@click="deletAllAction($event)">一次刪除</buttion>
+        <buttion v-if="deletItems.length>1" type="button" class="btn btn-danger" @@click="deletAllAction($event)">一次刪除</buttion>
     </div>
 
     <!-- addNewCateModal -->
@@ -206,10 +202,7 @@
             addEquipDiscrip: "",
             deletItems: [],
             deletAll:false,
-            indexofSelectEquip: '',
-            selectEquipName: '',
-            selectEquipSn: '',
-            delectItemId: '',
+            deletItemId: '',
             updateItem: []
         },
 
@@ -245,9 +238,7 @@
                     })
             },
 
-            onEquipNameChange: function (data) {
-                console.log(this.selectEquipId);
-                console.log(data.target.value);
+            onEquipNameChange: function () {
                 this.getdata();
             },
 
@@ -272,12 +263,10 @@
                     .then(r => {
                         if (r.ok) {
                             alert("新增成功");
-                            this.indexofSelectEquip = this.equips.findIndex(x => x.equipmentId === this.selectEquipId);
-                            this.selectEquipName = this.equips[this.indexofSelectEquip].equipmentName;
-                            this.selectEquipSn = this.equips[this.indexofSelectEquip].equipmentSn;
+                            let index = this.equips.findIndex(x => x.equipmentId === this.selectEquipId);
                             let updateData = {
-                                equipmentName: this.selectEquipName,
-                                equipmentSn: this.selectEquipSn,
+                                equipmentName: this.equips[index].equipmentName,
+                                equipmentSn: this.equips[index].equipmentSn,
                                 itemSn: this.addItemSN,
                                 description: this.addItemDiscrip
                             }
@@ -370,16 +359,14 @@
             },
 
             btnDelItem: function (data) {
-
-            this.delectItemId = data;
-            this.deletItems.push(this.delectItemId);
+            this.deletItemId = data;
+            this.deletItems.push(this.deletItemId);
             let url = '/ItemApi/RemoveItemsByIds/';
             let request = {
                     method: 'Delete',
-                    headers: { 'content-type': 'application/json' },
+                    headers: { 'content-type': 'application/json'},
                     body: JSON.stringify(this.deletItems)
-                };
-             
+                }; 
             let msg = "是否確定刪除？";
             if (confirm(msg) == true) {
                 fetch(url, request)
@@ -391,12 +378,8 @@
                             alert("刪除失敗!!!");
                         } else {
                             alert("刪除" + data + "筆");
-                            this.items = this.items.filter((x) => {
-                                return x.itemId !== this.delectItemId;
-                            });
-                            
+                            this.items = this.items.filter(x =>x.itemId !== this.deletItemId);
                             this.deletItems = [];
-
                         }
                     })
             } else
@@ -465,27 +448,15 @@
                                 alert("刪除失敗!!!");
                             } else {
                                 alert("刪除" + data + "筆");
-                                
-                                this.items.forEach(item => {
-                                    if (this.deletItems.includes(item.itemId)) {
-                                        let index = this.items.indexOf(item);
-                                        this.items.splice(index, 1);
-                                    }
-                                })
+                                this.items = this.items.filter(x => !this.deletItems.includes(x.itemId));
                                 this.deletItems = [];
-                                this.deletAll = false;
-                                
-
+                                this.deletAllAction = false;
                             }
                         })
                 } else {
                     return false;
                 };
-
-
             }
         }
-
     })
-
 </script>
