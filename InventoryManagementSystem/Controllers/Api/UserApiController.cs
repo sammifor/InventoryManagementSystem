@@ -236,6 +236,11 @@ namespace InventoryManagementSystem.Controllers.Api
         [Authorize]
         public async Task<IActionResult> PutUser(Guid id, PutUserViewModel model)
         {
+            if(id != model.UserId)
+            {
+                return BadRequest();
+            }
+
             #region 檢查目前正在修改的人是否為管理員或本人
             // Admin 可以改所有 User 的資料
             bool isAdmin = User.HasClaim(ClaimTypes.Role, "admin");
