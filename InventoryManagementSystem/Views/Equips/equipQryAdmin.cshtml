@@ -51,7 +51,7 @@
             </thead>
             <tbody>
                 <tr v-for="equip in equips" v-if="equips.length !==0">
-                    <td><input type="checkbox" aria-label="Checkbox" :value="equip.equipmentId" v-model="checkedEquips"></td>
+                    <td><input type="checkbox" aria-label="Checkbox" :value="equip" v-model="checkedEquips"></td>
                     <td>{{equip.equipmentSn}}</td>
                     <td>{{equip.equipmentName}}</td>
                     <td>{{equip.brand}}</td>
@@ -92,7 +92,7 @@
             </thead>
             <tbody>
                 <tr v-for="item in items" v-if="items.length !==0">
-                    <td><input type="checkbox" aria-label="Checkbox" :value="item.itemId" v-model="checkedItems"></td>
+                    <td><input type="checkbox" aria-label="Checkbox" :value="item" v-model="checkedItems"></td>
                     <td>{{item.itemSn}}</td>
                     <td>{{item.description}}</td>
                     <td>{{item.condition}}</td>
@@ -116,7 +116,7 @@
                 </div>
                 <div class="modal-body">
                     確認刪除所有選取『設備』?
-                    <p>欲刪除設備序號: <span class="font-weight-bolder">{{checkedEquips}}</span></p>
+                    <p>欲刪除設備序號: <span class="font-weight-bolder">{{showDeleteEquips}}</span></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
@@ -138,7 +138,7 @@
                 </div>
                 <div class="modal-body">
                     確認刪除所有選取『物品』?
-                    <p>欲刪除物品序號: <span class="font-weight-bolder">{{checkedItems}}</span></p>
+                    <p>欲刪除物品序號: <span class="font-weight-bolder">{{showDeleteItems}}</span></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
@@ -401,37 +401,45 @@
             },
             btnDelEquip: function () {
                 let url = '/EquipApi/RemoveEquipByIds/';
+                let deleteEuipids = this.checkedEquips.map((x) => {
+                    return x.equipmentId;
+                })
                 let request = {
                     method: 'Delete',
                     headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify(this.checkedEquips)
+                    body: JSON.stringify(deleteEuipids)
                 }
                 fetch(url, request)
                     .then(response => {
                         return response.json();
                     })
                     .then(data => {
-                        
+
                         if (data === 0) {
                             alert("刪除失敗!!!");
                         } else {
                             alert("刪除" + data + "筆");
                             $("#deleteAllEquipModal").modal("hide");
                             view.equips = view.equips.filter((x) => {
-                                return view.checkedEquips.indexOf(x.equipmentId) == -1;
+                                /*y為checkedItems的每一筆*/
+                                return !this.checkedEquips.some(function (y) {
+                                    return y.equipmentId == x.equipmentId
+                                })
                             });
-                            view.checkedEquips = [];
+
+                            /*window.location.reload(true);*/
                         }
-                        
-                        /*window.location.reload(true);*/
                     })
             },
             btnDelItem: function () {
                 let url = '/ItemApi/RemoveItemsByIds/';
+                let deleteItemids = this.checkedItems.map((x) => {
+                    return x.itemId;
+                })
                 let request = {
                     method: 'Delete',
                     headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify(this.checkedItems)
+                    body: JSON.stringify(deleteItemids)
                 }
                 fetch(url, request)
                     .then(response => {
@@ -444,7 +452,10 @@
                             alert("刪除" + data + "筆");
                             $("#deleteAllItemModal").modal("hide");
                             view.items = view.items.filter((x) => {
-                                return view.checkedItems.indexOf(x.itemId) == -1;
+                                /*y為checkedItems的每一筆*/
+                                return !this.checkedItems.some(function (y) {
+                                    return y.itemId == x.itemId
+                                })
                             });
                             view.checkedItems = [];
                         }
@@ -555,6 +566,19 @@
                     
             
 
+        }
+        ,
+        computed: {
+            showDeleteEquips: function () {
+                return this.checkedEquips.map((x) => {
+                    return x.equipmentSn
+                })
+            },
+            showDeleteItems: function () {
+                return this.checkedItems.map((x) => {
+                    return x.itemSn
+                })
+            }
         }
     })
 </script>
