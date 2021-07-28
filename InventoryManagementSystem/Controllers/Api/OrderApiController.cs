@@ -1,14 +1,19 @@
 ﻿using InventoryManagementSystem.Models.EF;
+using InventoryManagementSystem.Models.NotificationModels;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
+using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using MimeKit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Controllers.Api
@@ -20,10 +25,12 @@ namespace InventoryManagementSystem.Controllers.Api
     {
 
         private readonly InventoryManagementSystemContext _dbContext;
+        private readonly NotificationConfig _notificationConfig;
 
-        public OrderApiController(InventoryManagementSystemContext dbContext)
+        public OrderApiController(InventoryManagementSystemContext dbContext, IOptions<NotificationConfig> config)
         {
             _dbContext = dbContext;
+            _notificationConfig = config.Value;
         }
 
 
@@ -324,6 +331,66 @@ namespace InventoryManagementSystem.Controllers.Api
             catch
             {
                 return Conflict();
+            }
+
+
+            // 通知 User
+            var user = await _dbContext.Users
+                .Where(u => u.UserId == order.UserId)
+                .Select(u => new
+                {
+                    u.Username,
+                    u.FullName,
+                    u.Email,
+                    u.AllowNotification
+                })
+                .FirstOrDefaultAsync();
+
+            if(!user.AllowNotification?? false)
+            {
+                return Ok();
+            }
+
+            string equipName = await _dbContext.Equipment
+                .Where(eq => eq.EquipmentId == order.EquipmentId)
+                .Select(eq => eq.EquipmentName)
+                .FirstOrDefaultAsync();
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(_notificationConfig.Name, _notificationConfig.User));
+            message.To.Add(new MailboxAddress(user.FullName, user.Email));
+
+            StringBuilder builder = new StringBuilder();
+            if(model.Reply == true)
+            {
+                message.Subject = "申請租借核可通知";
+                builder.AppendFormat("<p>@{0} 您好：<br><br>", user.Username);
+                builder.AppendFormat("您所申請租借的「{0}」已被核可，請儘速前往結帳，謝謝。", equipName);
+            }
+            else
+            {
+                message.Subject = "申請租借拒絕通知";
+                builder.AppendFormat("<p>@{0} 您好：<br><br>", user.Username);
+                builder.AppendFormat("很抱歉，您所申請租借的「{0}」遭拒絕。", equipName);
+            }
+
+            builder.Append("<br>");
+            builder.Append("本信為系統自動發送，請勿直接回覆此郵件。");
+            builder.Append("</p>");
+
+            message.Body = new TextPart("html")
+            {
+                Text = builder.ToString()
+            };
+
+            using(var client = new SmtpClient())
+            {
+                await client.ConnectAsync(_notificationConfig.Host, _notificationConfig.Port, false);
+                await client.AuthenticateAsync(_notificationConfig.User, _notificationConfig.Pass);
+                await client.SendAsync(message);
+
+                if(client.IsConnected)
+                    await client.DisconnectAsync(true);
             }
 
             return Ok();
