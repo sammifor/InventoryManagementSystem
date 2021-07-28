@@ -28,7 +28,7 @@ namespace InventoryManagementSystem.Models.EF
         public DateTime? CreateTime { get; set; }
         public int? ViolationTimes { get; set; }
         public bool? Banned { get; set; }
-        public string LineAccount { get; set; }
+        public string LineId { get; set; }
         public bool? Deleted { get; set; }
 
         public virtual ICollection<CanceledOrder> CanceledOrders { get; set; }
