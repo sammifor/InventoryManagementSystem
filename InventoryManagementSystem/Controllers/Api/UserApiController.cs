@@ -127,7 +127,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     CreateTime = u.CreateTime,
                     ViolationTimes = u.ViolationTimes,
                     Banned = u.Banned,
-                    LineAccount = u.LineAccount
+                    LineEnabled = !string.IsNullOrWhiteSpace(u.LineId)
                 })
                 .ToArrayAsync();
 
@@ -187,8 +187,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 PhoneNumber = model.PhoneNumber,
                 Gender = model.Gender,
                 DateOfBirth = model.DateOfBirth,
-                CreateTime = DateTime.Now,
-                LineAccount = model.LineAccount,
+                CreateTime = DateTime.Now
             };
 
             _dbContext.Users.Add(user);
@@ -314,7 +313,6 @@ namespace InventoryManagementSystem.Controllers.Api
             user.Address = model.Address;
             user.Gender = model.Gender;
             user.DateOfBirth = model.DateOfBirth;
-            user.LineAccount = model.LineAccount;
             #endregion
 
             #region Update the database
