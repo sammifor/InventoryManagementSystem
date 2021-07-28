@@ -72,14 +72,12 @@
                                 <b-card>
                                     <b-row>
                                         <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品ID</b></b-col>
                                         <b-col><b>物品SN</b></b-col>
                                         <b-col><b>物品狀態</b></b-col>
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailId }}</b-col>
-                                        <b-col>{{ item.itemId }}</b-col>
+                                        <b-col>{{ item.orderDetailSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                     </b-row>
@@ -96,7 +94,7 @@
         <br />
 
         <!--PENDING ORDERS-->
-        <b-tab title="待核可" v-on:click="GetPendingOrders">
+        <b-tab title="'待核可' + getLengthofPending " v-on:click="GetPendingOrders">
 
             <b-navbar-nav class="ml-auto">
                 <b-nav-form>
@@ -139,36 +137,9 @@
                                           variant="primary"
                                           size="sm"
                                           class="mr-2">分配</b-button>
-                                @*<b-popover target="popover-3" triggers="hover focus">
-                                        <template #title>
-                                            分配物品
-                                        </template>
-                                        <p><strong>設備ID:</strong>{{data.item}}</p>
-                                        <p><strong>選擇物品</strong><checkbox></checkbox></p>
-                                    </b-popover>*@
+                                
                             </template>
 
-                            @*<template #row-details="row">
-                                    <b-card>
-                                        <b-row>
-                                            <b-col><b>訂單明細編號</b></b-col>
-                                            <b-col><b>物品ID</b></b-col>
-                                            <b-col><b>物品SN</b></b-col>
-                                            <b-col><b>物品狀態</b></b-col>
-                                        </b-row>
-                                        <hr />
-                                        <b-row v-for="item in row.item.orderDetails">
-                                            <b-col>{{ item.orderDetailId }}</b-col>
-                                            <b-col>{{ item.itemId }}</b-col>
-                                            <b-col>{{ item.itemSn }}</b-col>
-                                            <b-col>{{ item.orderDetailStatus }}</b-col>
-                                        </b-row>
-
-
-
-                                        <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
-                                    </b-card>
-                                </template>*@
 
                             <!-- Example scoped slot for select state illustrative purposes -->
                             <template #cell(selected)="{ rowSelected }">
@@ -231,14 +202,12 @@
                                 <b-card>
                                     <b-row>
                                         <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品ID</b></b-col>
-                                        <b-col><b>物品SN</b></b-col>
+                                        <b-col><b>物品序號</b></b-col>
                                         <b-col><b>物品狀態</b></b-col>
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailId }}</b-col>
-                                        <b-col>{{ item.itemId }}</b-col>
+                                        <b-col>{{ item.orderDetailIdSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                     </b-row>
@@ -273,25 +242,19 @@
                                     {{ row.detailsShowing ? '隱藏' : '顯示'}}
                                 </b-button>
 
-                                <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @@change -->
-                                @*<b-form-checkbox v-model="row.detailsShowing" @@change="row.toggleDetails">
-                                        Details via check
-                                    </b-form-checkbox>*@
                             </template>
 
                             <template #row-details="row">
                                 <b-card>
                                     <b-row>
                                         <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品ID</b></b-col>
-                                        <b-col><b>物品SN</b></b-col>
+                                        <b-col><b>物品序號</b></b-col>
                                         <b-col><b>物品狀態</b></b-col>
                                         <b-col><b>動作</b></b-col>
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailId }}</b-col>
-                                        <b-col>{{ item.itemId }}</b-col>
+                                        <b-col>{{ item.orderDetailIdSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                         <b-col>
@@ -345,16 +308,14 @@
                                 <b-card>
                                     <b-row>
                                         <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品ID</b></b-col>
-                                        <b-col><b>物品SN</b></b-col>
+                                        <b-col><b>物品序號</b></b-col>
                                         <b-col><b>物品狀態</b></b-col>
                                         <b-col><b>問題反映</b></b-col>
                                         <b-col><b>動作</b></b-col>
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailId }}</b-col>
-                                        <b-col>{{ item.itemId }}</b-col>
+                                        <b-col>{{ item.orderDetailIdSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                         <b-col><b-button size="sm" @@click="">查看</b-button></b-col>
@@ -406,14 +367,12 @@
                                 <b-card>
                                     <b-row>
                                         <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品ID</b></b-col>
-                                        <b-col><b>物品SN</b></b-col>
+                                        <b-col><b>物品序號</b></b-col>
                                         <b-col><b>物品狀態</b></b-col>
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailId }}</b-col>
-                                        <b-col>{{ item.itemId }}</b-col>
+                                        <b-col>{{ item.orderDetailIdSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                     </b-row>
@@ -459,8 +418,7 @@
                                 <b-card>
                                     <b-row>
                                         <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品ID</b></b-col>
-                                        <b-col><b>物品SN</b></b-col>
+                                        <b-col><b>物品序號</b></b-col>
                                         <b-col><b>物品狀態</b></b-col>
                                         <b-col><b>問題反映</b></b-col>
                                         <b-col><b>動作</b></b-col>
@@ -468,8 +426,7 @@
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailId }}</b-col>
-                                        <b-col>{{ item.itemId }}</b-col>
+                                        <b-col>{{ item.orderDetailIdSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                         <b-col><b-button size="sm" @@click="">查看</b-button></b-col>
@@ -567,12 +524,12 @@
         el: '#app',
         data() {
             return {
-                sortBy: 'orderId',
+                sortBy: 'orderSn',
                 sortDesc: false,
                 fields: [
-                    { key: 'orderId', label: '訂單編號', sortable: true },
+                    { key: 'orderSn', label: '訂單編號', sortable: true },
                     { key: 'username', label: '使用者', sortable: true },
-                    { key: 'equipmentId', label: '設備ID', sortable: true },
+                    { key: 'equipmentSn', label: '設備編號', sortable: true },
                     { key: 'equipmentName', label: '設備名稱', sortable: true },
                     { key: 'quantity', label: '數量', sortable: true },
                     { key: 'estimatedPickupTime', label: '預計取用日期', sortable: true },
@@ -606,9 +563,9 @@
             // 所有訂單
             GetAllOrders: function () {
                 this.fields = [
-                    { key: 'orderId', label: '訂單編號', sortable: true },
+                    { key: 'orderSn', label: '訂單編號', sortable: true },
                     { key: 'username', label: '使用者', sortable: true },
-                    { key: 'equipmentId', label: '設備ID', sortable: true },
+                    { key: 'equipmentSn', label: '設備編號', sortable: true },
                     { key: 'equipmentName', label: '設備名稱', sortable: true },
                     { key: 'quantity', label: '數量', sortable: true },
                     { key: 'estimatedPickupTime', label: '預計取用日期', sortable: true },
@@ -624,9 +581,9 @@
             GetPendingOrders: function () {
                 this.fields = [
                     { key: 'selected', label: '選擇' },
-                    { key: 'orderId', label: '訂單編號', sortable: true },
+                    { key: 'orderSn', label: '訂單編號', sortable: true },
                     { key: 'username', label: '使用者', sortable: true },
-                    { key: 'equipmentId', label: '設備ID', sortable: true },
+                    { key: 'equipmentSn', label: '設備編號', sortable: true },
                     { key: 'equipmentName', label: '設備名稱', sortable: true },
                     { key: 'quantity', label: '數量', sortable: true },
                     { key: 'estimatedPickupTime', label: '預計取用日期', sortable: true },
@@ -649,9 +606,9 @@
             // 待付款
             GetOutstandingOrders() {
                 this.fields = [
-                    { key: 'orderId', label: '訂單編號', sortable: true },
+                    { key: 'orderSn', label: '訂單編號', sortable: true },
                     { key: 'username', label: '使用者', sortable: true },
-                    { key: 'equipmentId', label: '設備ID', sortable: true },
+                    { key: 'equipmentSn', label: '設備編號', sortable: true },
                     { key: 'equipmentName', label: '設備名稱', sortable: true },
                     { key: 'quantity', label: '數量', sortable: true },
                     { key: 'estimatedPickupTime', label: '預計取用日期', sortable: true },
@@ -665,9 +622,9 @@
             // 待領取
             PickUpOrders: function () {
                 this.fields = [
-                    { key: 'orderId', label: '訂單編號', sortable: true },
+                    { key: 'orderSn', label: '訂單編號', sortable: true },
                     { key: 'username', label: '使用者', sortable: true },
-                    { key: 'equipmentId', label: '設備ID', sortable: true },
+                    { key: 'equipmentSn', label: '設備編號', sortable: true },
                     { key: 'equipmentName', label: '設備名稱', sortable: true },
                     { key: 'quantity', label: '數量', sortable: true },
                     { key: 'estimatedPickupTime', label: '預計取用日期', sortable: true },
@@ -681,9 +638,9 @@
             // 租借中
             OnGoingOrders: function () {
                 this.fields = [
-                    { key: 'orderId', label: '訂單編號', sortable: true },
+                    { key: 'orderSn', label: '訂單編號', sortable: true },
                     { key: 'username', label: '使用者', sortable: true },
-                    { key: 'equipmentId', label: '設備ID', sortable: true },
+                    { key: 'equipmentSn', label: '設備ID', sortable: true },
                     { key: 'equipmentName', label: '設備名稱', sortable: true },
                     { key: 'quantity', label: '數量', sortable: true },
                     { key: 'estimatedPickupTime', label: '預計取用日期', sortable: true },
@@ -697,9 +654,9 @@
             // 已結束
             ClosedOrders: function () {
                 this.fields = [
-                    { key: 'orderId', label: '訂單編號', sortable: true },
+                    { key: 'orderSn', label: '訂單編號', sortable: true },
                     { key: 'username', label: '使用者', sortable: true },
-                    { key: 'equipmentId', label: '設備ID', sortable: true },
+                    { key: 'equipmentSn', label: '設備編號', sortable: true },
                     { key: 'equipmentName', label: '設備名稱', sortable: true },
                     { key: 'quantity', label: '數量', sortable: true },
                     { key: 'estimatedPickupTime', label: '預計取用日期', sortable: true },
@@ -713,9 +670,9 @@
             // 已逾期
             OverDueOrders: function () {
                 this.fields = [
-                    { key: 'orderId', label: '訂單編號', sortable: true },
+                    { key: 'orderSn', label: '訂單編號', sortable: true },
                     { key: 'username', label: '使用者', sortable: true },
-                    { key: 'equipmentId', label: '設備ID', sortable: true },
+                    { key: 'equipmentSn', label: '設備編號', sortable: true },
                     { key: 'equipmentName', label: '設備名稱', sortable: true },
                     { key: 'quantity', label: '數量', sortable: true },
                     { key: 'estimatedPickupTime', label: '預計取用日期', sortable: true },
@@ -742,26 +699,7 @@
                 var OverdueLength = this.orders.filter(o => o.tabName === "已逾期");
                 return OverdueLength.length;
             },
-            //BtnItem:function(e) {
-            //    this.eid = e.target.value;
-
-            //    let url = '/ItemApi/GetItemsByEquipId/' + this.eid;
-            //    let request = {
-            //        method: 'GET',
-            //        headers: { 'content-type': 'application/json' }
-            //    }
-            //    fetch(url, request)
-            //        .then(response => {
-            //            if (response.ok) {
-            //                return response.json();
-            //            }
-            //            return response.text();
-            //        })
-            //        .then(response => {
-            //            this.distributeitems = response;
-            //            /*this.checkedItems = [];*/
-            //        })
-            //},
+            
             // 分配 Item 開始
             async showDataAndModal(data, e) {
                 let response = await fetch("/itemapi/getavailableitemsbyequipid/" + data.equipmentId, {
