@@ -127,7 +127,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     CreateTime = u.CreateTime,
                     ViolationTimes = u.ViolationTimes,
                     Banned = u.Banned,
-                    LineAccount = u.LineAccount
+                    LineEnabled = !string.IsNullOrWhiteSpace(u.LineId)
                 })
                 .ToArrayAsync();
 
@@ -187,8 +187,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 PhoneNumber = model.PhoneNumber,
                 Gender = model.Gender,
                 DateOfBirth = model.DateOfBirth,
-                CreateTime = DateTime.Now,
-                LineAccount = model.LineAccount,
+                CreateTime = DateTime.Now
             };
 
             _dbContext.Users.Add(user);
@@ -237,6 +236,11 @@ namespace InventoryManagementSystem.Controllers.Api
         [Authorize]
         public async Task<IActionResult> PutUser(Guid id, PutUserViewModel model)
         {
+            if(id != model.UserId)
+            {
+                return BadRequest();
+            }
+
             #region 檢查目前正在修改的人是否為管理員或本人
             // Admin 可以改所有 User 的資料
             bool isAdmin = User.HasClaim(ClaimTypes.Role, "admin");
@@ -314,7 +318,6 @@ namespace InventoryManagementSystem.Controllers.Api
             user.Address = model.Address;
             user.Gender = model.Gender;
             user.DateOfBirth = model.DateOfBirth;
-            user.LineAccount = model.LineAccount;
             #endregion
 
             #region Update the database

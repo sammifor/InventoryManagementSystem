@@ -20,6 +20,6 @@ namespace InventoryManagementSystem.Models.ResultModels
         public DateTime? CreateTime { get; set; }
         public int? ViolationTimes { get; set; }
         public bool? Banned { get; set; }
-        public string LineAccount { get; set; }
+        public bool LineEnabled { get; set; }
     }
 }

@@ -446,8 +446,9 @@
                     </div>
                 </template>
         </b-tab>
-
     </b-tabs>
+
+    <!-- 分配 item modal -->
     <b-modal id="distribute-item-modal"
              @@ok="confirmDistribution"
              @@cancel="resetDistributionData"
@@ -470,6 +471,8 @@
             </div>
         </form>
     </b-modal>
+
+    <!-- 分配 item 失敗 modal -->
     <b-modal id="distribute-failed"
              ok-only
              @@ok="distributeFailed"
@@ -477,6 +480,8 @@
              ok-variant="secondary">
         分配失敗
     </b-modal>
+
+    <!-- 分配 item 成功 modal -->
     <b-modal id="distribute-success"
              ok-only
              @@ok="resetDistributionData(); distributionSuccess()"

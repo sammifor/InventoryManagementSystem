@@ -82,7 +82,7 @@ CREATE TABLE [User](
 
         [Banned] BIT,
 
-        [LineAccount] VARCHAR(64),
+        [LineID] VARCHAR(33),
 
         [Deleted] BIT
                 CONSTRAINT [DF_User_Deleted] DEFAULT 0
@@ -388,15 +388,15 @@ CREATE TABLE [ItemLog](
                 CONSTRAINT [DF_ItemLog_CreateTime] DEFAULT GETDATE()
 );
 
-CREATE TABLE [LineNotification](
-        [LineNotificationID] UNIQUEIDENTIFIER NOT NULL
-                CONSTRAINT [PK_LineNotification] PRIMARY KEY NONCLUSTERED,
+CREATE TABLE [Notification](
+        [NotificationID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_Notification] PRIMARY KEY NONCLUSTERED,
 
         [OrderDetailID] UNIQUEIDENTIFIER NOT NULL
-                CONSTRAINT [FK_LineNotification_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
+                CONSTRAINT [FK_Notification_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
 
         [CreateTime] DATETIME
-                CONSTRAINT [DF_LineNotification_CreateTime] DEFAULT GETDATE(),
+                CONSTRAINT [DF_Notification_CreateTime] DEFAULT GETDATE(),
 
         [Message] NVARCHAR(200) NOT NULL
 );

@@ -10,7 +10,7 @@ namespace InventoryManagementSystem.Models.EF
         public OrderDetail()
         {
             ItemLogs = new HashSet<ItemLog>();
-            LineNotifications = new HashSet<LineNotification>();
+            Notifications = new HashSet<Notification>();
             Reports = new HashSet<Report>();
         }
 
@@ -24,7 +24,7 @@ namespace InventoryManagementSystem.Models.EF
         public virtual Order Order { get; set; }
         public virtual OrderDetailStatus OrderDetailStatus { get; set; }
         public virtual ICollection<ItemLog> ItemLogs { get; set; }
-        public virtual ICollection<LineNotification> LineNotifications { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; }
         public virtual ICollection<Report> Reports { get; set; }
     }
 }

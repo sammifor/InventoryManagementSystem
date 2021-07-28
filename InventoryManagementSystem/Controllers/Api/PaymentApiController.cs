@@ -82,6 +82,8 @@ namespace InventoryManagementSystem.Controllers.Api
                                 Model = po.Order.Equipment.Brand,
                                 Price = po.Order.Quantity * po.Order.Day * po.Order.Equipment.UnitPrice,
                                 StatusName = po.Order.OrderStatus.StatusName
+                                // TODO 有產生 Extra Fee 的 OrderDetails[]
+                                // 每個 object 要有 int ItemSN, decimal Fee, string Description
                             })
                             .ToArray(),
 
