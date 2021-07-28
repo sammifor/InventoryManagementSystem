@@ -39,7 +39,6 @@
             <thead class="badge-secondary">
                 <tr>
                     <td>&#9746;</td>
-                    <td>設備ID</td>
                     <td>序號</td>
                     <td>名稱</td>
                     <td>品牌</td>
@@ -53,7 +52,6 @@
             <tbody>
                 <tr v-for="equip in equips" v-if="equips.length !==0">
                     <td><input type="checkbox" aria-label="Checkbox" :value="equip.equipmentId" v-model="checkedEquips"></td>
-                    <td>{{equip.equipmentId}}</td>
                     <td>{{equip.equipmentSn}}</td>
                     <td>{{equip.equipmentName}}</td>
                     <td>{{equip.brand}}</td>
@@ -85,7 +83,6 @@
             <thead class="badge-secondary">
                 <tr>
                     <td>&#9746;</td>
-                    <td>物品ID</td>
                     <td>序號</td>
                     <td>描述</td>
                     <td>狀態</td>
@@ -96,7 +93,6 @@
             <tbody>
                 <tr v-for="item in items" v-if="items.length !==0">
                     <td><input type="checkbox" aria-label="Checkbox" :value="item.itemId" v-model="checkedItems"></td>
-                    <td>{{item.itemId}}</td>
                     <td>{{item.itemSn}}</td>
                     <td>{{item.description}}</td>
                     <td>{{item.condition}}</td>
@@ -120,7 +116,7 @@
                 </div>
                 <div class="modal-body">
                     確認刪除所有選取『設備』?
-                    <p>欲刪除設備ID: <span class="font-weight-bolder">{{checkedEquips}}</span></p>
+                    <p>欲刪除設備序號: <span class="font-weight-bolder">{{checkedEquips}}</span></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
@@ -142,7 +138,7 @@
                 </div>
                 <div class="modal-body">
                     確認刪除所有選取『物品』?
-                    <p>欲刪除物品ID: <span class="font-weight-bolder">{{checkedItems}}</span></p>
+                    <p>欲刪除物品序號: <span class="font-weight-bolder">{{checkedItems}}</span></p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
@@ -177,18 +173,15 @@
 
                         </div>
                         <div class="form-group col-md-4">
-                            <label class="col-form-label">設備ID</label>
-                            <input type="text" class="form-control" v-model="tempEquipDetail.equipmentId" readonly>
-                        </div>
-                        <div class="form-group col-md-4">
                             <label class="col-form-label">設備序號</label>
                             <input type="text" class="form-control" v-model="tempEquipDetail.equipmentSn" required>
                         </div>
+                        <div class="form-group col-md-4">
+                            <label class="col-form-label">設備名稱</label>
+                            <input type="text" class="form-control" v-model="tempEquipDetail.equipmentName" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-form-label">設備名稱</label>
-                        <input type="text" class="form-control" v-model="tempEquipDetail.equipmentName" required>
-                    </div>
+                    
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label class="col-form-label">設備品牌</label>
@@ -229,7 +222,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-row">
-                        <div class="form-group col-md-2">
+                        <div class="form-group col-md-4">
                             <label class="col-form-label">設備序號</label>
                             <input type="text" class="form-control" v-model="itemDetail.equipmentSn" readonly>
                         </div>
@@ -237,11 +230,7 @@
                             <label class="col-form-label">設備名稱</label>
                             <input type="text" class="form-control" v-model="itemDetail.equipmentName" readonly>
                         </div>
-                        <div class="form-group col-md-3">
-                            <label class="col-form-label">物品ID</label>
-                            <input type="text" class="form-control" v-model="itemDetail.itemId" readonly>
-                        </div>
-                        <div class="form-group col-md-3">
+                        <div class="form-group col-md-4">
                             <label class="col-form-label">物品序號</label>
                             <input type="text" class="form-control" v-model="itemDetail.itemSn" required>
                         </div>
@@ -279,10 +268,10 @@
                     <ul>
                         <li v-for="detail in itemLogDetails">
                             <span class="font-weight-bolder">LogID: </span>{{detail.itemLogId}} ,
-                            <span class="font-weight-bolder">物品ID: </span>{{detail.itemId}} ,
+                            <span class="font-weight-bolder">物品ID: </span>{{detail.itemSn}} ,
                             <span class="font-weight-bolder">物品狀態: </span><span class="font-weight-bolder text-danger">{{detail.conditionName}}</span> ,
                             <span v-if="detail.orderDetailId!=null"><span class="font-weight-bolder">訂單明細: </span><a ref="此為訂單明細連接" class="text-primary">{{detail.orderDetailId}}</a> ,</span>
-                            <span class="font-weight-bolder">管理員: </span>{{detail.adminId}} {{detail.adminFullName}} ,
+                            <span class="font-weight-bolder">管理員: </span>{{detail.username}} {{detail.adminFullName}} ,
                             <span v-if="detail.description!=null"><span class="font-weight-bolder">描述: </span>{{detail.description}} ,</span>
                             <span class="font-weight-bolder">異動時間: </span>{{detail.createTime}}
                         </li>
