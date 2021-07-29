@@ -1,3 +1,4 @@
+using InventoryManagementSystem.Models.LINE;
 using InventoryManagementSystem.Models.NotificationModels;
 using InventoryManagementSystem.Models.PaymentProviderModels;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -31,6 +32,7 @@ namespace InventoryManagementSystem {
                     });
             services.Configure<PaymentProviderConfig>(Configuration.GetSection("PaymentProvider"));
             services.Configure<NotificationConfig>(Configuration.GetSection("Notification"));
+            services.Configure<LineConfig>(Configuration.GetSection("LINE"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,0 +1,52 @@
+﻿
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <style>
+
+        .footer-container {
+            display: grid;
+        }
+
+        .footer-container p {
+            justify-self: center;
+            margin: 0;
+            line-height: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header id="topBar">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand text-light">
+                    <img src="~/image/rentc.png" width="30" height="30" />  InventoryManagementSystem
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="footer text-muted bg-dark">
+        <div class="footer-container">
+            <p>
+                &copy; 2021 - InventoryManagementSystem
+            </p>
+
+            <p>
+                Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.Interfaces;
+using InventoryManagementSystem.Models.LINE;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
@@ -8,9 +9,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,10 +28,12 @@ namespace InventoryManagementSystem.Controllers.Api
     public class UserApiController : ControllerBase, IHashPassword
     {
         private readonly InventoryManagementSystemContext _dbContext;
+        private readonly LineConfig _lineConfig;
 
-        public UserApiController(InventoryManagementSystemContext dbContext)
+        public UserApiController(InventoryManagementSystemContext dbContext, IOptions<LineConfig> config)
         {
             _dbContext = dbContext;
+            _lineConfig = config.Value;
         }
 
         /* method: GET
@@ -330,6 +338,97 @@ namespace InventoryManagementSystem.Controllers.Api
                 return Conflict();
             }
             #endregion
+
+            return Ok();
+        }
+
+        [HttpPost("bindline")]
+        [Consumes("application/json")]
+        public async Task<IActionResult> BindLine(BindLineViewModel model)
+        {
+
+            string lineID = string.Empty;
+            // Verify ID Token
+            using(HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://api.line.me/oauth2/v2.1/verify");
+                HttpContent content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    {"id_token", model.IDToken},
+                    {"client_id", _lineConfig.LIFFID}
+                });
+                HttpResponseMessage response = await client.PostAsync("", content);
+
+                if(!response.IsSuccessStatusCode)
+                {
+                    string failJsonString = await response.Content.ReadAsStringAsync();
+                    var failData = JsonConvert.DeserializeObject<VerifyIDTokenFailResponse>(failJsonString);
+                    return BadRequest($"{failData.error}, {failData.error_description}");
+                }
+
+                string jsonString = await response.Content.ReadAsStringAsync();
+                var verifiedData = JsonConvert.DeserializeObject<VerifyIDTokenResponse>(jsonString);
+
+                // verifiedData.sub is the line id.
+                lineID = verifiedData.sub;
+            }
+
+
+
+            User user = await _dbContext.Users
+                .Where(u => u.Username == model.Username)
+                .FirstOrDefaultAsync();
+
+            if(user == null)
+                //Error
+                return NotFound();
+
+            IHashPassword hasher = this as IHashPassword;
+
+            byte[] passBytes = Encoding.UTF8.GetBytes(model.Password);
+            byte[] hashedBytes = hasher.HashPasswordWithSalt(passBytes, user.Salt);
+
+            if(!hashedBytes.SequenceEqual(user.HashedPassword))
+                // Error
+                return Unauthorized();
+
+            user.LineId = lineID;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
+            using(HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://api.line.me/v2/bot/message/push");
+                client.DefaultRequestHeaders
+                    .Accept
+                    .Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders
+                    .Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _lineConfig.AccessToken);
+
+                PushMessage message = new PushMessage
+                {
+                    to = lineID,
+                    messages = new LineMessage[]
+                    {
+                        new LineMessage
+                        {
+                            type = "text",
+                            text = $"恭喜您！您已完成 LINE 綁定，以後可以直接在 LINE 上收到本站的消息唷！"
+                        }
+                    }
+                };
+
+                HttpContent content = JsonContent.Create<PushMessage>(message);
+
+                await client.PostAsync("", content);
+            }
 
             return Ok();
         }
