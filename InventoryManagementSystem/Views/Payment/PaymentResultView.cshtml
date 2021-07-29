@@ -1,0 +1,338 @@
+﻿<link type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+<link type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+<script src="https://unpkg.com/vue"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+
+<div id="app">
+    <b-card>
+        <b-tabs content-class="mt-3" fill>
+            <!-- 未付款 -->
+            <b-tab title="待付款" active>
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th><input aria-label="Checkbox" type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i></th>
+                                <th>訂單序號</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>租借天數</th>
+                                <th>下單時間</th>
+                                <th>總價</th>
+                                <th>付款期限</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="od in unPaidOd">
+                                <td><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od"><i class="form-icon"></i></td>
+                                <td>{{od.orderSn}}</td>
+                                <td>{{od.equipmentSn}}</td>
+                                <td>{{od.equipmentName}}</td>
+                                <td>{{od.quantity}}</td>
+                                <td>{{od.day}}</td>
+                                <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                <td>{{od.unitPrice * od.day * od.quantity}}</td>
+                                <td>{{od.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <b-btn variant="danger"
+                           @@click="confirmAmount"
+                           :disabled="noItemSelected"
+                           data-toggle="modal"
+                           data-target="#confirmAmountModal">結帳 (總金額: {{countTotalPrice}})</b-btn>
+                </div>
+            </b-tab>
+
+            <!-- 額外費用 -->
+            <b-tab title="額外費用">
+                <!--<div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>訂單序號</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>租借天數</th>
+                                <th>下單時間</th>
+                                <th>總金額</th>
+                                <th>額外費用</th>
+                                <th>繳費明細</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="od in unPaidOd">
+                                <tr>
+                                    <td>{{od.paymentSn}}</td>
+                                    <td>{{od.rentalFee}}</td>
+                                    <td>???</td>
+                                    <td>未付款</td>
+                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.paymentSn)" style="font-size: 20px;"></i></td>
+                                </tr>-->
+                @*<tr v-if="paymentDetail.includes(od.paymentSn)">
+                        <td colspan="5" class="p-3 mb-2 bg-light text-dark">
+                            <ul>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </td>
+                    </tr>*@
+                <!--</template>
+                        </tbody>
+                    </table>
+                </div>-->
+            </b-tab>
+
+            <!-- 已結清 -->
+            <b-tab title="已結清">
+                <!--<div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>訂單序號</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>租借天數</th>
+                                <th>下單時間</th>
+                                <th>總金額</th>
+                                <th>結清日期</th>
+                                <th>訂單明細</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="od in unPaidOd">
+                                <tr>
+                                    <td>{{od.paymentSn}}</td>
+                                    <td>{{od.rentalFee}}</td>
+                                    <td>???</td>
+                                    <td>未付款</td>
+                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.paymentSn)" style="font-size: 20px;"></i></td>
+                                </tr>-->
+                @*<tr v-if="paymentDetail.includes(od.paymentSn)">
+                        <td colspan="5" class="p-3 mb-2 bg-light text-dark">
+                            <ul>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </td>
+                    </tr>*@
+                <!--</template>
+                        </tbody>
+                    </table>
+                </div>-->
+            </b-tab>
+        </b-tabs>
+    </b-card>
+
+    <!--確認金額Modal-->
+    <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">確認金額</h5>
+                </div>
+                <form method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
+                    <div class="modal-body">
+                        @* 這四個值要送給藍星，但不用顯示給 User 看 *@
+                        <input type="text"
+                               name="MerchantID"
+                               :value="mpgInfo.merchantID"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="TradeInfo"
+                               :value="mpgInfo.tradeInfo"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="TradeSha"
+                               :value="mpgInfo.tradeSha"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="Version"
+                               :value="mpgInfo.version"
+                               hidden
+                               readonly
+                               required />
+                        <div class="form-group">
+                            <label>請確認應付金額是否正確</label>
+                            @* 顯示用的 Input，這個值不會送給藍新，故不給 name*@
+                            <input type="number"
+                                   class="form-control"
+                                   :value="mpgInfo.totalPrice"
+                                   readonly />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                                @@click="clearMpgInfo">
+                            返回
+                        </button>
+                        <button type="submit"
+                                class="btn btn-primary"
+                                :disabled="isLoadingTradeInfo">
+                            確定
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    Vue.filter('timeString', function (value, myFormat) {
+        return moment(value).format(myFormat || 'YYYY-MM-DD, HH:mm:ss');
+    });
+    var app = new Vue({
+
+        el: '#app',
+        data: {
+            orders:[],
+            unPaidOd:[],
+            paidOd: [],
+            paymentDetail: [],
+            selectAll: false,
+            selected: [],
+            mpgInfo: {
+                merchantID: "",
+                tradeInfo: "",
+                tradeSha: "",
+                version: "",
+                totalPrice: 0
+            },
+            cashTotalPrice: 0,
+            totalPrice:[0]
+            
+        },
+
+        created() {
+
+            let url = '/OrderApi/GetOrders';
+            let request = {
+                method: "GET",
+                headers: { "content-type": "application/json" }
+            };
+            fetch(url, request)
+                .then(response => {
+                    if (response.ok) {
+                        console.log("資料庫連線成功");
+                        return response.json();
+
+                    } else {
+                        console.log("資料擷取失敗");
+                    }
+                }).then(response => {
+                    
+                    this.orders = response;
+                   
+                    this.unPaidOd = this.orders.filter(od => od.tabName === "待付款");
+                    console.log(this.unPaidOd);
+
+                }).catch(error => {
+                     alert("資料庫連線失敗");
+                     console.log(error);
+                })
+        },
+
+        methods: {
+
+             paymentDetailCheck: function (paymentSn) {
+                        let index = this.paymentDetail.indexOf(paymentSn);
+                        if (index > -1) {
+                            this.paymentDetail.splice(index, 1)
+                        } else {
+                            this.paymentDetail = []
+                            this.paymentDetail.push(paymentSn)
+                        }
+             },
+
+             selectAllAction: function () {
+                        this.selected = [];
+                        if (!this.selectAll) {
+                            for (let i = 0; i < this.unPaidOd.length; i++) {
+                                this.selected.push(this.unPaidOd[i]);
+                            }
+
+                        }
+             },
+
+             confirmAmount: async function () {
+                let requestData = []
+                this.selected.forEach(order => {
+                    requestData.push(order.orderId)
+                });
+
+                let response = await fetch("/api/payment", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(requestData)
+                })
+
+                if (!response.ok) {
+                    alert("付款資料讀取失敗");
+                    return;
+                }
+
+                this.mpgInfo = await response.json()
+            },
+
+            clearMpgInfo: function () {
+                let info = this.mpgInfo;
+                info.merchantId = "";
+                info.tradeInfo = "";
+                info.tradeSha = "";
+                info.version = "";
+            }
+
+        },
+
+        computed: {
+            countTotalPrice() {
+                this.cashTotalPrice = 0
+                this.totalPrice = [0]
+                this.selected.forEach(od => {
+
+                    var orderPrice = od.unitPrice * od.quantity * od.day;
+                    this.totalPrice.push(orderPrice);
+                })
+
+                var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                return this.cashTotalPrice = this.totalPrice.reduce(reducer);
+
+            },
+
+            isLoadingTradeInfo() {
+                return this.mpgInfo.merchantID === "" ||
+                    this.mpgInfo.tradeInfo === "" ||
+                    this.mpgInfo.tradeSha === "" ||
+                    this.mpgInfo.version === "";
+            },
+
+            noItemSelected() {
+                return this.selected.length <= 0;
+            }
+        }
+
+    })
+
+</script> 
