@@ -416,6 +416,7 @@ VALUES
 	(NEWID(), @admin1, @item41, 'I'), 
 	(NEWID(), @admin1, @item42, 'I'), 
 	(NEWID(), @admin1, @item43, 'I'), 
+	(NEWID(), @admin1, @item44, 'I'), 
 	(NEWID(), @admin1, @item45, 'I'), 
 	(NEWID(), @admin1, @item46, 'I'), 
 	(NEWID(), @admin1, @item47, 'I'), 
@@ -452,6 +453,11 @@ VALUES
         ('D', N'不成立'),
         ('E', N'已結束'),
         ('C', N'已取消')
+
+INSERT INTO [FeeCategory]([FeeCategoryID], [Name])
+VALUES
+        ('R', N'租賃費'),        
+        ('E', N'衍生費')
 
 INSERT INTO [OrderDetailStatus]([OrderDetailStatusID], [StatusName])
 VALUES
