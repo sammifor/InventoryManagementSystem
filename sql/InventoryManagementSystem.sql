@@ -258,15 +258,6 @@ CREATE TABLE [Questionnaire](
         [Feedback] NVARCHAR(200)
 );
 
-CREATE TABLE [FeeCategory](
-        [FeeCategoryID] CHAR(1) NOT NULL
-                CONSTRAINT [PK_FeeCategory] PRIMARY KEY,
-                -- R for RentalFee
-                -- E for ExtraFee
-
-        [Name] NVARCHAR(50) NOT NULL
-);
-
 CREATE TABLE [Payment](
         [PaymentID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_Payment] PRIMARY KEY NONCLUSTERED,
@@ -274,24 +265,7 @@ CREATE TABLE [Payment](
         [PaymentSN] VARCHAR(16) NOT NULL
                 CONSTRAINT [UQ_Payment_PaymentSN] UNIQUE,
 
-        [RentalFee] DECIMAL NOT NULL,
-
-        [ExtraFee] DECIMAL
-);
-
-CREATE TABLE [PaymentLog](
-        [PaymentLogID] UNIQUEIDENTIFIER NOT NULL
-                CONSTRAINT [PK_PaymentLog] PRIMARY KEY NONCLUSTERED,
-
-        [FeeCategoryID] CHAR(1) NOT NULL
-                CONSTRAINT [FK_PaymentLog_FeeCategory] FOREIGN KEY REFERENCES [FeeCategory]([FeeCategoryID]),
-
-        [PaymentID] UNIQUEIDENTIFIER NOT NULL
-                CONSTRAINT [FK_PaymentLog_Payment] FOREIGN KEY REFERENCES [Payment]([PaymentID]),
-
-        [Fee] DECIMAL NOT NULL,
-
-        [Description] NVARCHAR(200)
+        [RentalFee] DECIMAL NOT NULL
 );
 
 CREATE TABLE [PaymentOrder](
@@ -421,4 +395,19 @@ CREATE TABLE [PayingAttempt](
         [PaymentID] UNIQUEIDENTIFIER NOT NULL,
 
         CONSTRAINT [PK_PayingAttempt] PRIMARY KEY NONCLUSTERED (PaymentDetailSN, PaymentID)
+);
+
+CREATE TABLE [ExtraFee](
+        [ExtraFeeID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [PK_ExtraFee] PRIMARY KEY NONCLUSTERED,
+
+        [ExtraFeeSN] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [UQ_ExtraFee_ExtraFeeSN] UNIQUE CLUSTERED,
+
+        [OrderDetailID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [FK_ExtraFee_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
+
+        [Fee] DECIMAL NOT NULL,
+
+        [Description] NVARCHAR(100)
 );

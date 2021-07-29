@@ -22,7 +22,7 @@ namespace InventoryManagementSystem.Models.EF
         public virtual DbSet<Condition> Conditions { get; set; }
         public virtual DbSet<EquipCategory> EquipCategories { get; set; }
         public virtual DbSet<Equipment> Equipment { get; set; }
-        public virtual DbSet<FeeCategory> FeeCategories { get; set; }
+        public virtual DbSet<ExtraFee> ExtraFees { get; set; }
         public virtual DbSet<Item> Items { get; set; }
         public virtual DbSet<ItemLog> ItemLogs { get; set; }
         public virtual DbSet<NewPayingAttempt> NewPayingAttempts { get; set; }
@@ -34,7 +34,6 @@ namespace InventoryManagementSystem.Models.EF
         public virtual DbSet<PayingAttempt> PayingAttempts { get; set; }
         public virtual DbSet<Payment> Payments { get; set; }
         public virtual DbSet<PaymentDetail> PaymentDetails { get; set; }
-        public virtual DbSet<PaymentLog> PaymentLogs { get; set; }
         public virtual DbSet<PaymentOrder> PaymentOrders { get; set; }
         public virtual DbSet<Questionnaire> Questionnaires { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
@@ -210,19 +209,36 @@ namespace InventoryManagementSystem.Models.EF
                     .HasConstraintName("FK_Equipment_EquipCategory");
             });
 
-            modelBuilder.Entity<FeeCategory>(entity =>
+            modelBuilder.Entity<ExtraFee>(entity =>
             {
-                entity.ToTable("FeeCategory");
+                entity.HasKey(e => e.ExtraFeeId)
+                    .IsClustered(false);
 
-                entity.Property(e => e.FeeCategoryId)
-                    .HasMaxLength(1)
-                    .IsUnicode(false)
-                    .HasColumnName("FeeCategoryID")
-                    .IsFixedLength(true);
+                entity.ToTable("ExtraFee");
 
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(50);
+                entity.HasIndex(e => e.ExtraFeeSn, "UQ_ExtraFee_ExtraFeeSN")
+                    .IsUnique()
+                    .IsClustered();
+
+                entity.Property(e => e.ExtraFeeId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("ExtraFeeID");
+
+                entity.Property(e => e.Description).HasMaxLength(100);
+
+                entity.Property(e => e.ExtraFeeSn)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("ExtraFeeSN");
+
+                entity.Property(e => e.Fee).HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
+
+                entity.HasOne(d => d.OrderDetail)
+                    .WithMany(p => p.ExtraFees)
+                    .HasForeignKey(d => d.OrderDetailId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ExtraFee_OrderDetail");
             });
 
             modelBuilder.Entity<Item>(entity =>
@@ -543,8 +559,6 @@ namespace InventoryManagementSystem.Models.EF
                     .ValueGeneratedNever()
                     .HasColumnName("PaymentID");
 
-                entity.Property(e => e.ExtraFee).HasColumnType("decimal(18, 0)");
-
                 entity.Property(e => e.PaymentSn)
                     .IsRequired()
                     .HasMaxLength(16)
@@ -599,43 +613,6 @@ namespace InventoryManagementSystem.Models.EF
                     .HasForeignKey(d => d.PaymentId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_PaymentDetail_Payment");
-            });
-
-            modelBuilder.Entity<PaymentLog>(entity =>
-            {
-                entity.HasKey(e => e.PaymentLogId)
-                    .IsClustered(false);
-
-                entity.ToTable("PaymentLog");
-
-                entity.Property(e => e.PaymentLogId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("PaymentLogID");
-
-                entity.Property(e => e.Description).HasMaxLength(200);
-
-                entity.Property(e => e.Fee).HasColumnType("decimal(18, 0)");
-
-                entity.Property(e => e.FeeCategoryId)
-                    .IsRequired()
-                    .HasMaxLength(1)
-                    .IsUnicode(false)
-                    .HasColumnName("FeeCategoryID")
-                    .IsFixedLength(true);
-
-                entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
-
-                entity.HasOne(d => d.FeeCategory)
-                    .WithMany(p => p.PaymentLogs)
-                    .HasForeignKey(d => d.FeeCategoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_PaymentLog_FeeCategory");
-
-                entity.HasOne(d => d.Payment)
-                    .WithMany(p => p.PaymentLogs)
-                    .HasForeignKey(d => d.PaymentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_PaymentLog_Payment");
             });
 
             modelBuilder.Entity<PaymentOrder>(entity =>
