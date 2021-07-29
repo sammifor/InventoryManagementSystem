@@ -454,11 +454,6 @@ VALUES
         ('E', N'已結束'),
         ('C', N'已取消')
 
-INSERT INTO [FeeCategory]([FeeCategoryID], [Name])
-VALUES
-        ('R', N'租賃費'),        
-        ('E', N'衍生費')
-
 INSERT INTO [OrderDetailStatus]([OrderDetailStatusID], [StatusName])
 VALUES
         ('P', N'待領取'),
