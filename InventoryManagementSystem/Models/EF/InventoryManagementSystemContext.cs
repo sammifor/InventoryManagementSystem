@@ -62,7 +62,8 @@ namespace InventoryManagementSystem.Models.EF
                 entity.ToTable("Admin");
 
                 entity.HasIndex(e => e.AdminSn, "UQ_Admin_AdminSN")
-                    .IsUnique();
+                    .IsUnique()
+                    .IsClustered();
 
                 entity.HasIndex(e => e.Username, "UQ_Admin_Username")
                     .IsUnique()
@@ -276,7 +277,8 @@ namespace InventoryManagementSystem.Models.EF
                 entity.ToTable("ItemLog");
 
                 entity.HasIndex(e => e.ItemLogSn, "UQ_ItemLog_ItemLogSN")
-                    .IsUnique();
+                    .IsUnique()
+                    .IsClustered();
 
                 entity.Property(e => e.ItemLogId)
                     .ValueGeneratedNever()
