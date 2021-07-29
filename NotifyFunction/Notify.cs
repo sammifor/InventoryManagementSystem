@@ -9,7 +9,7 @@ namespace NotifyFunction
     public static class Notify
     {
         [Function("Notify")]
-        public static async Task Run([TimerTrigger("* * 0/1 * * *")] MyInfo myTimer, FunctionContext context)
+        public static async Task Run([TimerTrigger("0 0 * * * *")] MyInfo myTimer, FunctionContext context)
         {
             string target = Environment.GetEnvironmentVariable("TargetServer");
             string apiKey = Environment.GetEnvironmentVariable("ApiKey");
