@@ -45,7 +45,7 @@ namespace InventoryManagementSystem.Models.EF
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Name=InventoryDB");
+                optionsBuilder.UseSqlServer("Name=LocalDB");
             }
         }
 
