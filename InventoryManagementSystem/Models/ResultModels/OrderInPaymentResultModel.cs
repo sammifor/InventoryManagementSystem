@@ -17,6 +17,9 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string Model { get; set; }
         public decimal? Price { get; set; }
 
+        // From OrderDetail table
+        public ExtraFeeResultModel[] ExtraFees { get; set; }
+
         public string StatusName { get; set; }
     }
 }
