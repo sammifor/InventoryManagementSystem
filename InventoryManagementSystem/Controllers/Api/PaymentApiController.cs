@@ -80,9 +80,18 @@ namespace InventoryManagementSystem.Controllers.Api
                                 Brand = po.Order.Equipment.Brand,
                                 Model = po.Order.Equipment.Brand,
                                 Price = po.Order.Quantity * po.Order.Day * po.Order.Equipment.UnitPrice,
-                                StatusName = po.Order.OrderStatus.StatusName
-                                // TODO 有產生 Extra Fee 的 OrderDetails[]
-                                // 每個 object 要有 int ItemSN, decimal Fee, string Description
+                                StatusName = po.Order.OrderStatus.StatusName,
+                                // TODO 測試
+                                ExtraFees = po.Order.OrderDetails
+                                    .SelectMany(od => od.ExtraFees)
+                                    .Select(f => new ExtraFeeResultModel
+                                    {
+                                        ItemSn = f.OrderDetail.Item.ItemSn,
+                                        OrderDetailSn = f.OrderDetail.OrderDetailSn,
+                                        Fee = f.Fee,
+                                        Description = f.Description
+                                    })
+                                    .ToArray()
                             })
                             .ToArray(),
 
@@ -100,9 +109,18 @@ namespace InventoryManagementSystem.Controllers.Api
 
             foreach(PaymentResultModel p in payments)
             {
-                p.Completed = p.PaymentDetails
+                p.Received = p.PaymentDetails
                     .Select(pd => pd.AmountPaid)
-                    .Aggregate((acc, next) => acc + next) >= p.RentalFee + p.ExtraFee;
+                    .Aggregate((curr, next) => curr + next);
+
+                p.ExtraFee = p.Orders
+                    .SelectMany(o => o.ExtraFees)
+                    .Select(od => od.Fee)
+                    .Aggregate(0m, (curr, next) => curr + next, sum => sum);
+
+                p.OutstandingBalance = p.RentalFee + p.ExtraFee - p.Received;
+                
+                p.Completed = p.OutstandingBalance == 0 ? true : false;
             }
 
             return Ok(payments);
