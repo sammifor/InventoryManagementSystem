@@ -67,7 +67,6 @@ namespace InventoryManagementSystem.Controllers.Api
                         PaymentId = po.PaymentId,
                         PaymentSn = po.Payment.PaymentSn,
                         RentalFee = po.Payment.RentalFee,
-                        ExtraFee = po.Payment.ExtraFee,
 
                         Orders = po.Payment.PaymentOrders
                             .Select(po => new OrderInPaymentResultModel
@@ -301,21 +300,8 @@ namespace InventoryManagementSystem.Controllers.Api
             {
                 PaymentId = paymentId,
                 RentalFee = totalPrice,
-                ExtraFee = 0
             };
             _dbContext.Payments.Add(payment);
-            #endregion
-
-            #region 新增 PaymentLog
-            PaymentLog pLog = new PaymentLog
-            {
-                PaymentLogId = Guid.NewGuid(),
-                PaymentId = paymentId,
-                Fee = totalPrice,
-                FeeCategoryId = "R", // Rental fee
-                Description = string.Empty
-            };
-            _dbContext.PaymentLogs.Add(pLog);
             #endregion
 
             #region 新增 PaymentOrder （一對多關聯表）

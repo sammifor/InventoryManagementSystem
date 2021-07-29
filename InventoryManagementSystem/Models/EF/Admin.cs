@@ -14,13 +14,13 @@ namespace InventoryManagementSystem.Models.EF
         }
 
         public Guid AdminId { get; set; }
+        public int AdminSn { get; set; }
         public Guid RoleId { get; set; }
         public string Username { get; set; }
         public byte[] HashedPassword { get; set; }
         public byte[] Salt { get; set; }
         public string FullName { get; set; }
         public DateTime? CreateTime { get; set; }
-        public int AdminSn { get; set; }
 
         public virtual Role Role { get; set; }
         public virtual ICollection<ItemLog> ItemLogs { get; set; }
