@@ -61,6 +61,9 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.ToTable("Admin");
 
+                entity.HasIndex(e => e.AdminSn, "UQ_Admin_AdminSN")
+                    .IsUnique();
+
                 entity.HasIndex(e => e.Username, "UQ_Admin_Username")
                     .IsUnique()
                     .HasFilter("([Username] IS NOT NULL)");
@@ -68,6 +71,10 @@ namespace InventoryManagementSystem.Models.EF
                 entity.Property(e => e.AdminId)
                     .ValueGeneratedNever()
                     .HasColumnName("AdminID");
+
+                entity.Property(e => e.AdminSn)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("AdminSN");
 
                 entity.Property(e => e.CreateTime)
                     .HasColumnType("datetime")
@@ -268,6 +275,9 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.ToTable("ItemLog");
 
+                entity.HasIndex(e => e.ItemLogSn, "UQ_ItemLog_ItemLogSN")
+                    .IsUnique();
+
                 entity.Property(e => e.ItemLogId)
                     .ValueGeneratedNever()
                     .HasColumnName("ItemLogID");
@@ -288,6 +298,10 @@ namespace InventoryManagementSystem.Models.EF
                 entity.Property(e => e.Description).HasMaxLength(100);
 
                 entity.Property(e => e.ItemId).HasColumnName("ItemID");
+
+                entity.Property(e => e.ItemLogSn)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("ItemLogSN");
 
                 entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
 

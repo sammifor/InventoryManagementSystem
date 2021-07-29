@@ -37,9 +37,12 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Select(il => new LogResultModel
                 {
                     ItemLogId = il.ItemLogId,
+                    ItemLogSn = il.ItemLogSn,
                     OrderDetailId = il.OrderDetailId,
                     AdminId = il.AdminId,
+                    AdminSn = il.Admin.AdminSn,
                     ItemId = il.ItemId,
+                    ItemSn = il.Item.ItemSn,
                     ConditionName = il.Condition.ConditionName,
                     AdminFullName = il.Admin.FullName,
                     Description = il.Description,

@@ -21,6 +21,9 @@ CREATE TABLE [Admin](
         [AdminID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_Admin] PRIMARY KEY NONCLUSTERED,
 
+        [AdminSN] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [UQ_Admin_AdminSN] UNIQUE,
+
         [RoleID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Admin_Role] FOREIGN KEY REFERENCES [Role]([RoleID]),
 
@@ -369,6 +372,9 @@ CREATE TABLE [Report](
 CREATE TABLE [ItemLog](
         [ItemLogID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_ItemLog] PRIMARY KEY NONCLUSTERED,
+
+        [ItemLogSN] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT UQ_ItemLog_ItemLogSN UNIQUE,
 
         [OrderDetailID] UNIQUEIDENTIFIER NULL
                 CONSTRAINT [FK_ItemLog_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
