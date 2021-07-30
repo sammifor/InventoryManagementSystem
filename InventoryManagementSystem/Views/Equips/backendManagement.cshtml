@@ -258,14 +258,15 @@
                     .then(r => {
                         if (r.ok) {
                             alert("新增成功");
-                            let index = this.equips.findIndex(x => x.equipmentId === this.selectEquipId);
-                            let updateData = {
-                                equipmentName: this.equips[index].equipmentName,
-                                equipmentSn: this.equips[index].equipmentSn,
-                                itemSn: this.addItemSN,
-                                description: this.addItemDiscrip
-                            }
-                            this.items.push(updateData);
+                            //let index = this.equips.findIndex(x => x.equipmentId === this.selectEquipId);
+                            //let updateData = {
+                            //    equipmentName: this.equips[index].equipmentName,
+                            //    equipmentSn: this.equips[index].equipmentSn,
+                            //    itemSn: this.addItemSN,
+                            //    description: this.addItemDiscrip
+                            //}
+                            //this.items.push(updateData);
+                            this.getdata();
                         } else {
                             alert("資料有誤");
                         }
