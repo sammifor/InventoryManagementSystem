@@ -5,15 +5,11 @@
 }
 
 <div class="row justify-content-center form-container">
-    <div class="col-xl-6 col-12">
-        <section class="card">
-            <h1 class="card-header h3 text-center">使用者登入</h1>
-            <form id="login" method="post" class="card-body">
-                <input hidden
-                       name="lineID" 
-                       id="lineID" 
-                       type="text" 
-                       :value="userInfo.idToken"/>
+    <div class="col-xl-6 col-11">
+        <div id="bind" class="card">
+            <h1 class="card-header h3 text-center">{{title}}</h1>
+            <form class="card-body"
+                  :hidden="!LIFFInitialized || !unbound">
                 <div class="form-group">
                     <label for="username">帳號</label>
                     <input class="form-control" 
@@ -31,30 +27,51 @@
                            v-model="userInfo.password"/>
                 </div>
                 <div class="form-group text-center">
-                    <button class="btn btn-primary form-control" 
+                    <button class="btn btn-block btn-primary"
                             type="button"
-                            :disabled="loading"
-                            @@click="btnSubmit">{{btnText}}</button>
+                            :disabled="processing"
+                            @@click="btnBind">
+                        {{btnText}}
+                    </button>
+
+                    <button class="btn btn-secondary btn-block"
+                            type="button"
+                            :disabled="processing"
+                            @@click="btnClose">關閉</button>
                 </div>
             </form>
-        </section>
+
+            <form class="card-body"
+                  :hidden="!LIFFInitialized || unbound">
+                <div class="form-group text-center">
+                    <button class="btn btn-block btn-danger"
+                            type="button"
+                            :disabled="processing"
+                            @@click="btnUnbind">
+                        {{btnText}}
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 
 <script>
     let app = new Vue({
-        el: "#login",
+        el: "#bind",
         data() {
             return {
+                LIFFInitialized: false,
+                unbound: true,
                 userInfo: {
                     username: "",
                     password: "",
                     idToken: ""
                 },
-                accessToken: "",
-                loading: false,
-                btnText: "登入"
+                processing: false,
+                btnText: "讀取中",
+                title: "請稍候"
             }
         },
         created() {
@@ -62,18 +79,38 @@
                 .init({
                     liffId: "1656261928-NBKLAmEY"
                 })
-                .then(() => {
+                .then(async () => {
                     // start to use LIFF's api
                     this.userInfo.idToken = liff.getIDToken();
+                    let response = await fetch("/api/user/checkunbound/" + this.userInfo.idToken, {
+                        method: "GET"
+                    }).catch(err => alert(err));
+
+                    if (!response.ok) {
+                        alert(response.statusText);
+                        return;
+                    }
+
+                    this.unbound = await response.json().catch(err => alert(err));
+                    this.LIFFInitialized = true;
+
+                    if (this.unbound) {
+                        this.title = "帳號綁定";
+                        this.btnText = "登入";
+                    }
+                    else {
+                        this.title = "解除綁定";
+                        this.btnText = "確認解除";
+                    }
                 })
                 .catch((err) => {
                     console.log(err);
                 });
         },
         methods: {
-            async btnSubmit() {
+            async btnBind() {
 
-                this.loading = true;
+                this.processing = true;
                 this.btnText = "處理中，請稍候";
 
                 let response = await fetch("/api/user/bindline", {
@@ -89,14 +126,40 @@
                     let failText = await response.text();
                     alert(failText);
 
-                    this.loading = false;
+                    this.processing = false;
                     this.btnText = "登入";
 
                     return;
                 }
 
                 liff.closeWindow();
+            },
+            async btnUnbind() {
 
+                this.processing = true;
+                this.btnText = "處理中，請稍候";
+
+                let token = this.userInfo.idToken;
+                let response = await fetch("/api/user/unbindline", {
+                    method: "POST",
+                    body: new URLSearchParams({
+                        "idToken": token
+                    })
+                })
+
+                if (!response.ok) {
+                    let failText = await response.text();
+                    alert(failText);
+                    // TODO 錯誤訊息
+                    this.processing = false;
+                    this.btnText = "確認解除"
+                    return;
+                }
+
+                liff.closeWindow();
+            },
+            btnClose() {
+                liff.closeWindow();
             }
         }
     });
