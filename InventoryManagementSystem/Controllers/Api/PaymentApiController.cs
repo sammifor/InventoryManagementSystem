@@ -1,6 +1,7 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.PaymentProviderModels;
 using InventoryManagementSystem.Models.ResultModels;
+using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -126,11 +127,47 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok(payments);
         }
 
+        /* method: POST
+         * 
+         * url: api/payment/new
+         * 
+         * intput: 
+         * 
+         *      付 Orders
+         *          {
+         *              "isRentalFee": true,
+         *              "orderIDs": ["...", "...", "...", ...]
+         *          }
+         *      
+         *      付 Payment（只在有 extra fee 的情況）
+         *          {
+         *              "isRentalFee": false,
+         *              "paymentID": "..."
+         *          }
+         * 
+         * output:
+         *      {
+         *          "merchantID": "...",
+         *          "tradeInfo": "...",
+         *          "tradeSha": "...",
+         *          "version": "...",
+         *          "totalPrice": 0
+         *      }
+         * 
+         */
+        // 使用者選取 Orders 準備付款、使用者選取 Payment 準備付款
         [HttpPost]
         [Consumes("application/json")]
         [Authorize(Roles = "user")]
-        public async Task<IActionResult> Paying(Guid[] ids)
+        public async Task<IActionResult> Paying(PayingViewModel model)
         {
+            #region Validate the input
+            if(model.IsRentalFee && (model.OrderIDs == null || model.OrderIDs.Length == 0))
+                return BadRequest("輸入格式錯誤");
+            if(!model.IsRentalFee && model.PaymentID == null)
+                return BadRequest("輸入格式錯誤");
+            #endregion
+
             // userId, userSn, email
             #region Get user info
             string userIdString = User.Claims
@@ -147,57 +184,87 @@ namespace InventoryManagementSystem.Controllers.Api
             int userSn = int.Parse(userSnString);
             #endregion
 
-            #region Generating OrderDetailSN for MerchantOrderNo
+            #region Generating PaymentDetailSN for MerchantOrderNo
             DateTimeOffset time = DateTimeOffset.Now;
-            // Initial payment starts with 0
-            string paymentDetailSn = $"0{userSn:D4}{time.ToString("yyMMddHHmmssf")}";
+            string paymentDetailSn = string.Empty;
+            // Initial payment starts with 0, and extra payment starts with 1
+            if(model.IsRentalFee)
+                paymentDetailSn = $"0{userSn:D4}{time.ToString("yyMMddHHmmssf")}";
+            else
+                paymentDetailSn = $"1{userSn:D4}{time.ToString("yyMMddHHmmssf")}";
             #endregion
 
-            #region 訂單合法且屬於本人
-
-            Guid[] distinctOIDs = ids.Distinct().ToArray();
-            if(distinctOIDs.Length != ids.Length)
+            if(model.IsRentalFee)
             {
-                return BadRequest("訂單編號有重覆");
+                #region 訂單合法且屬於本人
+
+                Guid[] distinctOIDs = model.OrderIDs.Distinct().ToArray();
+                if(distinctOIDs.Length != model.OrderIDs.Length)
+                {
+                    return BadRequest("訂單編號有重覆");
+                }
+
+                // distinctOIDs 只拿來檢查 ids 是否有重覆
+                // 只要能執行到這邊，保證兩個 array 的 elements 都一致
+                // 為了不產生混淆，以下一律採用 ids
+                Order[] orders = await _dbContext.Orders
+                    .Where(o => model.OrderIDs.Contains(o.OrderId))
+                    .Where(o => o.OrderStatusId == "A")
+                    .Where(o => o.PaymentOrder == null)
+                    .Where(o => o.EstimatedPickupTime > DateTime.Now)
+                    .ToArrayAsync();
+
+                // 訂單不合法
+                if(orders.Length != model.OrderIDs.Length)
+                    return BadRequest("有訂單不可執行付款或不存在");
+
+                bool belongToTheUser = orders.All(o => o.UserId == userId);
+
+                // 訂單不屬於本人
+                if(!belongToTheUser)
+                    return BadRequest("有訂單不屬於本人");
+                #endregion
+
+                #region 把 OrderSN 資料存在 NewPayingAttempt Table
+                int[] orderSNs = orders.Select(o => o.OrderSn).ToArray();
+
+                foreach(int sn in orderSNs)
+                {
+                    NewPayingAttempt pa = new NewPayingAttempt
+                    {
+                        PaymentDetailSn = paymentDetailSn,
+                        OrderSn = sn
+                    };
+                    _dbContext.NewPayingAttempts.Add(pa);
+                }
+                #endregion
             }
-
-            // distinctOIDs 只拿來檢查 ids 是否有重覆
-            // 只要能執行到這邊，保證兩個 array 的 elements 都一致
-            // 為了不產生混淆，以下一律採用 ids
-            Order[] orders = await _dbContext.Orders
-                .Where(o => ids.Contains(o.OrderId))
-                .Where(o => o.OrderStatusId == "A")
-                .Where(o => o.PaymentOrder == null)
-                .Where(o => o.EstimatedPickupTime > DateTime.Now)
-                .ToArrayAsync();
-
-            // 訂單不合法
-            if(orders.Length != ids.Length)
-                return BadRequest("有訂單不可執行付款或不存在");
-
-            bool belongToTheUser = orders.All(o => o.UserId == userId);
-
-            // 訂單不屬於本人
-            if(!belongToTheUser)
-                return BadRequest("有訂單不屬於本人");
-            #endregion
-
-            #region 把 OrderSN 資料存在 NewPayingAttempt Table
-            int[] orderSNs = orders.Select(o => o.OrderSn).ToArray();
-
-            foreach(int sn in orderSNs)
+            else
             {
-                NewPayingAttempt pa = new NewPayingAttempt
+                #region Payment 合法且屬於本人
+                bool isValidPayment = await _dbContext.Payments
+                    .Where(p => p.PaymentId == model.PaymentID)
+                    .AnyAsync(p => p.PaymentOrders.First().Order.UserId == userId);
+
+                if(!isValidPayment)
+                    return BadRequest("付款單不存在或不屬於本人");
+                #endregion
+
+                #region 把 PaymentDetailSN 資料存在 PayingAttempt Table
+                PayingAttempt payingAttempt = new PayingAttempt
                 {
                     PaymentDetailSn = paymentDetailSn,
-                    OrderSn = sn
+                    PaymentId = model.PaymentID.GetValueOrDefault()
                 };
-                _dbContext.NewPayingAttempts.Add(pa);
+
+                _dbContext.PayingAttempts.Add(payingAttempt);
+                #endregion
             }
 
+            #region 更新資料庫
             try
             {
-                await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
             }
             catch
             {
@@ -205,15 +272,41 @@ namespace InventoryManagementSystem.Controllers.Api
             }
             #endregion
 
-            var pricesQry = await (from eq in _dbContext.Equipment
-                                   join o in _dbContext.Orders on eq.EquipmentId equals o.EquipmentId
-                                   where ids.Contains(o.OrderId)
-                                   select eq.UnitPrice * o.Day * o.Quantity)
-                             .ToArrayAsync();
+            decimal totalPrice;
+            string itemDesc;
+            if(model.IsRentalFee)
+            {
+                itemDesc = "租賃費";
+                var pricesQry = await (from eq in _dbContext.Equipment
+                                       join o in _dbContext.Orders on eq.EquipmentId equals o.EquipmentId
+                                       where model.OrderIDs.Contains(o.OrderId)
+                                       select eq.UnitPrice * o.Day * o.Quantity)
+                                 .ToArrayAsync();
 
-            decimal totalPrice = pricesQry
-                .Aggregate((total, next) => total + next);
+                totalPrice = pricesQry
+                    .Aggregate((total, next) => total + next);
+            }
+            else
+            {
+                itemDesc = "補繳費";
+                decimal extraReceived = await _dbContext.PaymentDetails
+                    .Where(pd => pd.PaymentId == model.PaymentID.GetValueOrDefault())
+                    .Where(pd => pd.PaymentDetailSn.StartsWith('1'))
+                    .Select(pd => pd.AmountPaid)
+                    .SumAsync();
 
+                decimal extraReceivable = await _dbContext.PaymentOrders
+                    .Where(po => po.PaymentId == model.PaymentID.GetValueOrDefault())
+                    .SelectMany(po => po.Order.OrderDetails)
+                    .SelectMany(od => od.ExtraFees)
+                    .Select(f => f.Fee)
+                    .SumAsync();
+
+                totalPrice = extraReceivable - extraReceived;
+
+                if(totalPrice <= 0)
+                    return BadRequest("不需付款");
+            }
 
 
 
@@ -223,7 +316,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 MerchantOrderNo = paymentDetailSn,
                 TimeStamp = time.ToUnixTimeSeconds().ToString(),
                 Amt = ((int)totalPrice),
-                ItemDesc = "租賃費",
+                ItemDesc = itemDesc,
                 Email = email,
 
                 MerchantID = _payConfig.MerchantID,
@@ -254,110 +347,5 @@ namespace InventoryManagementSystem.Controllers.Api
             });
         }
 
-        /* method: POST
-         * 
-         * url: api/payment/new
-         * 
-         * intput: A JSON containing an array of OrderIDs.
-         * 
-         * output:
-         * 
-         */
-        // 使用者選取 Orders，準備付款。
-        [HttpPost("還不要用")]
-        [Authorize(Roles = "user")]
-        public async Task<IActionResult> MakeNewPayment(Guid[] ids)
-        {
-            #region 訂單合法且屬於本人
-            string userIdString = User.Claims
-                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value;
-
-            Guid userId = Guid.Empty;
-            userId = Guid.Parse(userIdString);
-
-            Guid[] distinctOIDs = ids.Distinct().ToArray();
-            if(distinctOIDs.Length != ids.Length)
-            {
-                return BadRequest("訂單編號有重覆");
-            }
-
-            // distinctOIDs 只拿來檢查 ids 是否有重覆
-            // 只要能執行到這邊，保證兩個 array 的 elements 都一致
-            // 為了不產生混淆，以下一律採用 ids
-            Order[] orders = await _dbContext.Orders
-                .Where(o => ids.Contains(o.OrderId))
-                .Where(o => o.OrderStatusId == "A")
-                .Where(o => o.PaymentOrder == null)
-                .Where(o => o.EstimatedPickupTime > DateTime.Now)
-                .ToArrayAsync();
-
-            // 訂單不合法
-            if(orders.Length != ids.Length)
-                return BadRequest("有訂單不可執行付款或不存在");
-
-            bool belongToTheUser = orders.All(o => o.UserId == userId);
-
-            // 訂單不屬於本人
-            if(!belongToTheUser)
-                return BadRequest("有訂單不屬於本人");
-            #endregion
-
-            #region 新增 Payment
-            var pricesQry = await (from eq in _dbContext.Equipment
-                                   join o in _dbContext.Orders on eq.EquipmentId equals o.EquipmentId
-                                   where ids.Contains(o.OrderId)
-                                   select eq.UnitPrice * o.Day * o.Quantity)
-                             .ToArrayAsync();
-
-            var totalPrice = pricesQry
-                .Aggregate((total, next) => total + next);
-
-            Guid paymentId = Guid.NewGuid();
-            Payment payment = new Payment
-            {
-                PaymentId = paymentId,
-                RentalFee = totalPrice,
-            };
-            _dbContext.Payments.Add(payment);
-            #endregion
-
-            #region 新增 PaymentOrder （一對多關聯表）
-            foreach(Order order in orders)
-            {
-                PaymentOrder po = new PaymentOrder
-                {
-                    PaymentId = paymentId,
-                    OrderId = order.OrderId
-                };
-                _dbContext.PaymentOrders.Add(po);
-            }
-            #endregion
-
-            // TODO 串金流
-            #region 新增 PaymentDetail
-            PaymentDetail pd = new PaymentDetail
-            {
-                PaymentDetailId = Guid.NewGuid(),
-                PaymentId = paymentId,
-                AmountPaid = totalPrice,
-                PayTime = DateTime.Now
-            };
-            _dbContext.PaymentDetails.Add(pd);
-            #endregion
-
-            #region 更新資料庫
-            try
-            {
-                await _dbContext.SaveChangesAsync();
-            }
-            catch
-            {
-                return Conflict();
-            }
-            #endregion
-
-            return Ok();
-        }
     }
 }
