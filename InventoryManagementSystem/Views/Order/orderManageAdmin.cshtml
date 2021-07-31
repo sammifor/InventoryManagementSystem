@@ -3,7 +3,9 @@
 <script src="https://unpkg.com/vue/dist/vue.min.js"></script>
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-
+<script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
+<script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+<script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
 <div id="app">
     <!--提醒-->
     <div>
@@ -39,11 +41,6 @@
         <!--ALL ORDERS-->
         <b-tab title="所有訂單" active v-on:click="GetAllOrders">
             <b-navbar-nav class="ml-auto">
-                <b-nav-form>
-                    <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
-                    <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
-                </b-nav-form>
-                <hr />
                 <template>
                     <div>
                         <div>
@@ -64,15 +61,15 @@
 
                                 <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @@change -->
                                 @*<b-form-checkbox v-model="row.detailsShowing" @@change="row.toggleDetails">
-                                        Details via check
-                                    </b-form-checkbox>*@
+                                    Details via check
+                                </b-form-checkbox>*@
                             </template>
 
                             <template #row-details="row">
                                 <b-card>
                                     <b-row>
                                         <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品SN</b></b-col>
+                                        <b-col><b>物品序號</b></b-col>
                                         <b-col><b>物品狀態</b></b-col>
                                     </b-row>
                                     <hr />
@@ -95,90 +92,70 @@
 
         <!--PENDING ORDERS-->
         <b-tab title="待核可" v-on:click="GetPendingOrders">
-
             <b-navbar-nav class="ml-auto">
-                <b-nav-form>
-                    <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
-                    <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
-                </b-nav-form>
-                <hr />
                 <template>
                     <div>
-                        <p>
-                            <span>
-                                <b-button size="sm" @@click="selectAllRows">全選</b-button>
-                                <b-button size="sm" @@click="clearSelected">清除</b-button>
-                            </span>
-                            <span class="float-right">
-                                <b-button size="sm" @@click="">核可</b-button>
-                                <b-button size="sm" v-b-modal.deny-modal>拒絕</b-button>
-                            </span>
-                        </p>
                         <div>
                             排序:
                             <b>{{ sortDesc ? '倒序' : '正序' }}</b>
                         </div>
                         <b-table :items="items"
                                  :fields="fields"
-                                 :select-mode="selectMode"
                                  responsive="sm"
-                                 ref="selectableTable"
                                  :sort-by.sync="sortBy"
                                  :sort-desc.sync="sortDesc"
-                                 sort-icon-left
-                                 selectable
-                                 @@row-selected="onRowSelected">
-                            <template #cell(statusName)="data">
-                                <b class="btn-warning">{{ data.value }}</b>
-                            </template>
+                                 sort-icon-left>
                             <template #cell(btnItem)="data">
-                                <b-button @@click="showDataAndModal(data.item, $event)"
-                                          id="popover-3"
-                                          variant="primary"
-                                          size="sm"
-                                          class="mr-2">分配</b-button>
-                                
-                            </template>
-
-
-                            <!-- Example scoped slot for select state illustrative purposes -->
-                            <template #cell(selected)="{ rowSelected }">
-                                <template v-if="rowSelected">
-                                    <span aria-hidden="true">&check;</span>
-                                    <span class="sr-only">Selected</span>
-                                </template>
-                                <template v-else>
-                                    <span aria-hidden="true">&nbsp;</span>
-                                    <span class="sr-only">Not selected</span>
-                                </template>
+                                <b-icon-ui-checks @@click="showDataAndModal(data.item)"
+                                                  size="sm" class="mr-2">
+                                </b-icon-ui-checks>
+                                <b-icon-x-circle-fill @@click="showDenialModal(data.item.orderId)"
+                                                      size="sm" class="mr-2">
+                                </b-icon-x-circle-fill>
                             </template>
                         </b-table>
                         <p>
-                            <span>
-                                <b-button size="sm" @@click="selectAllRows">全選</b-button>
-                                <b-button size="sm" @@click="clearSelected">清除</b-button>
-                            </span>
-                            <span class="float-right">
-                                <b-button size="sm" @@click="">核可</b-button>
-                                <b-button size="sm" v-b-modal.deny-modal>拒絕</b-button>
-                            </span>
-                        </p>
-                        <p>
-                            Selected Rows:<br>
-                            {{ selected }}
-                        </p>
                     </div>
                 </template>
         </b-tab>
+        <div>
+            <b-modal id="deny-modal"
+                     @@ok="confirmDenial"
+                     ok-title="確認"
+                     cancel-title="返回">
+                <template #modal-title>
+                    <p class="font-weight-bold text-danger">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M13 17.5a1 1 0 11-2 0 1 1 0 012 0zm-.25-8.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5z"></path><path fill-rule="evenodd" d="M9.836 3.244c.963-1.665 3.365-1.665 4.328 0l8.967 15.504c.963 1.667-.24 3.752-2.165 3.752H3.034c-1.926 0-3.128-2.085-2.165-3.752L9.836 3.244zm3.03.751a1 1 0 00-1.732 0L2.168 19.499A1 1 0 003.034 21h17.932a1 1 0 00.866-1.5L12.866 3.994z"></path></svg> 確認拒絕
+                    </p>
+                </template>
+                <div>
+                    <p>確認拒絕該筆訂單?</p>
+                </div>
+            </b-modal>
+            <!-- 拒絕失敗 modal -->
+            <b-modal id="deny-failed"
+                     ok-only
+                     ok-title="返回"
+                     ok-variant="secondary">
+                拒絕失敗
+            </b-modal>
 
+            <!-- 拒絕成功 modal -->
+            <b-modal id="deny-success"
+                     ok-only
+                     @@ok="deniedSuccessfully()"
+                     ok-title="完成">
+                拒絕成功
+            </b-modal>
+        </div>
         <!--OUTSTANDING ORDERS-->
         <b-tab title="待付款" v-on:click="GetOutstandingOrders">
             <b-navbar-nav class="ml-auto">
-                <b-nav-form>
+                @*<b-nav-form>
                     <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
                     <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
                 </b-nav-form>
-                <hr />
+                <hr />*@
                 <template>
                     <div>
                         <div>
@@ -207,7 +184,7 @@
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailIdSn }}</b-col>
+                                        <b-col>{{ item.orderDetailSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                     </b-row>
@@ -218,16 +195,16 @@
                     </div>
                 </template>
         </b-tab>
-        <br />
+        
 
         <!--PICKUP ORDERS-->
         <b-tab title="待領取" v-on:click="PickUpOrders">
             <b-navbar-nav class="ml-auto">
-                <b-nav-form>
+                @*<b-nav-form>
                     <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
                     <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
                 </b-nav-form>
-                <hr />
+                <hr />*@
                 <template>
                     <div>
                         <div>
@@ -254,7 +231,7 @@
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailIdSn }}</b-col>
+                                        <b-col>{{ item.orderDetailSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                         <b-col>
@@ -279,11 +256,11 @@
         <!--ONGOING ORDERS-->
         <b-tab title="租借中" v-on:click="OnGoingOrders">
             <b-navbar-nav class="ml-auto">
-                <b-nav-form>
+                @*<b-nav-form>
                     <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
                     <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
                 </b-nav-form>
-                <hr />
+                <hr />*@
                 <template>
                     <div>
                         <div>
@@ -300,8 +277,8 @@
 
                                 <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @@change -->
                                 @*<b-form-checkbox v-model="row.detailsShowing" @@change="row.toggleDetails">
-                                        Details via check
-                                    </b-form-checkbox>*@
+                                    Details via check
+                                </b-form-checkbox>*@
                             </template>
 
                             <template #row-details="row">
@@ -315,7 +292,7 @@
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailIdSn }}</b-col>
+                                        <b-col>{{ item.orderDetailSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                         <b-col><b-button size="sm" @@click="">查看</b-button></b-col>
@@ -338,11 +315,11 @@
         <!--CLOSED ORDERS-->
         <b-tab title="已結束" v-on:click="ClosedOrders">
             <b-navbar-nav class="ml-auto">
-                <b-nav-form>
+                @*<b-nav-form>
                     <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
                     <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
                 </b-nav-form>
-                <hr />
+                <hr />*@
                 <template>
                     <div>
                         <div>
@@ -359,8 +336,8 @@
 
                                 <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @@change -->
                                 @*<b-form-checkbox v-model="row.detailsShowing" @@change="row.toggleDetails">
-                                        Details via check
-                                    </b-form-checkbox>*@
+                                    Details via check
+                                </b-form-checkbox>*@
                             </template>
 
                             <template #row-details="row">
@@ -372,7 +349,7 @@
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailIdSn }}</b-col>
+                                        <b-col>{{ item.orderDetailSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                     </b-row>
@@ -389,11 +366,11 @@
         <!--OVERDUE ORDERS-->
         <b-tab title="已逾期" v-on:click="OverDueOrders">
             <b-navbar-nav class="ml-auto">
-                <b-nav-form>
+                @*<b-nav-form>
                     <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
                     <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
                 </b-nav-form>
-                <hr />
+                <hr />*@
                 <template>
                     <div>
                         <div>
@@ -410,8 +387,8 @@
 
                                 <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @@change -->
                                 @*<b-form-checkbox v-model="row.detailsShowing" @@change="row.toggleDetails">
-                                        Details via check
-                                    </b-form-checkbox>*@
+                                    Details via check
+                                </b-form-checkbox>*@
                             </template>
 
                             <template #row-details="row">
@@ -426,7 +403,7 @@
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailIdSn }}</b-col>
+                                        <b-col>{{ item.orderDetailSn }}</b-col>
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
                                         <b-col><b-button size="sm" @@click="">查看</b-button></b-col>
@@ -448,46 +425,46 @@
         </b-tab>
     </b-tabs>
 
-    <!-- 分配 item modal -->
-    <b-modal id="distribute-item-modal"
-             @@ok="confirmDistribution"
-             @@cancel="resetDistributionData"
-             @@close="resetDistributionData"
-             ok-title="確認"
-             :ok-disabled="distributionInvalid"
-             cancel-title="返回">
-        <template #modal-title>
-            請選擇要分配的物品
-        </template>
-        <form>
-            <p>應要分配 {{itemsToBeDistributed.quantity}} 個</p>
-            <p>還需分配 {{itemsToBeDistributed.quantity - distributionData.itemIDs.length}} 個</p>
-            <div v-for="item in itemsToBeDistributed.items">
-                <input :id="item.itemId"
-                       type="checkbox"
-                       :value="item.itemId"
-                       @@change="selectDistributedItems(item.itemId, $event)" />
-                <label :for="item.itemId">{{item.itemSn}}</label>
-            </div>
-        </form>
-    </b-modal>
+<!-- 分配 item modal -->
+<b-modal id="distribute-item-modal"
+         @@ok="confirmDistribution"
+         @@cancel="resetDistributionData"
+         @@close="resetDistributionData"
+         ok-title="確認"
+         :ok-disabled="distributionInvalid"
+         cancel-title="返回">
+    <template #modal-title>
+        請選擇要分配的物品
+    </template>
+    <form>
+        <p>應要分配 {{itemsToBeDistributed.quantity}} 個</p>
+        <p>還需分配 {{itemsToBeDistributed.quantity - distributionData.itemIDs.length}} 個</p>
+        <div v-for="item in itemsToBeDistributed.items">
+            <input :id="item.itemId"
+                   type="checkbox"
+                   :value="item.itemId"
+                   @@change="selectDistributedItems(item.itemId, $event)" />
+            <label :for="item.itemId">{{item.itemSn}}</label>
+        </div>
+    </form>
+</b-modal>
 
-    <!-- 分配 item 失敗 modal -->
-    <b-modal id="distribute-failed"
-             ok-only
-             @@ok="distributeFailed"
-             ok-title="返回"
-             ok-variant="secondary">
-        分配失敗
-    </b-modal>
+<!-- 分配 item 失敗 modal -->
+<b-modal id="distribute-failed"
+         ok-only
+         @@ok="distributeFailed"
+         ok-title="返回"
+         ok-variant="secondary">
+    分配失敗
+</b-modal>
 
-    <!-- 分配 item 成功 modal -->
-    <b-modal id="distribute-success"
-             ok-only
-             @@ok="resetDistributionData(); distributionSuccess()"
-             ok-title="完成">
-        分配成功
-    </b-modal>
+<!-- 分配 item 成功 modal -->
+<b-modal id="distribute-success"
+         ok-only
+         @@ok="resetDistributionData(); distributionSuccess()"
+         ok-title="完成">
+    分配成功
+</b-modal>
 </div>
 <br />
 <br />
@@ -546,15 +523,13 @@
                 ],
                 items: [],
                 orders: [], // 存一開始拿到的所有訂單
-                selectMode: 'multi',
-                selected: [],
                 eid: [],
                 itemsToBeDistributed: {
                     quantity: 0,
                     items: []
                 },
                 distributionData: {
-                    orderId: 0,
+                    orderId: '',
                     reply: false,
                     itemIDs: []
                 }
@@ -585,7 +560,6 @@
             // 待核可
             GetPendingOrders: function () {
                 this.fields = [
-                    { key: 'selected', label: '選擇' },
                     { key: 'orderSn', label: '訂單編號', sortable: true },
                     { key: 'username', label: '使用者', sortable: true },
                     { key: 'equipmentSn', label: '設備編號', sortable: true },
@@ -596,17 +570,8 @@
                     { key: 'totalPrice', label: '總價', sortable: true },
                     { key: 'statusName', label: '狀態', sortable: true },
                     { key: 'orderTime', label: '下單時間', sortable: true },
-                    { key: 'btnItem', label: '分配' }];
+                    { key: 'btnItem', label: '分配/拒絕' }];
                 this.items = this.orders.filter(o => o.tabName === "待核可");
-            },
-            onRowSelected(items) {
-                this.selected = items;
-            },
-            selectAllRows() {
-                this.$refs.selectableTable.selectAllRows();
-            },
-            clearSelected() {
-                this.$refs.selectableTable.clearSelected();
             },
             // 待付款
             GetOutstandingOrders() {
@@ -704,9 +669,9 @@
                 var OverdueLength = this.orders.filter(o => o.tabName === "已逾期");
                 return OverdueLength.length;
             },
-            
+
             // 分配 Item 開始
-            async showDataAndModal(data, e) {
+            async showDataAndModal(data) {
                 let response = await fetch("/itemapi/getavailableitemsbyequipid/" + data.equipmentId, {
                     method: "GET"
                 });
@@ -762,7 +727,7 @@
                 }
 
                 console.log("核可成功");
-                    this.$bvModal.show("distribute-success");
+                this.$bvModal.show("distribute-success");
             },
             resetDistributionData() {
                 console.log("resetting modal");
@@ -782,8 +747,36 @@
             distributionSuccess() {
                 fetchOrders.call(this)
                     .then(() => this.GetPendingOrders.call(this));
+            },
+            // ↑分配 item 結束
+            showDenialModal(data) {
+                this.distributionData.orderId = data;
+                console.log(data);
+                this.$bvModal.show("deny-modal");
+            },
+            async confirmDenial(data) {
+                /*this.distributionData.reply = true;*/
+                let response = await fetch("/orderapi/respondorder", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(this.distributionData)
+                }).catch(e => console.log(e));
+                
+                if (!response.ok) {
+                    console.log("拒絕失敗");
+                    this.$bvModal.show("deny-failed");
+                    return;
+                }
+
+                console.log("拒絕成功");
+                this.$bvModal.show("deny-success");
+            },
+            deniedSuccessfully() {
+                fetchOrders.call(this)
+                    .then(() => this.GetPendingOrders.call(this));
             }
-            // 分配 item 結束
         },
         computed: {
             distributionInvalid() {
