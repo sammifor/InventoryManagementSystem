@@ -9,40 +9,18 @@ namespace InventoryManagementSystem.Controllers
 {
     public class EquipsController : Controller
     {
-        [Authorize(Roles = "user")]
-        public IActionResult equipQryUser()
+        [HttpGet("equip")]
+        [Authorize]
+        public IActionResult EquipQry()
         {
-            return View();
-        }
-        
-        [Authorize(Roles = "admin")]
-        public IActionResult equipQryAdmin()
-        {
-            return View();
-        }
+            bool isAdmin = User.IsInRole("admin");
 
-        [Authorize(Roles = "admin")]
-        public IActionResult equipAddAdmin() {
-
-            return View();
-        
+            if(isAdmin)
+                return View("equipQryAdmin");
+            else
+                return View("equipQryUser");
         }
 
-        [Authorize(Roles = "admin")]
-        public IActionResult cateAddAdmin()
-        {
-
-            return View();
-
-        }
-
-        [Authorize(Roles = "admin")]
-        public IActionResult itemAddAdmin()
-        {
-
-            return View();
-
-        }
 
         [Authorize(Roles = "admin")]
         public IActionResult backendManagement()
@@ -51,6 +29,7 @@ namespace InventoryManagementSystem.Controllers
         
         }
 
+        [Authorize(Roles = "admin")]
         public IActionResult EquipManagement()
         {
 
