@@ -62,7 +62,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     Model = e.Model,
                     UnitPrice = e.UnitPrice,
                     Description = e.Description,
-                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
                     QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
                     QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
                 })
@@ -98,7 +98,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     Model = e.Model,
                     UnitPrice = e.UnitPrice,
                     Description = e.Description,
-                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
                     QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
                     QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
                 })
@@ -128,7 +128,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     Model = e.Model,
                     UnitPrice = e.UnitPrice,
                     Description = e.Description,
-                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
                     QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
                     QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
                 })
@@ -272,7 +272,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 Model = e.Model,
                 UnitPrice = e.UnitPrice,
                 Description = e.Description,
-                QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
+                QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
                 QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
                 QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
             }).ToList();
@@ -306,7 +306,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 Model = e.Model,
                 UnitPrice = e.UnitPrice,
                 Description = e.Description,
-                QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
+                QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
                 QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
                 QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
             })
