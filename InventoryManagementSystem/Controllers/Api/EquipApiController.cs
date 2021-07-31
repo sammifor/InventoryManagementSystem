@@ -62,8 +62,9 @@ namespace InventoryManagementSystem.Controllers.Api
                     Model = e.Model,
                     UnitPrice = e.UnitPrice,
                     Description = e.Description,
-                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
-                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
+                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
+                    QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
                 })
                 .FirstOrDefaultAsync();
 
@@ -97,8 +98,9 @@ namespace InventoryManagementSystem.Controllers.Api
                     Model = e.Model,
                     UnitPrice = e.UnitPrice,
                     Description = e.Description,
-                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
-                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
+                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
+                    QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
                 })
                 .ToArrayAsync();
             return Ok(results);
@@ -126,8 +128,9 @@ namespace InventoryManagementSystem.Controllers.Api
                     Model = e.Model,
                     UnitPrice = e.UnitPrice,
                     Description = e.Description,
-                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
-                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
+                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
+                    QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
                 })
                 .ToArrayAsync();
             return Ok(results);
@@ -260,17 +263,18 @@ namespace InventoryManagementSystem.Controllers.Api
         public IActionResult EquipmentAll()
         {
             var result = _dbContext.Equipment.Where(e => e.EquipmentName != null).Select(e => new {
-            
-                    EquipmentId = e.EquipmentId,
-                    EquipmentCategoryId = e.EquipmentCategoryId,
-                    EquipmentSn = e.EquipmentSn,
-                    EquipmentName = e.EquipmentName,
-                    Brand = e.Brand,
-                    Model = e.Model,
-                    UnitPrice = e.UnitPrice,
-                    Description = e.Description,
-                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
-                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
+
+                EquipmentId = e.EquipmentId,
+                EquipmentCategoryId = e.EquipmentCategoryId,
+                EquipmentSn = e.EquipmentSn,
+                EquipmentName = e.EquipmentName,
+                Brand = e.Brand,
+                Model = e.Model,
+                UnitPrice = e.UnitPrice,
+                Description = e.Description,
+                QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
+                QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
+                QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
             }).ToList();
             return Ok(result);
         }
@@ -302,8 +306,9 @@ namespace InventoryManagementSystem.Controllers.Api
                 Model = e.Model,
                 UnitPrice = e.UnitPrice,
                 Description = e.Description,
-                QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O"),
-                QuantityInStock = e.Items.Count(i => i.ConditionId == "I")
+                QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
+                QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
+                QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
             })
             .ToArrayAsync();
 

@@ -13,6 +13,7 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string EquipmentName { get; set; }
         public int QuantityUsable { get; set; }
         public int QuantityInStock { get; set; }
+        public int QuantityReserved { get; set; }
         public string Brand { get; set; }
         public string Model { get; set; }
         public decimal? UnitPrice { get; set; }

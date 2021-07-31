@@ -19,18 +19,17 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
         
-        [Authorize(Roles = "admin")]
-        public IActionResult orderManageAdmin()
+        [HttpGet("order")]
+        [Authorize]
+        public IActionResult OrderQry()
         {
-            return View();
-        }
+            bool isAdmin = User.IsInRole("admin");
 
-        [Authorize(Roles = "user")]
-        public IActionResult orderQryUser()
-        {
-            return View();
+            if(isAdmin)
+                return View("orderManageAdmin");
+            else
+                return View("orderQryUser");
         }
-
 
         [Authorize(Roles = "user")]
         public IActionResult orderReport()
