@@ -267,10 +267,10 @@
                 <div class="modal-body">
                     <ul>
                         <li v-for="detail in itemLogDetails">
-                            <span class="font-weight-bolder">LogID: </span>{{detail.itemLogId}} ,
+                            <span class="font-weight-bolder">Log序號: </span>{{detail.itemLogSn}} ,
                             <span class="font-weight-bolder">物品ID: </span>{{detail.itemSn}} ,
                             <span class="font-weight-bolder">物品狀態: </span><span class="font-weight-bolder text-danger">{{detail.conditionName}}</span> ,
-                            <span v-if="detail.orderDetailId!=null"><span class="font-weight-bolder">訂單明細: </span><a ref="此為訂單明細連接" class="text-primary">{{detail.orderDetailId}}</a> ,</span>
+                            <span v-if="detail.orderDetailId!=null"><span class="font-weight-bolder">訂單明細: </span><a href="/Order/orderManageAdmin/" class="text-primary">{{detail.orderDetailId}}</a> ,</span>
                             <span class="font-weight-bolder">管理員: </span>{{detail.username}} {{detail.adminFullName}} ,
                             <span v-if="detail.description!=null"><span class="font-weight-bolder">描述: </span>{{detail.description}} ,</span>
                             <span class="font-weight-bolder">異動時間: </span>{{detail.createTime}}
