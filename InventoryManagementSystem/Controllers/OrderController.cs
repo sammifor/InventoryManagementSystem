@@ -19,7 +19,7 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
         
-        [HttpGet("order")]
+        [HttpGet("/order")]
         [Authorize]
         public IActionResult OrderQry()
         {
