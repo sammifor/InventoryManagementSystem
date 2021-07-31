@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.Interfaces;
+using InventoryManagementSystem.Models.LINE;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
@@ -8,9 +9,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,10 +28,12 @@ namespace InventoryManagementSystem.Controllers.Api
     public class UserApiController : ControllerBase, IHashPassword
     {
         private readonly InventoryManagementSystemContext _dbContext;
+        private readonly LineConfig _lineConfig;
 
-        public UserApiController(InventoryManagementSystemContext dbContext)
+        public UserApiController(InventoryManagementSystemContext dbContext, IOptions<LineConfig> config)
         {
             _dbContext = dbContext;
+            _lineConfig = config.Value;
         }
 
         /* method: GET
@@ -99,7 +107,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 // then they only get their own info.
                 userQry = userQry.Where(u => u.UserId == userId);
             }
-            else 
+            else
             {
                 // If it's an admin, they can get all users' info 
                 // by leaving the id null.
@@ -332,6 +340,236 @@ namespace InventoryManagementSystem.Controllers.Api
             #endregion
 
             return Ok();
+        }
+
+        [HttpGet("checkunbound/{idToken}")]
+        public async Task<IActionResult> CheckUnbound(string idToken)
+        {
+            string lineID = string.Empty;
+
+            #region Verify ID Token
+            using(HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://api.line.me/oauth2/v2.1/verify");
+                HttpContent content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    {"id_token", idToken},
+                    {"client_id", _lineConfig.LIFFID}
+                });
+                HttpResponseMessage response = await client.PostAsync("", content);
+
+                if(!response.IsSuccessStatusCode)
+                {
+                    string failJsonString = await response.Content.ReadAsStringAsync();
+                    var failData = JsonConvert.DeserializeObject<VerifyIDTokenFailResponse>(failJsonString);
+                    //return BadRequest();
+                    return BadRequest($"{failData.error}, {failData.error_description}");
+                }
+
+                string jsonString = await response.Content.ReadAsStringAsync();
+                var verifiedData = JsonConvert.DeserializeObject<VerifyIDTokenResponse>(jsonString);
+
+                // verifiedData.sub is the line id.
+                lineID = verifiedData.sub;
+            }
+            #endregion
+
+            User user = await _dbContext.Users
+                .Where(u => u.LineId == lineID)
+                .FirstOrDefaultAsync();
+
+            if(user != null)
+                return Ok(false);
+            else
+                return Ok(true);
+
+        }
+
+        [HttpPost("bindline")]
+        [Consumes("application/json")]
+        public async Task<IActionResult> BindLine(BindLineViewModel model)
+        {
+
+            string lineID = string.Empty;
+
+            #region Verify ID Token
+            using(HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://api.line.me/oauth2/v2.1/verify");
+                HttpContent content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    {"id_token", model.IDToken},
+                    {"client_id", _lineConfig.LIFFID}
+                });
+                HttpResponseMessage response = await client.PostAsync("", content);
+
+                if(!response.IsSuccessStatusCode)
+                {
+                    string failJsonString = await response.Content.ReadAsStringAsync();
+                    var failData = JsonConvert.DeserializeObject<VerifyIDTokenFailResponse>(failJsonString);
+                    return BadRequest($"{failData.error}, {failData.error_description}");
+                }
+
+                string jsonString = await response.Content.ReadAsStringAsync();
+                var verifiedData = JsonConvert.DeserializeObject<VerifyIDTokenResponse>(jsonString);
+
+                // verifiedData.sub is the line id.
+                lineID = verifiedData.sub;
+            }
+            #endregion
+
+            #region Authentication
+            User user = await _dbContext.Users
+                .Where(u => u.Username == model.Username)
+                .FirstOrDefaultAsync();
+
+            if(user == null)
+                return Unauthorized("您輸入的帳號或密碼有誤");
+
+            IHashPassword hasher = this as IHashPassword;
+
+            byte[] passBytes = Encoding.UTF8.GetBytes(model.Password);
+            byte[] hashedBytes = hasher.HashPasswordWithSalt(passBytes, user.Salt);
+
+            if(!hashedBytes.SequenceEqual(user.HashedPassword))
+                return Unauthorized("您輸入的帳號或密碼有誤");
+            #endregion
+
+            #region Check if the user already has a LineID
+            if(!string.IsNullOrWhiteSpace(user.LineId))
+                return BadRequest("很抱歉，綁定失敗。這個帳號已經綁定過 LINE 了，如要重新綁定請先取消原本的綁定。");
+            #endregion
+
+            #region Check if the LineID exists
+            bool idExists = await _dbContext.Users
+                .AnyAsync(u => u.LineId == lineID);
+            if(idExists)
+                return BadRequest("很抱歉，綁定失敗。這個 LINE 帳號已被綁定過，如要重新綁定請先取消原本的綁定。");
+            #endregion
+
+
+            user.LineId = lineID;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
+            using(HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://api.line.me/v2/bot/message/push");
+                client.DefaultRequestHeaders
+                    .Accept
+                    .Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                client.DefaultRequestHeaders
+                    .Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _lineConfig.AccessToken);
+
+                PushMessage message = new PushMessage
+                {
+                    to = lineID,
+                    messages = new LineMessage[]
+                    {
+                        new LineMessage
+                        {
+                            type = "text",
+                            text = $"恭喜您！\n您已完成 LINE 綁定，以後可以直接在 LINE 上收到本站的消息唷！"
+                        }
+                    }
+                };
+
+                HttpContent content = JsonContent.Create<PushMessage>(message);
+
+                await client.PostAsync("", content);
+            }
+
+            return Ok();
+        }
+
+        [HttpPost("unbindline")]
+        public async Task<IActionResult> UnbindLine([FromForm] string idToken)
+        {
+            string lineID = string.Empty;
+            #region Verify ID Token
+            using(HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri("https://api.line.me/oauth2/v2.1/verify");
+                HttpContent content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    {"id_token", idToken},
+                    {"client_id", _lineConfig.LIFFID}
+                });
+                HttpResponseMessage response = await client.PostAsync("", content);
+
+                if(!response.IsSuccessStatusCode)
+                {
+                    string failJsonString = await response.Content.ReadAsStringAsync();
+                    var failData = JsonConvert.DeserializeObject<VerifyIDTokenFailResponse>(failJsonString);
+                    return BadRequest($"{failData.error}, {failData.error_description}");
+                }
+
+                string jsonString = await response.Content.ReadAsStringAsync();
+                var verifiedData = JsonConvert.DeserializeObject<VerifyIDTokenResponse>(jsonString);
+
+                // verifiedData.sub is the line id.
+                lineID = verifiedData.sub;
+            }
+            #endregion
+
+            User user = await _dbContext.Users
+                .Where(u => u.LineId == lineID)
+                .FirstOrDefaultAsync();
+
+            if(user == null)
+            {
+                return BadRequest("這個 LINE 帳號目前沒有被綁定");
+            }
+
+            user.LineId = null;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict("解除綁定失敗");
+            }
+
+            using(HttpClient client = new HttpClient())
+            {
+
+                PushMessage message = new PushMessage
+                {
+                    to = lineID,
+                    messages = new LineMessage[]
+                    {
+                        new LineMessage
+                        {
+                            type = "text",
+                            text = $"您已解除 LINE 綁定，將不再在 LINE 上收到通知。"
+                        }
+                    }
+                };
+
+                HttpContent content = JsonContent.Create<PushMessage>(message);
+
+                HttpRequestMessage request = new HttpRequestMessage();
+                request.Method = new HttpMethod("POST");
+                request.RequestUri = new Uri("https://api.line.me/v2/bot/message/push");
+                request.Headers
+                    .Accept
+                    .Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _lineConfig.AccessToken);
+                request.Content = content;
+
+                await client.SendAsync(request);
+
+                return Ok();
+            }
         }
     }
 }

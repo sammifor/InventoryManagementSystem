@@ -80,5 +80,10 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
 
+        [HttpGet("login/line")]
+        public IActionResult BindLine()
+        {
+            return View();
+        }
     }
 }
