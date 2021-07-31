@@ -51,8 +51,7 @@
                             <br />
                             <select size="1" v-model="tempAdmin.roleId">
                                 <option disabled selected>請選擇權限</option>
-                                <option value="1">高級管理員</option>
-                                <option value="2">一般管理員</option>
+                                <option v-for="role in roles" :value="role.roleId">{{role.roleName}}</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -84,6 +83,7 @@
         el: '#app',
         data: {
             admins: [],
+            roles: {},
             tempAdmin: {},
             search: ''
         },
@@ -99,10 +99,25 @@
                 })
                 .catch(error => {
                     console.log(error);
+                });
+
+            fetch('/api/role', { method: 'GET' })
+                .then(response => {
+                    return response.json();
                 })
+                .then(response => {
+                    this.roles = response;
+                    console.log(this.roles);
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+
+
         },
 
         methods: {
+            //管理員資料修改
             updateClickAdmin: function (adminData) {
                 this.tempAdmin = Object.assign({}, adminData);
             },
