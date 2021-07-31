@@ -9,10 +9,8 @@ namespace InventoryManagementSystem.Models.ResultModels
     {
         public Guid ItemLogId { get; set; }
         public int ItemLogSn { get; set; }
-        public Guid? OrderDetailId { get; set; }
-        public int AdminSn { get; set; }
-        public Guid? AdminId { get; set; }
-        public Guid ItemId { get; set; }
+        public int OrderDetailSn { get; set; } //TODO
+        public string AdminUsername { get; set; } //TODO
         public string ItemSn { get; set; }
         public string ConditionName { get; set; }
         public string AdminFullName { get; set; }

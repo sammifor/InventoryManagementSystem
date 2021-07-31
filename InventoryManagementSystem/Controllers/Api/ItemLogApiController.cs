@@ -38,10 +38,8 @@ namespace InventoryManagementSystem.Controllers.Api
                 {
                     ItemLogId = il.ItemLogId,
                     ItemLogSn = il.ItemLogSn,
-                    OrderDetailId = il.OrderDetailId,
-                    AdminId = il.AdminId,
-                    AdminSn = il.Admin.AdminSn,
-                    ItemId = il.ItemId,
+                    AdminUsername = il.Admin.Username,
+                    OrderDetailSn = il.OrderDetail.OrderDetailSn,
                     ItemSn = il.Item.ItemSn,
                     ConditionName = il.Condition.ConditionName,
                     AdminFullName = il.Admin.FullName,
