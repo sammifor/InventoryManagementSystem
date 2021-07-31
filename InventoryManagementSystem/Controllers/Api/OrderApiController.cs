@@ -137,6 +137,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     OrderDetailSn = od.OrderDetailSn,
                     ItemId = od.ItemId,
                     ItemSn = od.Item.ItemSn,
+                    ItemDescription = od.Item.Description,
 
                     OrderDetailStatusId = od.OrderDetailStatusId,
                     OrderDetailStatus = od.OrderDetailStatus.StatusName
