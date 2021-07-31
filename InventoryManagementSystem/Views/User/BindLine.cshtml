@@ -8,50 +8,73 @@
     <div class="col-xl-6 col-11">
         <div id="bind" class="card">
             <h1 class="card-header h3 text-center">{{title}}</h1>
-            <form class="card-body"
-                  :hidden="!LIFFInitialized || !unbound">
-                <div class="form-group">
-                    <label for="username">帳號</label>
-                    <input class="form-control" 
-                           name="username" 
-                           id="username" 
-                           type="text" 
-                           v-model="userInfo.username"/>
-                </div>
-                <div class="form-group">
-                    <label for="password">密碼</label>
-                    <input class="form-control" 
-                           name="password" 
-                           id="password" 
-                           type="password" 
-                           v-model="userInfo.password"/>
-                </div>
-                <div class="form-group text-center">
-                    <button class="btn btn-block btn-primary"
-                            type="button"
-                            :disabled="processing"
-                            @@click="btnBind">
-                        {{btnText}}
-                    </button>
+            <div class="card-body "
+                 :hidden="!LIFFInitialized || !unbound">
+                <div class="card-text alert alert-danger text-center"
+                     :hidden="!errorOccurred">{{errorText}}</div>
+                <form>
+                    <div class="form-group">
+                        <label for="username">帳號</label>
+                        <input class="form-control form-control-lg"
+                               name="username"
+                               id="username"
+                               type="text"
+                               v-model="userInfo.username"
+                               required />
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密碼</label>
+                        <input class="form-control form-control-lg"
+                               name="password"
+                               id="password"
+                               type="password"
+                               v-model="userInfo.password" 
+                               required />
+                    </div>
+                    <div class="form-group text-center">
+                        <button class="btn btn-block btn-primary btn-lg"
+                                type="button"
+                                :disabled="processing || userInfo.username.length <= 0 || userInfo.password.length <= 0"
+                                @@click="btnBind">
+                            {{btnText}}
+                        </button>
+                    </div>
 
-                    <button class="btn btn-secondary btn-block"
-                            type="button"
-                            :disabled="processing"
-                            @@click="btnClose">關閉</button>
-                </div>
-            </form>
+                    <div class="form-group text-center">
+                        <button class="btn btn-secondary btn-block btn-lg"
+                                type="button"
+                                :disabled="processing"
+                                @@click="btnClose">
+                            關閉
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-            <form class="card-body"
-                  :hidden="!LIFFInitialized || unbound">
-                <div class="form-group text-center">
-                    <button class="btn btn-block btn-danger"
-                            type="button"
-                            :disabled="processing"
-                            @@click="btnUnbind">
-                        {{btnText}}
-                    </button>
-                </div>
-            </form>
+            <div class="card-body"
+                      :hidden="!LIFFInitialized || unbound">
+                <div class="card-text alert alert-danger text-center"
+                     :hidden="!errorOccurred">{{errorText}}</div>
+                <form>
+                    <div class="form-group text-center">
+                        <button class="btn btn-block btn-danger btn-lg"
+                                type="button"
+                                :disabled="processing"
+                                @@click="btnUnbind">
+                            {{btnText}}
+                        </button>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <button class="btn btn-secondary btn-block btn-lg"
+                                type="button"
+                                :disabled="processing"
+                                @@click="btnClose">
+                            關閉
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -71,7 +94,9 @@
                 },
                 processing: false,
                 btnText: "讀取中",
-                title: "請稍候"
+                title: "確認綁定狀態中……",
+                errorOccurred: false,
+                errorText: ""
             }
         },
         created() {
@@ -108,7 +133,8 @@
                 });
         },
         methods: {
-            async btnBind() {
+            async btnBind(e) {
+                e.preventDefault();
 
                 this.processing = true;
                 this.btnText = "處理中，請稍候";
@@ -123,8 +149,9 @@
 
                 if (!response.ok) {
                     // TODO 錯誤訊息
-                    let failText = await response.text();
-                    alert(failText);
+                    this.errorText = await response.text();
+                    this.errorOccurred = true;
+
 
                     this.processing = false;
                     this.btnText = "登入";
@@ -148,9 +175,9 @@
                 })
 
                 if (!response.ok) {
-                    let failText = await response.text();
-                    alert(failText);
-                    // TODO 錯誤訊息
+                    this.errorText = await response.text();
+                    this.errorOccurred = true;
+
                     this.processing = false;
                     this.btnText = "確認解除"
                     return;
