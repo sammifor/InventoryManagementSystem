@@ -275,25 +275,28 @@
              },
 
              confirmAmount: async function () {
-                let requestData = []
-                this.selected.forEach(order => {
-                    requestData.push(order.orderId)
-                });
+                 let requestData = {
+                     isRentalFee: true,
+                     orderIDs: []
+                 }
+                 this.selected.forEach(order => {
+                     requestData.orderIDs.push(order.orderId)
+                 });
 
-                let response = await fetch("/api/payment", {
-                    method: "POST",
-                    headers: {
-                        "content-type": "application/json"
-                    },
-                    body: JSON.stringify(requestData)
-                })
+                 let response = await fetch("/api/payment", {
+                     method: "POST",
+                     headers: {
+                         "content-type": "application/json"
+                     },
+                     body: JSON.stringify(requestData)
+                 })
 
-                if (!response.ok) {
-                    alert("付款資料讀取失敗");
-                    return;
-                }
+                 if (!response.ok) {
+                     alert("付款資料讀取失敗");
+                     return;
+                 }
 
-                this.mpgInfo = await response.json()
+                 this.mpgInfo = await response.json()
             },
 
             clearMpgInfo: function () {

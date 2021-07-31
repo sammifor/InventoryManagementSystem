@@ -550,7 +550,7 @@ namespace InventoryManagementSystem.Controllers.Api
                         new LineMessage
                         {
                             type = "text",
-                            text = $"您已解除 LINE 綁定，將不再在 LINE 上收到通知。"
+                            text = $"您已解除 LINE 綁定，將不再收到 LINE 通知。"
                         }
                     }
                 };
