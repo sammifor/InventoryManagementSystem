@@ -622,9 +622,12 @@
             },
 
             confirmAmount: async function () {
-                let requestData = []
+                let requestData = {
+                    isRentalFee: true,
+                    orderIDs: []
+                };
                 this.selected.forEach(order => {
-                    requestData.push(order.orderId)
+                    requestData.orderIDs.push(order.orderId)
                 });
 
                 let response = await fetch("/api/payment", {
