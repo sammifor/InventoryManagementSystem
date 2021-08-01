@@ -1,5 +1,5 @@
 ﻿using InventoryManagementSystem.Models.EF;
-using InventoryManagementSystem.Models.Interfaces;
+using InventoryManagementSystem.Models.Password;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +17,7 @@ namespace InventoryManagementSystem.Controllers.Api
 {
     [Route("api")]
     [ApiController]
-    public class AdminApiController : ControllerBase, IHashPassword
+    public class AdminApiController : ControllerBase
     {
         private readonly InventoryManagementSystemContext _dbContext;
 
@@ -79,19 +79,14 @@ namespace InventoryManagementSystem.Controllers.Api
                 return BadRequest();
             }
 
-            IHashPassword hasher = this as IHashPassword;
-            Random r = new Random();
-            byte[] saltBytes = new byte[32];
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(model.Password);
-            r.NextBytes(saltBytes);
-            byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, saltBytes);
+            PBKDF2 hasher = new PBKDF2(model.Password, null);
 
             Admin admin = new Admin
             {
                 RoleId = model.RoleId,
                 Username = model.Username,
-                HashedPassword = hashedPassword,
-                Salt = saltBytes,
+                HashedPassword = hasher.HashedPassword,
+                Salt = hasher.Salt,
                 FullName = model.FullName,
                 CreateTime = DateTime.Now
             };
@@ -145,15 +140,10 @@ namespace InventoryManagementSystem.Controllers.Api
             // 只能改自己的密碼
             if(adminId == id)
             {
-                IHashPassword hasher = this as IHashPassword;
-                byte[] saltBytes = new byte[32];
-                byte[] passwordBytes = Encoding.UTF8.GetBytes(model.Password);
-                Random r = new Random();
-                r.NextBytes(saltBytes);
-                byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, saltBytes);
+                PBKDF2 hasher = new PBKDF2(model.Password, null);
 
-                admin.HashedPassword = hashedPassword;
-                admin.Salt = saltBytes;
+                admin.HashedPassword = hasher.HashedPassword;
+                admin.Salt = hasher.Salt;
             }
 
             try

@@ -86,14 +86,14 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.HashedPassword)
                     .IsRequired()
-                    .HasMaxLength(32)
+                    .HasMaxLength(64)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.RoleId).HasColumnName("RoleID");
 
                 entity.Property(e => e.Salt)
                     .IsRequired()
-                    .HasMaxLength(32)
+                    .HasMaxLength(64)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Username).HasMaxLength(50);
@@ -800,7 +800,7 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.HashedPassword)
                     .IsRequired()
-                    .HasMaxLength(32)
+                    .HasMaxLength(64)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.LineId)
@@ -814,7 +814,7 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.Salt)
                     .IsRequired()
-                    .HasMaxLength(32)
+                    .HasMaxLength(64)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.UserSn)
