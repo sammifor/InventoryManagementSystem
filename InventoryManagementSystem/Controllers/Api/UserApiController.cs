@@ -223,7 +223,7 @@ namespace InventoryManagementSystem.Controllers.Api
             ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             ClaimsPrincipal principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync(principal);
-            return RedirectToAction("equipQryUser", "Equips");
+            return RedirectToAction("EquipQry", "Equips");
 
         }
 
