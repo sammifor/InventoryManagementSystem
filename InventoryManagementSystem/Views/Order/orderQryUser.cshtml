@@ -607,7 +607,7 @@
 
             selectReportItem: function (orderDetailData) {
                 this.reportOrder.reportOrderDetailId = orderDetailData[0].orderDetailId;
-                this.reportUrl = 'orderReport?orderDetailId=' + this.reportOrder.reportOrderDetailId + '&ename='
+                this.reportUrl = '/orderreport?orderDetailId=' + this.reportOrder.reportOrderDetailId + '&ename='
                     + this.currentOrder.equipmentName + "&esn=" + this.currentOrder.equipmentSn + "&itemsn=" + this.reportOrder.reportItemSn
             },
 
