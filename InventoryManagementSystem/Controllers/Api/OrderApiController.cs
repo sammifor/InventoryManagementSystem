@@ -137,6 +137,8 @@ namespace InventoryManagementSystem.Controllers.Api
                     OrderDetailSn = od.OrderDetailSn,
                     ItemId = od.ItemId,
                     ItemSn = od.Item.ItemSn,
+                    ItemDescription = od.Item.Description,
+                    OpenReportCount = od.Reports.Count(r => r.CloseTime == null),
 
                     OrderDetailStatusId = od.OrderDetailStatusId,
                     OrderDetailStatus = od.OrderDetailStatus.StatusName
