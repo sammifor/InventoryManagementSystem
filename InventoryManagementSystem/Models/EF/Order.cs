@@ -32,6 +32,5 @@ namespace InventoryManagementSystem.Models.EF
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
         public virtual ICollection<Questionnaire> Questionnaires { get; set; }
         public virtual ICollection<Response> Responses { get; set; }
-        public virtual ItemLog ItemLog { get; set; }
     }
 }
