@@ -29,9 +29,9 @@ CREATE TABLE [Admin](
 
         [Username] NVARCHAR(50),
 
-        [HashedPassword] BINARY(32) NOT NULL,
+        [HashedPassword] BINARY(64) NOT NULL,
 
-        [Salt] BINARY(32) NOT NULL,
+        [Salt] BINARY(64) NOT NULL,
 
         [FullName] NVARCHAR(50) NOT NULL,
 
@@ -54,9 +54,9 @@ CREATE TABLE [User](
 
         [Email] VARCHAR(100),
 
-        [HashedPassword] BINARY(32) NOT NULL,
+        [HashedPassword] BINARY(64) NOT NULL,
 
-        [Salt] BINARY(32) NOT NULL,
+        [Salt] BINARY(64) NOT NULL,
 
         [FullName] NVARCHAR(50) NOT NULL,
 

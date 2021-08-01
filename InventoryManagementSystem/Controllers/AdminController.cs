@@ -1,5 +1,5 @@
 ﻿using InventoryManagementSystem.Models.EF;
-using InventoryManagementSystem.Models.Interfaces;
+using InventoryManagementSystem.Models.Password;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Controllers
 {
-    public class AdminController : Controller, IHashPassword
+    public class AdminController : Controller
     {
         private readonly InventoryManagementSystemContext _dbContext;
 
@@ -41,11 +41,9 @@ namespace InventoryManagementSystem.Controllers
                 return View("Login");
             }
 
-            var hasher = this as IHashPassword;
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-            byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, admin.Salt);
+            PBKDF2 hasher = new PBKDF2(password, admin.Salt);
 
-            if (hashedPassword.SequenceEqual(admin.HashedPassword))
+            if (hasher.HashedPassword.SequenceEqual(admin.HashedPassword))
             {
 
                 List<Claim> claims = new List<Claim>();

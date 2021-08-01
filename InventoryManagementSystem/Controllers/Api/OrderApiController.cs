@@ -131,6 +131,11 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 StatusName = o.OrderStatus.StatusName,
 
+                OpenReportCount = o.OrderDetails
+                    .SelectMany(od => od.Reports)
+                    .Where(r => r.CloseTime != null)
+                    .Count(),
+
                 OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
                 {
                     OrderDetailId = od.OrderDetailId,
@@ -138,7 +143,6 @@ namespace InventoryManagementSystem.Controllers.Api
                     ItemId = od.ItemId,
                     ItemSn = od.Item.ItemSn,
                     ItemDescription = od.Item.Description,
-                    OpenReportCount = od.Reports.Count(r => r.CloseTime == null),
 
                     OrderDetailStatusId = od.OrderDetailStatusId,
                     OrderDetailStatus = od.OrderDetailStatus.StatusName

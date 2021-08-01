@@ -1,6 +1,6 @@
 ﻿using InventoryManagementSystem.Models.EF;
-using InventoryManagementSystem.Models.Interfaces;
 using InventoryManagementSystem.Models.LINE;
+using InventoryManagementSystem.Models.Password;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
@@ -25,7 +25,7 @@ namespace InventoryManagementSystem.Controllers.Api
 {
     [Route("api/user")]
     [ApiController]
-    public class UserApiController : ControllerBase, IHashPassword
+    public class UserApiController : ControllerBase
     {
         private readonly InventoryManagementSystemContext _dbContext;
         private readonly LineConfig _lineConfig;
@@ -158,6 +158,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Consumes("application/json")]
         public async Task<IActionResult> PostUser(PostUserViewModel model)
         {
+            #region 簡查 Required Field 是否都有填
             string[] notNullFields =
             {
                 model.Username,
@@ -172,23 +173,28 @@ namespace InventoryManagementSystem.Controllers.Api
 
             if(nullOrWhiteSpaceExist)
             {
-                return BadRequest();
+                return BadRequest("有必填欄位為空");
             }
+            #endregion
 
-            IHashPassword hasher = this as IHashPassword;
-            Random r = new Random();
-            byte[] saltBytes = new byte[32];
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(model.Password);
-            r.NextBytes(saltBytes);
-            byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, saltBytes);
+            #region Hash Password
+            PBKDF2 hasher = new PBKDF2(model.Password, null);
+            #endregion
+            //To be removed
+            //IHashPassword hasher = this as IHashPassword;
+            //Random r = new Random();
+            //byte[] saltBytes = new byte[32];
+            //byte[] passwordBytes = Encoding.UTF8.GetBytes(model.Password);
+            //r.NextBytes(saltBytes);
+            //byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, saltBytes);
 
             User user = new User
             {
                 UserId = Guid.NewGuid(),
                 Username = model.Username,
                 Email = model.Email,
-                HashedPassword = hashedPassword,
-                Salt = saltBytes,
+                HashedPassword = hasher.HashedPassword,
+                Salt = hasher.Salt,
                 FullName = model.FullName,
                 AllowNotification = model.AllowNotification,
                 Address = model.Address,
@@ -206,7 +212,7 @@ namespace InventoryManagementSystem.Controllers.Api
             }
             catch
             {
-                return Conflict();
+                return Conflict("資料庫更新失敗");
             }
 
             // 註冊成功後直接發 cookie，視同登入。
@@ -217,7 +223,7 @@ namespace InventoryManagementSystem.Controllers.Api
             ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             ClaimsPrincipal principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync(principal);
-            return RedirectToAction("equipQryUser", "Equips");
+            return RedirectToAction("EquipQry", "Equips");
 
         }
 
@@ -246,7 +252,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             if(id != model.UserId)
             {
-                return BadRequest();
+                return BadRequest("欲修改之 User ID 與實際傳入 ID 不同");
             }
 
             #region 檢查目前正在修改的人是否為管理員或本人
@@ -263,7 +269,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 Guid userId = Guid.Parse(userIdString);
 
                 if(userId != id)
-                    return Unauthorized();
+                    return Unauthorized("只能修改本人資料");
             }
             #endregion
 
@@ -294,27 +300,21 @@ namespace InventoryManagementSystem.Controllers.Api
             User user = await _dbContext.Users.FindAsync(id);
 
             // 不是管理員就必須填入正確的密碼
-            IHashPassword hasher = this as IHashPassword;
             if(!isAdmin)
             {
-                byte[] oldPwBytes = Encoding.UTF8.GetBytes(model.OldPassword);
-                byte[] hashedOldPw = hasher.HashPasswordWithSalt(oldPwBytes, user.Salt);
+                PBKDF2 hasher = new PBKDF2(model.OldPassword, user.Salt);
 
-                if(!hashedOldPw.SequenceEqual(user.HashedPassword))
-                    return BadRequest();
+                if(!hasher.HashedPassword.SequenceEqual(user.HashedPassword))
+                    return BadRequest("密碼錯誤");
             }
 
             // 有輸入新密碼才修改密碼
             if(model.Password != null)
             {
-                byte[] newPwBytes = Encoding.UTF8.GetBytes(model.Password);
-                Random r = new Random();
-                byte[] saltBytes = new byte[32];
-                r.NextBytes(saltBytes);
-                byte[] hashedNewPw = hasher.HashPasswordWithSalt(newPwBytes, saltBytes);
+                PBKDF2 hasher = new PBKDF2(model.Password, null);
 
-                user.Salt = saltBytes;
-                user.HashedPassword = hashedNewPw;
+                user.Salt = hasher.Salt;
+                user.HashedPassword = hasher.HashedPassword;
             }
 
             // 修改其他個資
@@ -426,12 +426,9 @@ namespace InventoryManagementSystem.Controllers.Api
             if(user == null)
                 return Unauthorized("您輸入的帳號或密碼有誤");
 
-            IHashPassword hasher = this as IHashPassword;
+            PBKDF2 hasher = new PBKDF2(model.Password, user.Salt);
 
-            byte[] passBytes = Encoding.UTF8.GetBytes(model.Password);
-            byte[] hashedBytes = hasher.HashPasswordWithSalt(passBytes, user.Salt);
-
-            if(!hashedBytes.SequenceEqual(user.HashedPassword))
+            if(!hasher.HashedPassword.SequenceEqual(user.HashedPassword))
                 return Unauthorized("您輸入的帳號或密碼有誤");
             #endregion
 

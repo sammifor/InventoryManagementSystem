@@ -1,5 +1,5 @@
 ﻿using InventoryManagementSystem.Models.EF;
-using InventoryManagementSystem.Models.Interfaces;
+using InventoryManagementSystem.Models.Password;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Controllers
 {
-    public class UserController : Controller, IHashPassword
+    public class UserController : Controller
     {
         private readonly InventoryManagementSystemContext _dbContext;
 
@@ -42,11 +42,13 @@ namespace InventoryManagementSystem.Controllers
                 return View("Login");
             }
 
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-            var hasher = this as IHashPassword;
-            byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, user.Salt);
+            PBKDF2 hasher = new PBKDF2(password, user.Salt);
+            // To be removed
+            //byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+            //var hasher = this as IHashPassword;
+            //byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, user.Salt);
 
-            if(hashedPassword.SequenceEqual(user.HashedPassword))
+            if(hasher.HashedPassword.SequenceEqual(user.HashedPassword))
             {
 
                 List<Claim> claims = new List<Claim>();

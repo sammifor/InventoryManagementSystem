@@ -36,6 +36,7 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string TabName { get; set; }
 
         public OrderDetailResultModel[] OrderDetails { get; set; }
+        public int OpenReportCount { get; set; }
 
         // From Payment table
         public Guid? PaymentId { get; set; }
