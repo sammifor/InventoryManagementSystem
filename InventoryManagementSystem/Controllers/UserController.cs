@@ -1,4 +1,5 @@
 ﻿using InventoryManagementSystem.Models.EF;
+using InventoryManagementSystem.Models.NotificationModels;
 using InventoryManagementSystem.Models.Password;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;

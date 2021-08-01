@@ -365,7 +365,6 @@ namespace InventoryManagementSystem.Controllers.Api
                     //return BadRequest();
                     return BadRequest($"{failData.error}, {failData.error_description}");
                 }
-
                 string jsonString = await response.Content.ReadAsStringAsync();
                 var verifiedData = JsonConvert.DeserializeObject<VerifyIDTokenResponse>(jsonString);
 
