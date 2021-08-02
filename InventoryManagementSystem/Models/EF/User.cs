@@ -31,6 +31,7 @@ namespace InventoryManagementSystem.Models.EF
         public string LineId { get; set; }
         public bool? Deleted { get; set; }
 
+        public virtual ResetPasswordToken ResetPasswordToken { get; set; }
         public virtual ICollection<CanceledOrder> CanceledOrders { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
     }
