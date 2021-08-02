@@ -63,6 +63,7 @@ namespace InventoryManagementSystem.Controllers.Api
             var results = await reports.Select(r => new GetReportsResultModel
             {
                 ReportId = r.ReportId,
+                ReportSn = r.ReportSn,
                 OrderSn = r.OrderDetail.Order.OrderSn,
                 OrderDetailId = r.OrderDetailId,
                 OrderDetailIdSn = r.OrderDetail.OrderDetailSn,
