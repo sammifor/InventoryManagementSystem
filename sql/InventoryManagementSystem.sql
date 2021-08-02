@@ -411,3 +411,19 @@ CREATE TABLE [ExtraFee](
 
         [Description] NVARCHAR(100)
 );
+
+CREATE TABLE [ResetPasswordToken](
+        [TokenID] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [PK_ResetPasswordToken] PRIMARY KEY CLUSTERED,
+
+        [UserID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [FK_ResetPasswordToken_User] FOREIGN KEY REFERENCES [User]([UserID])
+                CONSTRAINT [UQ_ResetPasswordToken_UserID] UNIQUE NONCLUSTERED,
+
+        [HashedToken] BINARY(64) NOT NULL
+                CONSTRAINT [UQ_ResetPasswordToken_HashedToken] UNIQUE NONCLUSTERED,
+
+        [Salt] BINARY(64) NOT NULL,
+
+        [ExpireTime] DATETIME NOT NULL
+);
