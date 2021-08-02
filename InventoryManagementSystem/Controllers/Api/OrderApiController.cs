@@ -138,7 +138,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 OpenReportCount = o.OrderDetails
                     .SelectMany(od => od.Reports)
-                    .Where(r => r.CloseTime != null)
+                    .Where(r => r.CloseTime == null)
                     .Count(),
 
                 OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel

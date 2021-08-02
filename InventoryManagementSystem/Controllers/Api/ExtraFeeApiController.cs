@@ -28,8 +28,8 @@ namespace InventoryManagementSystem.Controllers.Api
          * input:
          *      {
          *          "orderDetailId": "...",
-         *          "fee": 0,
-         *          "description": "..."
+         *          "fee": 0,必填
+         *          "description": "..."描述罰金非必填
          *      }
          * 
          * output:
