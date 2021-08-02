@@ -12,6 +12,7 @@ namespace InventoryManagementSystem.Models.EF
         public string Description { get; set; }
         public DateTime? ReportTime { get; set; }
         public DateTime? CloseTime { get; set; }
+        public int ReportSn { get; set; }
 
         public virtual OrderDetail OrderDetail { get; set; }
     }

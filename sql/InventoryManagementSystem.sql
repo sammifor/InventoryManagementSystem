@@ -335,6 +335,9 @@ CREATE TABLE [Report](
         [OrderDetailID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Report_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
 
+        [ReportSN] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [UQ_Report_ReportSN] UNIQUE CLUSTERED,
+
         [Description] NVARCHAR(100) NOT NULL,
 
         [ReportTime] DATETIME
@@ -410,4 +413,18 @@ CREATE TABLE [ExtraFee](
         [Fee] DECIMAL NOT NULL,
 
         [Description] NVARCHAR(100)
+);
+
+CREATE TABLE [ResetPasswordToken](
+        [TokenID] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [PK_ResetPasswordToken] PRIMARY KEY CLUSTERED,
+
+        [UserID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [FK_ResetPasswordToken_User] FOREIGN KEY REFERENCES [User]([UserID])
+                CONSTRAINT [UQ_ResetPasswordToken_UserID] UNIQUE NONCLUSTERED,
+
+        [HashedToken] BINARY(64) NOT NULL
+                CONSTRAINT [UQ_ResetPasswordToken_HashedToken] UNIQUE NONCLUSTERED,
+
+        [ExpireTime] DATETIME NOT NULL
 );

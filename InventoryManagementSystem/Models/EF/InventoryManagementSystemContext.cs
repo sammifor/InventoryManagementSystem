@@ -37,6 +37,7 @@ namespace InventoryManagementSystem.Models.EF
         public virtual DbSet<PaymentOrder> PaymentOrders { get; set; }
         public virtual DbSet<Questionnaire> Questionnaires { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
+        public virtual DbSet<ResetPasswordToken> ResetPasswordTokens { get; set; }
         public virtual DbSet<Response> Responses { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<User> Users { get; set; }
@@ -670,6 +671,10 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.ToTable("Report");
 
+                entity.HasIndex(e => e.ReportSn, "UQ_Report_ReportSN")
+                    .IsUnique()
+                    .IsClustered();
+
                 entity.Property(e => e.ReportId)
                     .ValueGeneratedNever()
                     .HasColumnName("ReportID");
@@ -682,6 +687,10 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
 
+                entity.Property(e => e.ReportSn)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("ReportSN");
+
                 entity.Property(e => e.ReportTime)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
@@ -691,6 +700,36 @@ namespace InventoryManagementSystem.Models.EF
                     .HasForeignKey(d => d.OrderDetailId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Report_OrderDetail");
+            });
+
+            modelBuilder.Entity<ResetPasswordToken>(entity =>
+            {
+                entity.HasKey(e => e.TokenId);
+
+                entity.ToTable("ResetPasswordToken");
+
+                entity.HasIndex(e => e.HashedToken, "UQ_ResetPasswordToken_HashedToken")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.UserId, "UQ_ResetPasswordToken_UserID")
+                    .IsUnique();
+
+                entity.Property(e => e.TokenId).HasColumnName("TokenID");
+
+                entity.Property(e => e.ExpireTime).HasColumnType("datetime");
+
+                entity.Property(e => e.HashedToken)
+                    .IsRequired()
+                    .HasMaxLength(64)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.UserId).HasColumnName("UserID");
+
+                entity.HasOne(d => d.User)
+                    .WithOne(p => p.ResetPasswordToken)
+                    .HasForeignKey<ResetPasswordToken>(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ResetPasswordToken_User");
             });
 
             modelBuilder.Entity<Response>(entity =>

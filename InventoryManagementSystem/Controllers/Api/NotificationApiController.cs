@@ -23,16 +23,19 @@ namespace InventoryManagementSystem.Controllers.Api
     public class NotificationApiController : ControllerBase
     {
         private readonly InventoryManagementSystemContext _dbContext;
+        private readonly NotificationService _notificationService;
         private readonly NotificationConfig _notificaionConfig;
         private readonly LineConfig _lineConfig;
         private static HttpClient Client = new HttpClient();
 
         public NotificationApiController(
-            InventoryManagementSystemContext dbContext, 
-            IOptions<NotificationConfig> notificationConfig, 
-            IOptions<LineConfig> lineConfig)
+            InventoryManagementSystemContext dbContext,
+            IOptions<NotificationConfig> notificationConfig,
+            IOptions<LineConfig> lineConfig,
+            NotificationService notificationService)
         {
             _dbContext = dbContext;
+            _notificationService = notificationService;
             _notificaionConfig = notificationConfig.Value;
             _lineConfig = lineConfig.Value;
         }
@@ -73,85 +76,46 @@ namespace InventoryManagementSystem.Controllers.Api
                 })
                 .ToArrayAsync();
 
-            using(var smtpClient = new SmtpClient())
+            foreach(var user in usersWithOverdueOrder)
             {
-                await smtpClient.ConnectAsync(_notificaionConfig.Host, _notificaionConfig.Port, false);
-                await smtpClient.AuthenticateAsync(_notificaionConfig.User, _notificaionConfig.Pass);
-
-                foreach(var user in usersWithOverdueOrder)
+                #region Build text message
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("@{0} 您好：\n\n", user.Username);
+                foreach(var order in user.OverdueOrders)
                 {
-                    #region Build text message
-                    StringBuilder builder = new StringBuilder();
-                    builder.AppendFormat("@{0} 您好：\n\n", user.Username);
-                    foreach(var order in user.OverdueOrders)
-                    {
-                        builder.AppendFormat("您所租借的「{0}」仍有 {1} 筆尚未歸還。\n", order.EquipmentName, order.Number);
-                    }
-                    builder.Append("\n");
-                    builder.Append("請您儘速歸還，感謝您的配合。");
-
-                    string lineText = builder.ToString();
-
-                    builder.Append("<br>");
-                    builder.Replace("\n", "<br>");
-                    builder.Append("本信為系統自動發送，請勿直接回覆此信件。");
-                    builder.Insert(0, "<p>");
-                    builder.Append("</p>");
-                    string emailText = builder.ToString();
-                    #endregion
-
-                    #region Send Email
-                    var message = new MimeMessage();
-                    message.From.Add(new MailboxAddress(_notificaionConfig.Name, _notificaionConfig.User));
-                    message.To.Add(new MailboxAddress(user.FullName, user.Email));
-
-                    message.Subject = "逾期通知";
-
-
-                    message.Body = new TextPart("html")
-                    {
-                        Text = emailText
-                    };
-
-                    await smtpClient.SendAsync(message);
-                    #endregion
-
-                    #region Send Line Message
-                    // 有綁定 LINE 才傳送訊息
-                    if(string.IsNullOrWhiteSpace(user.LineId))
-                        continue;
-
-                    PushMessage pushMessage = new PushMessage
-                    {
-                        to = user.LineId,
-                        messages = new[]
-                        {
-                            new LineMessage
-                            {
-                                type = "text",
-                                text = lineText
-                            }
-                        }
-                    };
-
-                    HttpContent content = JsonContent.Create<PushMessage>(pushMessage);
-
-                    HttpRequestMessage request = new HttpRequestMessage();
-                    request.Method = new HttpMethod("POST");
-                    request.RequestUri = new Uri("https://api.line.me/v2/bot/message/push");
-                    request.Headers
-                        .Accept
-                        .Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _lineConfig.AccessToken);
-                    request.Content = content;
-                    await Client.SendAsync(request);
-
-                    #endregion
+                    builder.AppendFormat("您所租借的「{0}」仍有 {1} 筆尚未歸還。\n", order.EquipmentName, order.Number);
                 }
+                builder.Append("\n");
+                builder.Append("請您儘速歸還，感謝您的配合。");
 
-                if(smtpClient.IsConnected)
-                    await smtpClient.DisconnectAsync(true);
+                string lineText = builder.ToString();
+
+                builder.Append("<br>");
+                builder.Replace("\n", "<br>");
+                builder.Append("本信為系統自動發送，請勿直接回覆此信件。");
+                builder.Insert(0, "<p>");
+                builder.Append("</p>");
+                string emailText = builder.ToString();
+                #endregion
+
+                #region Send Email
+                await _notificationService.SendEmailNotification(
+                    user.FullName,
+                    user.Email,
+                    "逾期通知",
+                    "html",
+                    emailText);
+                #endregion
+
+                #region Send Line Message
+                // 有綁定 LINE 才傳送訊息
+                if(string.IsNullOrWhiteSpace(user.LineId))
+                    continue;
+
+                await _notificationService.SendLineNotification(user.LineId, lineText);
+                #endregion
             }
+
             return Ok();
         }
     }

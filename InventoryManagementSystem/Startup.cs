@@ -33,6 +33,9 @@ namespace InventoryManagementSystem {
             services.Configure<PaymentProviderConfig>(Configuration.GetSection("PaymentProvider"));
             services.Configure<NotificationConfig>(Configuration.GetSection("Notification"));
             services.Configure<LineConfig>(Configuration.GetSection("LINE"));
+
+            // TODO Interface
+            services.AddScoped<NotificationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

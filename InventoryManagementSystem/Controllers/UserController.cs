@@ -1,4 +1,5 @@
 ﻿using InventoryManagementSystem.Models.EF;
+using InventoryManagementSystem.Models.NotificationModels;
 using InventoryManagementSystem.Models.Password;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -12,6 +13,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace InventoryManagementSystem.Controllers
 {
@@ -43,10 +45,6 @@ namespace InventoryManagementSystem.Controllers
             }
 
             PBKDF2 hasher = new PBKDF2(password, user.Salt);
-            // To be removed
-            //byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-            //var hasher = this as IHashPassword;
-            //byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, user.Salt);
 
             if(hasher.HashedPassword.SequenceEqual(user.HashedPassword))
             {
@@ -86,6 +84,48 @@ namespace InventoryManagementSystem.Controllers
         public IActionResult BindLine()
         {
             return View();
+        }
+
+        [HttpGet("password/forget")]
+        public IActionResult ForgetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost("password/reset")]
+        public async Task<IActionResult> ResetPassword()
+        {
+            return View();
+        }
+
+        [HttpGet("/resetpassword")]
+        public async Task<IActionResult> ResetPassword(string token)
+        {
+            byte[] tokenBytes;
+            string errorMessage = "密碼重設連結格式不正確或已過期";
+            try
+            {
+                tokenBytes = Convert.FromBase64String(token);
+            }
+            catch
+            {
+                return BadRequest(errorMessage);
+            }
+
+            byte[] hashedToken = SHA512.HashData(tokenBytes);
+
+            ResetPasswordToken userToken = await _dbContext.ResetPasswordTokens
+                .Where(rpt => rpt.HashedToken.SequenceEqual(hashedToken))
+                .FirstOrDefaultAsync();
+
+            if(userToken == null || userToken.ExpireTime < DateTime.Now)
+            {
+                return BadRequest(errorMessage);
+            }
+
+            User user = await _dbContext.Users.FindAsync(userToken.UserId);
+
+            return Content("重設密碼網址建置中……");
         }
     }
 }
