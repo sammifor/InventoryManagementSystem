@@ -12,6 +12,7 @@ namespace InventoryManagementSystem.Models.ResultModels
         public Guid OrderDetailId { get; set; }
         public int OrderSn { get; set; }
         public int OrderDetailIdSn { get; set; }
+        public string ItemSn { get; set; }
         public string Description { get; set; }
         public DateTime? ReportTime { get; set; }
         public DateTime? CloseTime { get; set; }
