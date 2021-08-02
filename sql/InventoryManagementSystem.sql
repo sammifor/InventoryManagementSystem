@@ -423,7 +423,5 @@ CREATE TABLE [ResetPasswordToken](
         [HashedToken] BINARY(64) NOT NULL
                 CONSTRAINT [UQ_ResetPasswordToken_HashedToken] UNIQUE NONCLUSTERED,
 
-        [Salt] BINARY(64) NOT NULL,
-
         [ExpireTime] DATETIME NOT NULL
 );

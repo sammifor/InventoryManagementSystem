@@ -715,11 +715,6 @@ namespace InventoryManagementSystem.Models.EF
                     .HasMaxLength(64)
                     .IsFixedLength(true);
 
-                entity.Property(e => e.Salt)
-                    .IsRequired()
-                    .HasMaxLength(64)
-                    .IsFixedLength(true);
-
                 entity.Property(e => e.UserId).HasColumnName("UserID");
 
                 entity.HasOne(d => d.User)
