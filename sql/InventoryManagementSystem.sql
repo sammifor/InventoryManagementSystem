@@ -335,6 +335,9 @@ CREATE TABLE [Report](
         [OrderDetailID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Report_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
 
+        [ReportSN] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [UQ_Report_ReportSN] UNIQUE CLUSTERED,
+
         [Description] NVARCHAR(100) NOT NULL,
 
         [ReportTime] DATETIME

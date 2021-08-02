@@ -671,6 +671,10 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.ToTable("Report");
 
+                entity.HasIndex(e => e.ReportSn, "UQ_Report_ReportSN")
+                    .IsUnique()
+                    .IsClustered();
+
                 entity.Property(e => e.ReportId)
                     .ValueGeneratedNever()
                     .HasColumnName("ReportID");
@@ -682,6 +686,10 @@ namespace InventoryManagementSystem.Models.EF
                     .HasMaxLength(100);
 
                 entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
+
+                entity.Property(e => e.ReportSn)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("ReportSN");
 
                 entity.Property(e => e.ReportTime)
                     .HasColumnType("datetime")
