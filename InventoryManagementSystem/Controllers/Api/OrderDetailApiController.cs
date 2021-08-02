@@ -208,6 +208,21 @@ namespace InventoryManagementSystem.Controllers.Api
             Item item = await _dbContext.Items.FindAsync(detail.ItemId);
             item.ConditionId = "L"; // LOST
 
+
+            // 若東西全部都歸還、報遺失了，直接把這筆 order 歸類為已結束
+            var details = _dbContext.OrderDetails
+                .Where(od => od.OrderId == detail.OrderId)
+                .AsEnumerable();
+
+            bool allReturned = details
+                .All(od => od.OrderDetailStatusId != "T");
+
+            if(allReturned)
+            {
+                Order order = await _dbContext.Orders.FindAsync(detail.OrderId);
+                order.OrderStatusId = "E";
+            }
+
             // Get AdminID
             string adminIdString = User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
