@@ -10,6 +10,7 @@
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
 
+
 <div id="app">
     <b-card>
         <b-tabs v-model="tabIndex" content-class="mt-3" fill>
@@ -31,8 +32,8 @@
                                 <th>付款期限</th>
                             </tr>
                         </thead>
-                        <tbody> 
-                            <tr v-for="od in unPaidOd" >
+                        <tbody>
+                            <tr v-for="od in unPaidOd">
                                 <td><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od"><i class="form-icon"></i></td>
                                 <td>{{od.orderSn}}</td>
                                 <td>{{od.equipmentSn}}</td>
@@ -71,7 +72,7 @@
                         </thead>
                         <tbody>
                             <template v-for="od in extraFeeOds">
-                                
+
                                 <tr v-if="od.totalExtraFee !== 0">
                                     <td><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od.paymentId" @@click="selectExtraFeeOd(od.paymentId)"><i class="form-icon"></i></td>
                                     <td>{{od.orderSn}}</td>
@@ -301,6 +302,8 @@
             </div>
         </div>
     </div>
+
+
 </div>
 
 <script>
@@ -342,17 +345,13 @@
 
 
         created() {
+
+            //跟GetOrders API要待付款資料
+            this.fetchOrderData();
+            //跟Payment API要額外金額&已結清資料
+            this.fetchPaymentData();
             
-        //跟GetOrders API要待付款資料
-        this.fetchOrderData();
-
-        //跟Payment API要額外金額&已結清資料
-        this.fetchPaymentData();
-
-        //分配剛送來的payment資料
-        this.paymentDataArrange();
-
-    },
+        },
 
         methods: {
 
@@ -416,9 +415,13 @@
                     })
             },
 
-            paymentDataArrange: function(){
+           
 
-                this.paymentRawData.forEach(x => {
+            loadPaymentData: async function () {
+
+                if (this.finishOds.length ==0 && this.extraFeeOds.length == 0) {
+                //分配Item資料
+                 await this.paymentRawData.forEach(x => {
                     if (x.completed) {
                         for (let i = 0; i < x.orders.length; i++) {
                             this.finishOds.push(x.orders[i]);
@@ -429,40 +432,26 @@
                         }
                     }
                 })
-            },
-
-            loadPaymentData:  function () {
 
                 //幫extraFeeOds撈paymentId, payTime, totalExtraFee資料
                 this.extraFeeOds.forEach(od => {
-                        let index = this.paymentRawData.findIndex(element => element.orders.includes(od))
-                        od["paymentId"] = this.paymentRawData[index].paymentId
-                        this.paymentRawData[index].paymentDetails.forEach(pd => {
-                            if (pd.paymentDetailSn.substring(0, 1) == 0) {
-                                od["rentalFee_payTime"] = pd.payTime
-                            } else {
-                                od["extraFee_payTime"] = pd.payTime
-                            }
-                        })
-                        var totalExtraFeeArr = []
-                        od.extraFees.forEach(e => {
-                            totalExtraFeeArr.push(e.fee);
-                        })
-                        var reducer = (accumulator, currentValue) => accumulator + currentValue;
-                        od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
-                        
-                 })
-                   
+                    let index = this.paymentRawData.findIndex(element => element.orders.includes(od))
+                    od["paymentId"] = this.paymentRawData[index].paymentId
+                    this.paymentRawData[index].paymentDetails.forEach(pd => {
+                        if (pd.paymentDetailSn.substring(0, 1) == 0) {
+                            od["rentalFee_payTime"] = pd.payTime
+                        } else {
+                            od["extraFee_payTime"] = pd.payTime
+                        }
+                    })
+                    var totalExtraFeeArr = [0]
+                    od.extraFees.forEach(e => {
+                        totalExtraFeeArr.push(e.fee);
+                    })
+                    var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                    od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
 
-                //踢掉extraFeeOds裡面totalExtrafee為0的order並放到finishOds裡面
-                this.extraFeeOds.forEach(od => {
-                      if (od.totalExtraFee === 0) {
-                        let index = this.extraFeeOds.indexOf(od);
-                        this.finishOds.push(this.extraFeeOds[index]);
-                        this.extraFeeOds.splice(index, 1);
-                        }  
-                 })
-                
+                })
 
                 /*幫finishOds撈paymentId, payTime, totalExtraFee資料*/
                 this.finishOds.forEach(od => {
@@ -475,7 +464,7 @@
                             od["extraFee_payTime"] = pd.payTime
                         }
                     })
-                    var totalExtraFeeArr = []
+                    var totalExtraFeeArr = [0]
                     od.extraFees.forEach(e => {
                         totalExtraFeeArr.push(e.fee);
                     })
@@ -483,141 +472,152 @@
                     od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
                 })
 
+                //踢掉extraFeeOds裡面totalExtrafee為0的order並放到finishOds裡面
+                this.extraFeeOds.forEach(od => {
+                    if (od.totalExtraFee === 0) {
+                        let index = this.extraFeeOds.indexOf(od);
+                        this.finishOds.push(this.extraFeeOds[index]);
+                        this.extraFeeOds.splice(index, 1);
+                    }
+                })
+                }
 
             },
 
-        paymentDetailCheck: function (paymentSn) {
-            let index = this.paymentDetail.indexOf(paymentSn);
-            if (index > -1) {
-                this.paymentDetail.splice(index, 1)
-            } else {
-                this.paymentDetail = []
-                this.paymentDetail.push(paymentSn)
-            }
-        },
+            paymentDetailCheck: function (orderSn) {
+                let index=this.paymentDetail.indexOf(orderSn)
+                if (index > -1) {
 
-        selectAllAction: function () {
-            this.selected = [];
-            if (!this.selectAll) {
-                for (let i = 0; i < this.unPaidOd.length; i++) {
-                    this.selected.push(this.unPaidOd[i]);
+                    this.paymentDetail.splice(index,1)
+
+                } else {
+                    this.paymentDetail = []
+                    this.paymentDetail.push(orderSn)
+                }
+            },
+
+            selectAllAction: function () {
+                this.selected = [];
+                if (!this.selectAll) {
+                    for (let i = 0; i < this.unPaidOd.length; i++) {
+                        this.selected.push(this.unPaidOd[i]);
+                    }
+
+                }
+            },
+
+            confirmAmount: async function () {
+
+                this.clearMpgInfo;
+                this.requestData = {};
+                if (this.tabIndex == 0) {
+
+                    this.requestData = {
+                        isRentalFee: true,
+                        orderIDs: []
+                    }
+                    this.selected.forEach(order => {
+                        this.requestData.orderIDs.push(order.orderId);
+                    })
+                } else if (this.tabIndex == 1) {
+
+                    this.requestData = {
+                        isRentalFee: false,
+                        orderIDs: ["b875a510-ee2b-4c4d-9dd0-030682b27e08"],
+                        paymentID: ""
+                    };
+                    this.selected.forEach(paymentId => {
+                        this.requestData.paymentID = paymentId
+                    })
+                } else {
+
+                    console.log(error);
+
                 }
 
-            }
-        },
 
-        confirmAmount: async function () {
+                let response = await fetch("/api/payment", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(this.requestData)
+                })
 
-            this.clearMpgInfo;
-            this.requestData = {};
-            if (this.tabIndex == 0) {
-
-                this.requestData = {
-                    isRentalFee: true,
-                    orderIDs: []
+                if (!response.ok) {
+                    alert("付款資料讀取失敗");
+                    return;
                 }
-                this.selected.forEach(order => {
-                    this.requestData.orderIDs.push(order.orderId);
-                })
-            } else if (this.tabIndex == 1) {
 
-                this.requestData = {
-                    isRentalFee: false,
-                    orderIDs: ["b875a510-ee2b-4c4d-9dd0-030682b27e08"],
-                    paymentID: ""
-                };
-                this.selected.forEach(paymentId => {
-                    this.requestData.paymentID = paymentId
-                })
-            } else {
+                this.mpgInfo = await response.json()
+            },
 
-                console.log(error);
+            clearMpgInfo: function () {
 
+                this.mpgInfo.merchantId = "";
+                this.mpgInfo.tradeInfo = "";
+                this.mpgInfo.tradeSha = "";
+                this.mpgInfo.version = "";
+                this.mpgInfo.totalPrice = 0
+            },
+
+            selectExtraFeeOd(paymentId) {
+                this.selected = []
+                this.selected.push(paymentId)
             }
 
-
-            let response = await fetch("/api/payment", {
-                method: "POST",
-                headers: {
-                    "content-type": "application/json"
-                },
-                body: JSON.stringify(this.requestData)
-            })
-
-            if (!response.ok) {
-                alert("付款資料讀取失敗");
-                return;
-            }
-
-            this.mpgInfo = await response.json()
         },
-
-        clearMpgInfo: function () {
-
-            this.mpgInfo.merchantId = "";
-            this.mpgInfo.tradeInfo = "";
-            this.mpgInfo.tradeSha = "";
-            this.mpgInfo.version = "";
-            this.mpgInfo.totalPrice = 0
-        },
-
-        selectExtraFeeOd(paymentId) {
-            this.selected = []
-            this.selected.push(paymentId)
-        }
-
-    },
 
         computed: {
 
-        countTotalPrice() {
-            var cashTotalPrice = 0
-            var totalPrice = [0]
-            this.selected.forEach(od => {
+            countTotalPrice() {
+                var cashTotalPrice = 0
+                var totalPrice = [0]
+                this.selected.forEach(od => {
 
-                var orderPrice = od.unitPrice * od.quantity * od.day;
-                totalPrice.push(orderPrice);
-            })
+                    var orderPrice = od.unitPrice * od.quantity * od.day;
+                    totalPrice.push(orderPrice);
+                })
 
-            var reducer = (accumulator, currentValue) => accumulator + currentValue;
-            return cashTotalPrice = totalPrice.reduce(reducer);
+                var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                return cashTotalPrice = totalPrice.reduce(reducer);
 
-        },
+            },
 
-        isLoadingTradeInfo() {
-            return this.mpgInfo.merchantID === "" ||
-                this.mpgInfo.tradeInfo === "" ||
-                this.mpgInfo.tradeSha === "" ||
-                this.mpgInfo.version === "";
-        },
+            isLoadingTradeInfo() {
+                return this.mpgInfo.merchantID === "" ||
+                    this.mpgInfo.tradeInfo === "" ||
+                    this.mpgInfo.tradeSha === "" ||
+                    this.mpgInfo.version === "";
+            },
 
-        noItemSelected() {
-            return this.selected.length <= 0;
-        },
+            noItemSelected() {
+                return this.selected.length <= 0;
+            },
 
 
-        countExtraFeePrice() {
+            countExtraFeePrice() {
 
-            var cashExtraFee = 0;
-            var countTotalFee = [0];
-            var selectOd = []
-            selectOd = this.extraFeeOds.filter(x => x.paymentId == this.selected)
-            if (selectOd.length > 1) {
+                var cashExtraFee = 0;
+                var countTotalFee = [0];
+                var selectOd = []
+                selectOd = this.extraFeeOds.filter(x => x.paymentId == this.selected)
+                if (selectOd.length > 1) {
 
-                this.notify = true;
-            } else {
+                    this.notify = true;
+                } else {
 
-                this.notify = false;
+                    this.notify = false;
+                }
+                selectOd.forEach(od => {
+
+                    countTotalFee.push(od.totalExtraFee)
+                })
+                var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                return cashExtraFee = countTotalFee.reduce(reducer);
+
             }
-            selectOd.forEach(od => {
-
-                countTotalFee.push(od.totalExtraFee)
-            })
-            var reducer = (accumulator, currentValue) => accumulator + currentValue;
-            return cashExtraFee = countTotalFee.reduce(reducer);
-
         }
-    }
 
     })
 
