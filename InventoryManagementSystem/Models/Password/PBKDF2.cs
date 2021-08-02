@@ -13,9 +13,9 @@ namespace InventoryManagementSystem.Models.Password
 
         private const int ITERATION_COUNT = 200000;
 
-        private static RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-
         private byte[] _salt;
+
+        private HashAlgorithmName hashAlgorithmName = HashAlgorithmName.SHA512;
 
         private byte[] _hashedPassword;
 
@@ -38,21 +38,21 @@ namespace InventoryManagementSystem.Models.Password
         {
             if(salt == null)
             {
-                _salt = new byte[BYTE_SIZE];
-
-                #region Generate Salt
-                rng.GetBytes(_salt);
-                #endregion
+                using(Rfc2898DeriveBytes rfc2898 = new Rfc2898DeriveBytes(password, BYTE_SIZE, ITERATION_COUNT, hashAlgorithmName))
+                {
+                    _hashedPassword = rfc2898.GetBytes(BYTE_SIZE);
+                    _salt = rfc2898.Salt;
+                }
             }
             else
             {
-                _salt = salt;
+                using(Rfc2898DeriveBytes rfc2898 = new Rfc2898DeriveBytes(password, salt, ITERATION_COUNT, hashAlgorithmName))
+                {
+                    _hashedPassword = rfc2898.GetBytes(BYTE_SIZE);
+                    _salt = salt;
+                }
             }
 
-            using(Rfc2898DeriveBytes rfc2898 = new Rfc2898DeriveBytes(password, Salt, ITERATION_COUNT, HashAlgorithmName.SHA512))
-            {
-                _hashedPassword = rfc2898.GetBytes(BYTE_SIZE);
-            }
         }
 
     }

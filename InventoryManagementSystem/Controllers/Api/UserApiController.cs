@@ -1,11 +1,13 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.LINE;
+using InventoryManagementSystem.Models.NotificationModels;
 using InventoryManagementSystem.Models.Password;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,8 +20,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace InventoryManagementSystem.Controllers.Api
 {
@@ -28,12 +32,17 @@ namespace InventoryManagementSystem.Controllers.Api
     public class UserApiController : ControllerBase
     {
         private readonly InventoryManagementSystemContext _dbContext;
+        private readonly NotificationService notificationService;
         private readonly LineConfig _lineConfig;
 
-        public UserApiController(InventoryManagementSystemContext dbContext, IOptions<LineConfig> config)
+        public UserApiController(
+            InventoryManagementSystemContext dbContext, 
+            IOptions<LineConfig> lineConfig, 
+            NotificationService notificationService)
         {
             _dbContext = dbContext;
-            _lineConfig = config.Value;
+            this.notificationService = notificationService;
+            _lineConfig = lineConfig.Value;
         }
 
         /* method: GET
@@ -566,6 +575,99 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 return Ok();
             }
+        }
+
+        [HttpPost("sendresetlink")]
+        public async Task<IActionResult> SendResetLink([FromForm] string email)
+        {
+            #region 確認此 User 真的存在
+            var user = await _dbContext.Users
+                .Where(u => u.Email == email)
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.Username,
+                    u.FullName,
+                    u.Email
+                })
+                .FirstOrDefaultAsync();
+
+            if(user == null)
+            {
+                return Ok();
+            }
+            #endregion
+
+            #region 先把此 User 先前產生的 Token 移除
+            var rpts = await _dbContext.ResetPasswordTokens
+                .Where(rpt => rpt.UserId == user.UserId)
+                .ToArrayAsync();
+
+            _dbContext.ResetPasswordTokens.RemoveRange(rpts);
+            #endregion
+
+            string token;
+            byte[] hashedToken;
+            #region 產生有時效性的 Token
+            using(RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                byte[] tokenBytes = new byte[128];
+                rng.GetBytes(tokenBytes);
+
+                string base64 = Convert.ToBase64String(tokenBytes);
+                token = HttpUtility.UrlEncode(base64);
+
+                hashedToken = SHA512.HashData(tokenBytes);
+            }
+            #endregion
+
+            #region 在 ResetPasswordToken Table 新增一筆資料記錄此 Token
+            ResetPasswordToken resetPasswordToken = new ResetPasswordToken
+            {
+                UserId = user.UserId,
+                ExpireTime = DateTime.Now.AddMinutes(15),
+                HashedToken = hashedToken
+            };
+
+            _dbContext.ResetPasswordTokens.Add(resetPasswordToken);
+            #endregion
+
+            #region 更新資料庫
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict("資料庫更新失敗");
+            }
+            #endregion
+
+            string resetPasswordURL = $"{Request.Scheme}://{Request.Host}/resetpassword?token={token}";
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append("<p>");
+            builder.AppendFormat("@{0} 您好：", user.Username);
+            builder.Append("<br><br>");
+            builder.AppendFormat("這是您的重設密碼連結：");
+            builder.Append("<br>");
+            builder.AppendFormat("<a href='{0}'>{0}</a>", resetPasswordURL);
+            builder.Append("<br>");
+            builder.Append("此連結有效時間為 15 分鐘。");
+            builder.Append("<br>");
+            builder.Append("本信為系統自動發送，請勿直接回覆此郵件。");
+            builder.Append("</p>");
+
+            string emailText = builder.ToString();
+
+            await notificationService.SendEmailNotification(
+                user.FullName,
+                user.Email,
+                "重設密碼",
+                "html",
+                emailText);
+
+            return Ok();
         }
     }
 }
