@@ -18,7 +18,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>訂單ID</th>
+                                <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
@@ -49,7 +49,7 @@
             </b-tab>
 
             <!-- 待付款 -->
-            <b-tab title="待付款">
+            <b-tab title="待付款" @@click="loadData_tab1">
                 <div>
                     <table class="table table-hover">
                         <thead>
@@ -101,13 +101,13 @@
             </b-tab>
 
             <!-- 待領取 -->
-            <b-tab title="待領取">
+            <b-tab title="待領取" @@click="loadData_tab2">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>清單</th>
-                                <th>訂單ID</th>
+                                <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
@@ -150,13 +150,13 @@
             </b-tab>
 
             <!-- 租借中 -->
-            <b-tab title="租借中">
+            <b-tab title="租借中" @@click="loadData_tab3">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>清單</th>
-                                <th>訂單ID</th>
+                                <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
@@ -171,7 +171,7 @@
                         <tbody>
                             <template v-for="order in orders_3">
                                 <tr>
-                                    <td><i class="fa fa-bars" @@click="toggle(order.orderId)"></i></td>
+                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
                                     <td>{{order.orderSn}}</td>
                                     <td>{{order.equipmentSn}}</td>
                                     <td>{{order.equipmentName}}</td>
@@ -199,13 +199,13 @@
             </b-tab>
 
             <!-- 已結束 -->
-            <b-tab title="已結束">
+            <b-tab title="已結束" @@click="loadData_tab4">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>清單</th>
-                                <th>訂單ID</th>
+                                <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
@@ -219,7 +219,7 @@
                         <tbody>
                             <template v-for="order in orders_4">
                                 <tr>
-                                    <td><i class="fa fa-bars" @@click="toggle(order.orderId)"></i></td>
+                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
                                     <td>{{order.orderSn}}</td>
                                     <td>{{order.equipmentSn}}</td>
                                     <td>{{order.equipmentName}}</td>
@@ -227,7 +227,7 @@
                                     <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
                                     <td>{{order.day}}</td>
                                     <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                    <td>已歸還</td>
+                                    <td><span v-if="order.orderDetails.length == 0">逾期未領取</span><span v-else >已結束</span></td>
                                     <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
                                 </tr>
                                 <tr v-if="opened.includes(order.orderId)">
@@ -246,13 +246,13 @@
             </b-tab>
 
             <!-- 已逾期 -->
-            <b-tab title="已逾期">
+            <b-tab title="已逾期" @@click="loadData_tab5">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>清單</th>
-                                <th>訂單ID</th>
+                                <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
@@ -267,7 +267,7 @@
                         <tbody>
                             <template v-for="order in orders_5">
                                 <tr>
-                                    <td><i class="fa fa-bars" @@click="toggle(order.orderId)"></i></td>
+                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
                                     <td>{{order.orderSn}}</td>
                                     <td>{{order.equipmentSn}}</td>
                                     <td>{{order.equipmentName}}</td>
@@ -311,7 +311,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label class="col-form-label">訂單編號</label>
-                            <input type="text" class="form-control" :value="currentOrder.orderId" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.orderSn" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">設備名稱</label>
@@ -329,15 +329,15 @@
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">物品序號</label>
-                            <select class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)" v-model="reportOrder.reportItemSn">
+                            <select required class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)" v-model="reportOrder.reportItemSn">
                                 <option disabled selected>請先選擇序號</option>
-                                <option v-for="eachOrderDetails in currentOrder.orderDetails" :value="eachOrderDetails.itemSn">{{eachOrderDetails.itemSn}}</option>
+                                <option v-for="itemSn in reportOrder.reportItemList" :value="itemSn">{{itemSn}}</option>
                             </select>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <a :href="reportUrl" class="btn btn-primary active" role="button" aria-pressed="true">填寫設備報修申請</a>
+                        <b-btn class="btn btn-primary active" :href="reportUrl" :disabled="cannotReport">填寫設備報修申請</b-btn>                    
                     </div>
                 </div>
             </div>
@@ -359,7 +359,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label class="col-form-label">訂單編號</label>
-                            <input type="text" class="form-control" :value="currentOrder.orderId" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.orderSn" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">設備名稱</label>
@@ -397,7 +397,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" @@click="cancelConfirm($event)">確定</button>
+                        <b-btn type="button" class="btn btn-primary" @@click="cancelConfirm($event)" :disabled="cannotCancel">確定</b-btn>
                     </div>
                 </div>
             </div>
@@ -485,6 +485,7 @@
             orders_4: [],
             orders_5: [],
             currentOrder: {
+                
 
             },
             cancelOrder: {
@@ -494,7 +495,8 @@
 
             reportOrder: {
                 reportItemSn: "",
-                reportOrderDetailId: ""
+                reportOrderDetailId: "",
+                reportItemList: []
 
             },
             reportUrl: "",
@@ -532,28 +534,8 @@
                 }).then(response => {
 
                     this.orders = response;
-                    this.orders.forEach(order => {
-                        switch (order.tabName) {
-                            case "待核可":
-                                this.orders_0.push(order);
-                                break;
-                            case "待付款":
-                                this.orders_1.push(order);
-                            case "待領取":
-                                this.orders_2.push(order);
-                                break;
-                            case "租借中":
-                                this.orders_3.push(order);
-                                break;
-                            case "已結束":
-                                this.orders_4.push(order);
-                                break;
-                            case "已逾期":
-                                this.orders_5.push(order);
-                                break;
-                        }
-                    });
-
+                    this.orders_0 = this.orders.filter(od => od.tabName === "待核可");
+   
                 }).catch(error => {
                     alert("資料庫連線失敗");
                     console.log(error);
@@ -564,6 +546,33 @@
 
 
         methods: {
+            loadData_tab1: function () {
+
+                this.orders_1 = this.orders.filter(od => od.tabName === "待付款");
+
+            },
+            loadData_tab2: function () {
+
+                this.orders_2 = this.orders.filter(od => od.tabName === "待領取");
+
+            },
+            loadData_tab3: function () {
+
+                this.orders_3 = this.orders.filter(od => od.tabName === "租借中");
+
+            },
+
+            loadData_tab4: function () {
+
+                this.orders_4 = this.orders.filter(od => od.tabName === "已結束");
+
+            },
+
+            loadData_tab5: function () {
+
+                this.orders_5 = this.orders.filter(od => od.tabName === "已逾期");
+
+            },
 
             cancelOrderAction: function (orderData) {
                 this.currentOrder = orderData;
@@ -571,7 +580,7 @@
             },
 
             cancelConfirm: function () {
-
+  
                 let requestData = {
                     orderID: this.currentOrder.orderId,
                     description: this.cancelOrder.cancelDiscription
@@ -602,7 +611,19 @@
             },
 
             reportAction: function (orderData) {
+
                 this.currentOrder = orderData;
+                if (this.reportOrder.reportItemList.length == 0) {
+                this.currentOrder.orderDetails.forEach(od => {
+
+                    if (od.orderDetailStatusId == "T") {
+
+                        this.reportOrder.reportItemList.push(od.itemSn);
+
+                    }
+
+                })
+                }
             },
 
             selectReportItem: function (orderDetailData) {
@@ -622,6 +643,7 @@
             },
 
             confirmAmount: async function () {
+
                 let requestData = {
                     isRentalFee: true,
                     orderIDs: []
@@ -689,6 +711,17 @@
 
             noItemSelected() {
                 return this.selected.length <= 0;
+            },
+
+            cannotCancel() {
+                return this.cancelOrder.cancelDiscription==""
+
+            },
+
+            cannotReport() {
+
+                return this.reportOrder.reportItemSn ==""
+
             }
         }
     })

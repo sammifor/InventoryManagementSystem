@@ -8,13 +8,15 @@
 <script src="https://unpkg.com/vue"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
 
 <div id="app">
     <b-card>
-        <b-tabs content-class="mt-3" fill>
+        <b-tabs v-model="tabIndex" content-class="mt-3" fill>
             <!-- 未付款 -->
             <b-tab title="待付款" active>
-                <div>
+                <div v-if="loading"><p>資料載入中</p></div>
+                <div v-if="loading==false">
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -29,8 +31,8 @@
                                 <th>付款期限</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr v-for="od in unPaidOd">
+                        <tbody> 
+                            <tr v-for="od in unPaidOd" >
                                 <td><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od"><i class="form-icon"></i></td>
                                 <td>{{od.orderSn}}</td>
                                 <td>{{od.equipmentSn}}</td>
@@ -52,7 +54,7 @@
             </b-tab>
 
             <!-- 額外費用 -->
-            <b-tab title="額外費用">
+            <b-tab title="額外費用" @@click="loadPaymentData">
                 <div>
                     <table class="table">
                         <thead>
@@ -69,6 +71,7 @@
                         </thead>
                         <tbody>
                             <template v-for="od in extraFeeOds">
+                                
                                 <tr v-if="od.totalExtraFee !== 0">
                                     <td><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od.paymentId" @@click="selectExtraFeeOd(od.paymentId)"><i class="form-icon"></i></td>
                                     <td>{{od.orderSn}}</td>
@@ -109,14 +112,15 @@
                         </tbody>
                     </table>
                     <b-btn variant="danger"
+                           @@click="confirmAmount"
                            :disabled="noItemSelected"
                            data-toggle="modal"
-                           data-target="#confirmExtraFeeModal">結帳 (總金額: {{countExtraFeePrice}})</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
+                           data-target="#confirmAmountModal">結帳 (總金額: {{countExtraFeePrice}})</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
                 </div>
             </b-tab>
 
             <!-- 已結清 -->
-            <b-tab title="已結清">
+            <b-tab title="已結清" @@click="loadPaymentData">
                 <div>
                     <table class="table">
                         <thead>
@@ -237,7 +241,7 @@
     </div>
 
     <!--額外金額結帳Modal-->
-   
+
     <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -307,8 +311,8 @@
 
         el: '#app',
         data: {
-            orders:[],
-            unPaidOd:[],
+            orders: [],
+            unPaidOd: [],
             paidOd: [],
             paymentDetail: [],
             selectAll: false,
@@ -320,433 +324,300 @@
                 version: "",
                 totalPrice: 0
             },
-            paymentRawData:[
-              
-                {
-                    paymentId: "e157a191-dbb8-49ee-a0d0-71e77a4145e4",
-                    paymentSn: "2F4B1155FABT",
-                    rentalFee: 600,
-                    extraFee: 70,
-                    received: 600,
-                    outstandingBalance: 70,
-                    orders: [
-                        {
-                            orderId: "ff57d9b4-c2ce-4088-9dad-73196a2a37b7",
-                            orderSn: 1,
-                            quantity: 2,
-                            orderTime: "2021-07-29T08:32:28.77",
-                            equipmentSn: "SN16",
-                            equipmentName: "掃把",
-                            brand: "Brand9",
-                            model: "Brand9",
-                            price: 200,
-                            extraFees: [
-                                {
-                                    itemSn: "",
-                                    orderDetailSn: "",
-                                    fee: 0,
-                                    description: ""
-                                }
-                            ],
-                            statusName: "已成立"
-                        },
-
-                        {
-                            orderId: "ff57d9b4-c2ce-4088-9dad-73196a2a37b8",
-                            orderSn: 2,
-                            quantity: 2,
-                            orderTime: "2021-07-29T08:32:28.77",
-                            equipmentSn: "SN16",
-                            equipmentName: "掃把",
-                            brand: "Brand9",
-                            model: "Brand9",
-                            price: 200,
-                            extraFees: [
-                                {
-                                    itemSn: "SN88",
-                                    orderDetailSn: "1",
-                                    fee: 30,
-                                    description: "逾期"
-                                }
-                            ],
-                            statusName: "已成立"
-                        },
-                        {
-                            orderId: "ff57d9b4-c2ce-4088-9dad-73196a2a37b3",
-                            orderSn: 6,
-                            quantity: 2,
-                            orderTime: "2021-07-29T08:32:28.77",
-                            equipmentSn: "SN16",
-                            equipmentName: "掃把",
-                            brand: "Brand9",
-                            model: "Brand9",
-                            price: 200,
-                            extraFees: [
-                                {
-                                    itemSn: "SN77",
-                                    orderDetailSn: "3",
-                                    fee: 40,
-                                    description: "逾期"
-                                }
-                            ],
-                            statusName: "已成立"
-                        }
-                    ],
-                    paymentDetails: [
-                        {
-                            paymentDetailId: "bae925e1-eb29-49c2-8e76-2fcff1921e98",
-                            paymentDetailSn: "000012107290847422",
-                            amountPaid: 600,
-                            payTime: "2021-07-06T16:47:54"
-                        }
-                    ],
-                    completed: false
-                },
-                {
-                    paymentId: "e157a191-dbb8-49ee-a0d0-71e77a4145e3",
-                    paymentSn: "2F4B1155FABD",
-                    rentalFee: 600,
-                    extraFee: 120,
-                    received: 720,
-                    outstandingBalance: 0,
-                    orders: [
-                        {
-                            orderId: "ff57d9b4-c2ce-4088-9dad-73196a2a37b1",
-                            orderSn: 3,
-                            quantity: 2,
-                            orderTime: "2021-07-29T08:32:28.77",
-                            equipmentSn: "SN16",
-                            equipmentName: "掃把",
-                            brand: "Brand9",
-                            model: "Brand9",
-                            price: 200,
-                            extraFees: [
-                                {
-                                    itemSn: "",
-                                    orderDetailSn: "",
-                                    fee: 0,
-                                    description: ""
-                                }
-                            ],
-                            statusName: "已成立"
-                        },
-
-                        {
-                            orderId: "ff57d9b4-c2ce-4088-9dad-73196a2a37b2",
-                            orderSn: 4,
-                            quantity: 2,
-                            orderTime: "2021-07-29T08:32:28.77",
-                            equipmentSn: "SN16",
-                            equipmentName: "掃把",
-                            brand: "Brand9",
-                            model: "Brand9",
-                            price: 200,
-                            extraFees: [
-                                {
-                                    itemSn: "SN88",
-                                    orderDetailSn: "1",
-                                    fee: 30,
-                                    description: "逾期"
-                                }
-                            ],
-                            statusName: "已成立"
-                        },
-                        {
-                            orderId: "ff57d9b4-c2ce-4088-9dad-73196a2a37b3",
-                            orderSn: 5,
-                            quantity: 2,
-                            orderTime: "2021-07-29T08:32:28.77",
-                            equipmentSn: "SN16",
-                            equipmentName: "掃把",
-                            brand: "Brand9",
-                            model: "Brand9",
-                            price: 200,
-                            extraFees: [
-                                {
-                                    "itemSn": "SN89",
-                                    "orderDetailSn": "2",
-                                    "fee": 40,
-                                    "description": "遺失"
-                                },
-                                {
-                                    "itemSn": "SN90",
-                                    "orderDetailSn": "3",
-                                    "fee": 50,
-                                    "description": "毀損"
-                                }
-                            ],
-                            statusName: "已成立"
-                        }
-                    ],
-                    paymentDetails: [
-                        {
-                            paymentDetailId: "bae925e1-eb29-49c2-8e76-2fcff1921e99",
-                            paymentDetailSn: "000012107290847421",
-                            amountPaid: 600,
-                            payTime: "2021-07-01T16:47:54"
-                        },
-
-                        {
-                            paymentDetailId: "bae925e1-eb29-49c2-8e76-2fcff1921e99",
-                            paymentDetailSn: "900012107290847421",
-                            amountPaid: 120,
-                            payTime: "2021-07-02T16:47:54"
-                        }
-                    ],
-                    completed: true
-                },
-                {
-                    paymentId: "e157a191-dbb8-49ee-a0d0-71e77a4145e2",
-                    paymentSn: "2F4B1155FABD",
-                    rentalFee: 200,
-                    extraFee: 60,
-                    received: 200,
-                    outstandingBalance: 60,
-                    orders: [
-                        {
-                            orderId: "ff57d9b4-c2ce-4088-9dad-73196a2a37b5",
-                            orderSn: 7,
-                            quantity: 2,
-                            orderTime: "2021-07-29T08:32:28.77",
-                            equipmentSn: "SN16",
-                            equipmentName: "掃把",
-                            brand: "Brand9",
-                            model: "Brand9",
-                            price: 200,
-                            extraFees: [
-                                {
-                                    itemSn: "SN66",
-                                    orderDetailSn: "4",
-                                    fee: 60,
-                                    description: "破壞"
-                                }
-                            ],
-                            statusName: "已成立"
-                        }
-                    ],
-                    paymentDetails: [
-                        {
-                            paymentDetailId: "cae925e1-eb29-49c2-8e76-2fcff1921e99",
-                            paymentDetailSn: "000012107290847421",
-                            amountPaid: 200,
-                            payTime: "2021-07-07T16:47:54"
-                        }
-                    ],
-                    completed: false
-                }
-            ],
+            paymentRawData: [],
             extraFeeOds: [],
             finishOds: [],
             payTimes: [],
-            notify:false
+            notify: false,
+            tabIndex: 0,
+            requestData: {},
+            loading: false
 
         },
+
+        watch: {
+            // call again the method if the route changes
+            $route: 'fetchOrderData'
+        },
+
 
         created() {
-
-            //跟GetOrders API要待付款資料
-            let url = '/OrderApi/GetOrders';
-            let request = {
-                method: "GET",
-                headers: { "content-type": "application/json" }
-            };
-            fetch(url, request)
-                .then(response => {
-                    if (response.ok) {
-                        console.log("資料庫連線成功");
-                        return response.json();
-
-                    } else {
-                        console.log("資料擷取失敗");
-                    }
-                }).then(response => {
-
-                    this.orders = response;
-
-                    this.unPaidOd = this.orders.filter(od => od.tabName === "待付款");
-                    console.log(this.unPaidOd);
-
-                }).catch(error => {
-                    alert("資料庫連線失敗");
-                    console.log(error);
-                })
-
-            //分配剛送來的payment資料
-            this.paymentRawData.forEach(x => {
-                if (x.completed) {
-                    for (let i = 0; i < x.orders.length; i++) {
-                        this.finishOds.push(x.orders[i]);
-                    }
-                    
-
-                } else {
-                    for (let i = 0; i < x.orders.length; i++) {
-                        this.extraFeeOds.push(x.orders[i]);
-                    }
-                }
-            })
-
-            //幫extraFeeOds撈paymentId, payTime, totalExtraFee資料
-            this.extraFeeOds.forEach(od => {
-                let index = this.paymentRawData.findIndex(element => element.orders.includes(od))
-                od["paymentId"] = this.paymentRawData[index].paymentId
-                this.paymentRawData[index].paymentDetails.forEach(pd => {
-                    if (pd.paymentDetailSn.substring(0, 1) == 0) {
-                        od["rentalFee_payTime"] = pd.payTime
-                    } else {
-                        od["extraFee_payTime"] = pd.payTime
-                    }
-                })
-                var totalExtraFeeArr = []
-                od.extraFees.forEach(e => {
-                    totalExtraFeeArr.push(e.fee);
-                })
-                var reducer = (accumulator, currentValue) => accumulator + currentValue;
-                od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
-            })
-
-            /*幫finishOds撈paymentId, payTime, totalExtraFee資料*/
-            this.finishOds.forEach(od => {
-                let index = this.paymentRawData.findIndex(element => element.orders.includes(od))
-                od["paymentId"] = this.paymentRawData[index].paymentId
-                this.paymentRawData[index].paymentDetails.forEach(pd => {
-                    if (pd.paymentDetailSn.substring(0, 1) == 0) {
-                        od["rentalFee_payTime"] = pd.payTime
-                    } else {
-                        od["extraFee_payTime"] = pd.payTime
-                    }
-                })
-                var totalExtraFeeArr = []
-                od.extraFees.forEach(e => {
-                    totalExtraFeeArr.push(e.fee);
-                })
-                var reducer = (accumulator, currentValue) => accumulator + currentValue;
-                od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
-            })
-
-            //踢掉finishedOds裡面extrafee為0的order
-            this.extraFeeOds.forEach(od => {
-                if (od.totalExtraFee === 0) {
-                    let index = this.extraFeeOds.indexOf(od);
-                    this.finishOds.push(this.extraFeeOds[index]);
-                    this.extraFeeOds.splice(index, 1);
-                }
-            })
-
             
-        },
+        //跟GetOrders API要待付款資料
+        this.fetchOrderData();
+
+        //跟Payment API要額外金額&已結清資料
+        this.fetchPaymentData();
+
+        //分配剛送來的payment資料
+        this.paymentDataArrange();
+
+    },
 
         methods: {
 
-             paymentDetailCheck: function (paymentSn) {
-                        let index = this.paymentDetail.indexOf(paymentSn);
-                        if (index > -1) {
-                            this.paymentDetail.splice(index, 1)
+            fetchOrderData: function () {
+                this.loading = true
+                const fetchedId = this.$route
+
+                let order_url = '/OrderApi/GetOrders';
+                let order_request = {
+                    method: "GET",
+                    headers: { "content-type": "application/json" }
+                };
+                fetch(order_url, order_request)
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("資料庫連線成功");
+                            return response.json();
+
                         } else {
-                            this.paymentDetail = []
-                            this.paymentDetail.push(paymentSn)
+                            console.log("資料擷取失敗");
                         }
-             },
+                    }).then(response => {
 
-             selectAllAction: function () {
-                        this.selected = [];
-                        if (!this.selectAll) {
-                            for (let i = 0; i < this.unPaidOd.length; i++) {
-                                this.selected.push(this.unPaidOd[i]);
+                        this.orders = response;
+                        this.unPaidOd = this.orders.filter(od => od.tabName === "待付款");
+                        this.loading = false;
+
+                    }).catch(error => {
+                        alert("資料庫連線失敗");
+                        console.log(error);
+                    })
+                if (this.$route !== fetchedId)
+                    return this.loading = false
+
+            },
+
+            fetchPaymentData: function () {
+
+                let payment_url = '/api/payment';
+                let payment_request = {
+                    method: "GET",
+                    headers: { "content-type": "application/json" }
+                };
+                fetch(payment_url, payment_request)
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("資料庫連線成功");
+                            return response.json();
+
+                        } else {
+                            console.log("資料擷取失敗");
+                        }
+                    }).then(response => {
+
+                        this.paymentRawData = response;
+
+
+                    }).catch(error => {
+                        alert("資料庫連線失敗");
+                        console.log(error);
+                    })
+            },
+
+            paymentDataArrange: function(){
+
+                this.paymentRawData.forEach(x => {
+                    if (x.completed) {
+                        for (let i = 0; i < x.orders.length; i++) {
+                            this.finishOds.push(x.orders[i]);
+                        }
+                    } else {
+                        for (let i = 0; i < x.orders.length; i++) {
+                            this.extraFeeOds.push(x.orders[i]);
+                        }
+                    }
+                })
+            },
+
+            loadPaymentData:  function () {
+
+                //幫extraFeeOds撈paymentId, payTime, totalExtraFee資料
+                this.extraFeeOds.forEach(od => {
+                        let index = this.paymentRawData.findIndex(element => element.orders.includes(od))
+                        od["paymentId"] = this.paymentRawData[index].paymentId
+                        this.paymentRawData[index].paymentDetails.forEach(pd => {
+                            if (pd.paymentDetailSn.substring(0, 1) == 0) {
+                                od["rentalFee_payTime"] = pd.payTime
+                            } else {
+                                od["extraFee_payTime"] = pd.payTime
                             }
-
-                        }
-             },
-
-             confirmAmount: async function () {
-                 let requestData = {
-                     isRentalFee: true,
-                     orderIDs: []
-                 }
-                 this.selected.forEach(order => {
-                     requestData.orderIDs.push(order.orderId)
-                 });
-
-                 let response = await fetch("/api/payment", {
-                     method: "POST",
-                     headers: {
-                         "content-type": "application/json"
-                     },
-                     body: JSON.stringify(requestData)
+                        })
+                        var totalExtraFeeArr = []
+                        od.extraFees.forEach(e => {
+                            totalExtraFeeArr.push(e.fee);
+                        })
+                        var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                        od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
+                        
                  })
+                   
 
-                 if (!response.ok) {
-                     alert("付款資料讀取失敗");
-                     return;
-                 }
+                //踢掉extraFeeOds裡面totalExtrafee為0的order並放到finishOds裡面
+                this.extraFeeOds.forEach(od => {
+                      if (od.totalExtraFee === 0) {
+                        let index = this.extraFeeOds.indexOf(od);
+                        this.finishOds.push(this.extraFeeOds[index]);
+                        this.extraFeeOds.splice(index, 1);
+                        }  
+                 })
+                
 
-                 this.mpgInfo = await response.json()
+                /*幫finishOds撈paymentId, payTime, totalExtraFee資料*/
+                this.finishOds.forEach(od => {
+                    let index = this.paymentRawData.findIndex(element => element.orders.includes(od))
+                    od["paymentId"] = this.paymentRawData[index].paymentId
+                    this.paymentRawData[index].paymentDetails.forEach(pd => {
+                        if (pd.paymentDetailSn.substring(0, 1) == 0) {
+                            od["rentalFee_payTime"] = pd.payTime
+                        } else {
+                            od["extraFee_payTime"] = pd.payTime
+                        }
+                    })
+                    var totalExtraFeeArr = []
+                    od.extraFees.forEach(e => {
+                        totalExtraFeeArr.push(e.fee);
+                    })
+                    var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                    od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
+                })
+
+
             },
 
-            clearMpgInfo: function () {
-                let info = this.mpgInfo;
-                info.merchantId = "";
-                info.tradeInfo = "";
-                info.tradeSha = "";
-                info.version = "";
-            },
-
-            selectExtraFeeOd(paymentId) {
-                this.selected = []
-                this.selected.push(paymentId)
+        paymentDetailCheck: function (paymentSn) {
+            let index = this.paymentDetail.indexOf(paymentSn);
+            if (index > -1) {
+                this.paymentDetail.splice(index, 1)
+            } else {
+                this.paymentDetail = []
+                this.paymentDetail.push(paymentSn)
             }
+        },
+
+        selectAllAction: function () {
+            this.selected = [];
+            if (!this.selectAll) {
+                for (let i = 0; i < this.unPaidOd.length; i++) {
+                    this.selected.push(this.unPaidOd[i]);
+                }
+
+            }
+        },
+
+        confirmAmount: async function () {
+
+            this.clearMpgInfo;
+            this.requestData = {};
+            if (this.tabIndex == 0) {
+
+                this.requestData = {
+                    isRentalFee: true,
+                    orderIDs: []
+                }
+                this.selected.forEach(order => {
+                    this.requestData.orderIDs.push(order.orderId);
+                })
+            } else if (this.tabIndex == 1) {
+
+                this.requestData = {
+                    isRentalFee: false,
+                    orderIDs: ["b875a510-ee2b-4c4d-9dd0-030682b27e08"],
+                    paymentID: ""
+                };
+                this.selected.forEach(paymentId => {
+                    this.requestData.paymentID = paymentId
+                })
+            } else {
+
+                console.log(error);
+
+            }
+
+
+            let response = await fetch("/api/payment", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json"
+                },
+                body: JSON.stringify(this.requestData)
+            })
+
+            if (!response.ok) {
+                alert("付款資料讀取失敗");
+                return;
+            }
+
+            this.mpgInfo = await response.json()
+        },
+
+        clearMpgInfo: function () {
+
+            this.mpgInfo.merchantId = "";
+            this.mpgInfo.tradeInfo = "";
+            this.mpgInfo.tradeSha = "";
+            this.mpgInfo.version = "";
+            this.mpgInfo.totalPrice = 0
+        },
+
+        selectExtraFeeOd(paymentId) {
+            this.selected = []
+            this.selected.push(paymentId)
+        }
+
+    },
+
+        computed: {
+
+        countTotalPrice() {
+            var cashTotalPrice = 0
+            var totalPrice = [0]
+            this.selected.forEach(od => {
+
+                var orderPrice = od.unitPrice * od.quantity * od.day;
+                totalPrice.push(orderPrice);
+            })
+
+            var reducer = (accumulator, currentValue) => accumulator + currentValue;
+            return cashTotalPrice = totalPrice.reduce(reducer);
 
         },
 
-        computed: {
-            countTotalPrice() {
-                var cashTotalPrice = 0
-                var totalPrice = [0]
-                this.selected.forEach(od => {
+        isLoadingTradeInfo() {
+            return this.mpgInfo.merchantID === "" ||
+                this.mpgInfo.tradeInfo === "" ||
+                this.mpgInfo.tradeSha === "" ||
+                this.mpgInfo.version === "";
+        },
 
-                    var orderPrice = od.unitPrice * od.quantity * od.day;
-                    totalPrice.push(orderPrice);
-                })
+        noItemSelected() {
+            return this.selected.length <= 0;
+        },
 
-                var reducer = (accumulator, currentValue) => accumulator + currentValue;
-                return cashTotalPrice = totalPrice.reduce(reducer);
 
-            },
+        countExtraFeePrice() {
 
-            isLoadingTradeInfo() {
-                return this.mpgInfo.merchantID === "" ||
-                    this.mpgInfo.tradeInfo === "" ||
-                    this.mpgInfo.tradeSha === "" ||
-                    this.mpgInfo.version === "";
-            },
+            var cashExtraFee = 0;
+            var countTotalFee = [0];
+            var selectOd = []
+            selectOd = this.extraFeeOds.filter(x => x.paymentId == this.selected)
+            if (selectOd.length > 1) {
 
-            noItemSelected() {
-                return this.selected.length <= 0;
-            },
+                this.notify = true;
+            } else {
 
-           
-            countExtraFeePrice() {
-
-                var cashExtraFee = 0;
-                var countTotalFee = [0];
-                var selectOd = []
-                selectOd = this.extraFeeOds.filter(x => x.paymentId == this.selected)
-                if (selectOd.length > 1) {
-
-                    this.notify = true;
-                } else {
-
-                    this.notify = false;
-                }
-                selectOd.forEach(od => {
-
-                    countTotalFee.push(od.totalExtraFee)
-                })
-                var reducer = (accumulator, currentValue) => accumulator + currentValue;
-                return cashExtraFee = countTotalFee.reduce(reducer);
-
+                this.notify = false;
             }
+            selectOd.forEach(od => {
+
+                countTotalFee.push(od.totalExtraFee)
+            })
+            var reducer = (accumulator, currentValue) => accumulator + currentValue;
+            return cashExtraFee = countTotalFee.reduce(reducer);
+
         }
+    }
 
     })
 
