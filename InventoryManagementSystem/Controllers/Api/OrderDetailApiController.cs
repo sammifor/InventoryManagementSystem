@@ -108,7 +108,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> ReturnItemsCheck(ReturnItemsCheckViewModel model)
         {
             OrderDetail detail = await _dbContext.OrderDetails
-                .Where(od => od.OrderDetailId == model.OrderDetailID &&
+                .Where(od => od.OrderDetailId == model.OrderDetailId &&
                     od.OrderDetailStatusId == "T" && // Taken
                     od.Item.ConditionId == "O") // OutStock
                 .FirstOrDefaultAsync();
