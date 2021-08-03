@@ -685,6 +685,8 @@ namespace InventoryManagementSystem.Models.EF
                     .IsRequired()
                     .HasMaxLength(100);
 
+                entity.Property(e => e.Note).HasMaxLength(100);
+
                 entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
 
                 entity.Property(e => e.ReportSn)
