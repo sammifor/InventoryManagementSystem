@@ -138,5 +138,35 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok();
         }
 
+        /*
+         * /ReportApi/CloseReport
+         * 
+         */
+        [HttpPost]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> CloseReport(CloseReportViewModel model)
+        {
+            Report report = await _dbContext.Reports
+                .FindAsync(model.ReportId);
+
+            if(report == null)
+            {
+                return NotFound("找不到此問題反映");
+            }
+
+            report.CloseTime = DateTime.Now;
+            report.Note = model.Note;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict("資料庫更新失敗");
+            }
+
+            return Ok();
+        }
     }
 }
