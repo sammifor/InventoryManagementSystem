@@ -17,7 +17,7 @@
         <b-card>
             <b-tabs v-model="tabIndex" content-class="mt-3" fill>
                 <!-- 未付款 -->
-                <b-tab title="待付款" active>
+                <b-tab :title="tab1_title" active>
                     <div>
                         <table class="table table-responsive">
                             <thead>
@@ -56,7 +56,7 @@
                 </b-tab>
 
                 <!-- 額外費用 -->
-                <b-tab title="額外費用" @@click="loadExtraFeeOds">
+                <b-tab :title="tab2_title" @@click="loadExtraFeeOds">
                     <div>
                         <table class="table table-responsive">
                             <thead>
@@ -122,7 +122,7 @@
                 </b-tab>
 
                 <!-- 已結清 -->
-                <b-tab title="已結清" @@click="loadfinishOds">
+                <b-tab :title="tab3_title" @@click="loadfinishOds">
                     <div>
                         <table class="table table-responsive">
                             <thead>
@@ -345,24 +345,25 @@
 
         watch: {
             // call again the method if the route changes
-            $route: 'fetchOrderData'
+            $route: 'arrangePaymentData'
         },
 
 
         created: async function () {
 
             //跟GetOrders API要待付款資料
-            this.fetchOrderData();
+            await this.fetchOrderData();
             //跟Payment API要額外金額&已結清資料
-            this.fetchPaymentData();
+            await this.fetchPaymentData();
+
+            await this.arrangePaymentData();
 
         },
 
         methods: {
 
             fetchOrderData: function () {
-                this.loading = true
-                const fetchedId = this.$route
+                
 
                 let order_url = '/OrderApi/GetOrders';
                 let order_request = {
@@ -388,8 +389,7 @@
                         alert("資料庫連線失敗");
                         console.log(error);
                     })
-                if (this.$route !== fetchedId)
-                    return this.loading = false
+                
 
             },
 
@@ -418,6 +418,35 @@
                         alert("資料庫連線失敗");
                         console.log(error);
                     })
+            },
+
+            arrangePaymentData: async function () {
+                   this.loading = true
+                   const fetchedId = this.$route
+                    await this.paymentRawData.forEach(x => {
+                        if (x.completed) {
+                            for (let i = 0; i < x.orders.length; i++) {
+                                this.finishOds.push(x.orders[i]);
+                            }
+                        } else {
+
+                            for (let i = 0; i < x.orders.length; i++) {
+                                this.extraFeeOds.push(x.orders[i]);
+
+                            }
+
+                        }
+                    })
+
+                    var move_orders = this.extraFeeOds.filter(od => od.extraFees.length == 0)
+
+                    await move_orders.forEach(od => { this.finishOds.push(od); })
+
+                this.extraFeeOds = await this.extraFeeOds.filter(od => od.extraFees.length !== 0)
+
+                 if (this.$route !== fetchedId) {
+                     this.loading = false
+                }
             },
 
 
@@ -666,7 +695,35 @@
                 var reducer = (accumulator, currentValue) => accumulator + currentValue;
                 return cashExtraFee = countTotalFee.reduce(reducer);
 
+            },
+
+            tab1_title() {
+
+                let tab1 = "待付款"
+                return tab1 + "(" + this.unPaidOd.length.toString() + ")"
+            },
+
+            tab2_title() {
+
+                let tab2 = "額外費用"
+                return  tab2 + "(" + this.extraFeeOds.length.toString() + ")"
+
+
+            },
+
+            tab3_title() {
+
+                let tab3 = "已結清"
+                return tab3 + "(" + this.finishOds.length.toString() + ")"
+
+
             }
+
+            
+
+
+
+
         }
 
     })
