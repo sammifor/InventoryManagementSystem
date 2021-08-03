@@ -108,6 +108,11 @@ namespace InventoryManagementSystem.Controllers.Api
                     })
                     .ToArrayAsync();
 
+            payments = payments
+                .GroupBy(p => p.PaymentId)
+                .Select(group => group.FirstOrDefault())
+                .ToArray();
+
             foreach(PaymentResultModel p in payments)
             {
                 p.Received = p.PaymentDetails
@@ -120,7 +125,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     .Aggregate(0m, (curr, next) => curr + next, sum => sum);
 
                 p.OutstandingBalance = p.RentalFee + p.ExtraFee - p.Received;
-                
+
                 p.Completed = p.OutstandingBalance == 0 ? true : false;
             }
 
