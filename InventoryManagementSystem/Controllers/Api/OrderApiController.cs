@@ -151,7 +151,12 @@ namespace InventoryManagementSystem.Controllers.Api
                     ItemDescription = od.Item.Description,
 
                     OrderDetailStatusId = od.OrderDetailStatusId,
-                    OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    OrderDetailStatus = od.OrderDetailStatus.StatusName,
+
+                    ItemStatus = od.ItemLogs
+                        .OrderByDescending(il => il.CreateTime)
+                        .Select(il => il.Condition.ConditionName)
+                        .FirstOrDefault()
                 })
                         .ToArray(),
 
