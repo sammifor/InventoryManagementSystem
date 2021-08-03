@@ -345,7 +345,10 @@ CREATE TABLE [Report](
         [ReportTime] DATETIME
                 CONSTRAINT [DF_Report_ReportTime] DEFAULT GETDATE(),
 
-        [CloseTime] DATETIME
+        [CloseTime] DATETIME,
+
+        [AdminID] UNIQUEIDENTIFIER NULL
+                CONSTRAINT [FK_Report_Admin] FOREIGN KEY REFERENCES [Admin]([AdminID])
 );
 
 CREATE TABLE [ItemLog](

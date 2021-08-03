@@ -122,6 +122,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 Quantity = o.Quantity,
                 EstimatedPickupTime = o.EstimatedPickupTime,
                 Day = o.Day,
+                ExpireTime = o.EstimatedPickupTime.AddDays(o.Day),
                 OrderStatusId = o.OrderStatusId,
                 OrderTime = o.OrderTime,
 
@@ -138,8 +139,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 OpenReportCount = o.OrderDetails
                     .SelectMany(od => od.Reports)
-                    .Where(r => r.CloseTime == null)
-                    .Count(),
+                    .Count(r => r.CloseTime == null),
 
                 OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
                 {
@@ -147,6 +147,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     OrderDetailSn = od.OrderDetailSn,
                     ItemId = od.ItemId,
                     ItemSn = od.Item.ItemSn,
+                    OpenReportCounts = od.Reports.Count(r => r.CloseTime == null),
                     ItemDescription = od.Item.Description,
 
                     OrderDetailStatusId = od.OrderDetailStatusId,
