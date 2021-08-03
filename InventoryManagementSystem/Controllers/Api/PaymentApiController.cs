@@ -291,7 +291,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 itemDesc = "補繳費";
                 decimal extraReceived = await _dbContext.PaymentDetails
                     .Where(pd => pd.PaymentId == model.PaymentID.GetValueOrDefault())
-                    .Where(pd => pd.PaymentDetailSn.StartsWith('1'))
+                    .Where(pd => EF.Functions.Like(pd.PaymentDetailSn, "1%"))
                     .Select(pd => pd.AmountPaid)
                     .SumAsync();
 
