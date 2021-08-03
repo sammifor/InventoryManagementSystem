@@ -421,17 +421,23 @@
 
                 if (this.finishOds.length ==0 && this.extraFeeOds.length == 0) {
                 //分配Item資料
+               
                  await this.paymentRawData.forEach(x => {
                     if (x.completed) {
                         for (let i = 0; i < x.orders.length; i++) {
                             this.finishOds.push(x.orders[i]);
                         }
                     } else {
+
                         for (let i = 0; i < x.orders.length; i++) {
                             this.extraFeeOds.push(x.orders[i]);
+
                         }
+                        this.finishOds.push(this.extraFeeOds.filter(od => od.extraFees.length == 0));
+                        this.extraFeeOds = this.extraFeeOds.filter(od => od.extraFees.length !== 0)
                     }
                 })
+                   
 
                 //幫extraFeeOds撈paymentId, payTime, totalExtraFee資料
                 this.extraFeeOds.forEach(od => {
@@ -472,14 +478,14 @@
                     od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
                 })
 
-                //踢掉extraFeeOds裡面totalExtrafee為0的order並放到finishOds裡面
-                this.extraFeeOds.forEach(od => {
-                    if (od.totalExtraFee === 0) {
-                        let index = this.extraFeeOds.indexOf(od);
-                        this.finishOds.push(this.extraFeeOds[index]);
-                        this.extraFeeOds.splice(index, 1);
-                    }
-                })
+                ////踢掉extraFeeOds裡面totalExtrafee為0的order並放到finishOds裡面
+                //this.extraFeeOds.forEach(od => {
+                //    if (od.totalExtraFee === 0) {
+                //        let index = this.extraFeeOds.indexOf(od);
+                //        this.finishOds.push(this.extraFeeOds[index]);
+                //        this.extraFeeOds.splice(index, 1);
+                //    }
+                //})
                 }
 
             },
