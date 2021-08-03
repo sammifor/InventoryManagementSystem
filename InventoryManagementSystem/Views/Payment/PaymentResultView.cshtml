@@ -8,13 +8,16 @@
 <script src="https://unpkg.com/vue"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+
 
 <div id="app">
     <b-card>
-        <b-tabs content-class="mt-3" fill>
+        <b-tabs v-model="tabIndex" content-class="mt-3" fill>
             <!-- 未付款 -->
             <b-tab title="待付款" active>
-                <div>
+                <div v-if="loading"><p>資料載入中</p></div>
+                <div v-if="loading==false">
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -25,7 +28,7 @@
                                 <th>數量</th>
                                 <th>租借天數</th>
                                 <th>下單時間</th>
-                                <th>總價</th>
+                                <th>總金額</th>
                                 <th>付款期限</th>
                             </tr>
                         </thead>
@@ -52,85 +55,127 @@
             </b-tab>
 
             <!-- 額外費用 -->
-            <b-tab title="額外費用">
-                <!--<div>
-                    <table class="table table-hover">
+            <b-tab title="額外費用" @@click="loadPaymentData">
+                <div>
+                    <table class="table">
                         <thead>
                             <tr>
+                                <th>結帳</th>
                                 <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
-                                <th>租借天數</th>
                                 <th>下單時間</th>
-                                <th>總金額</th>
                                 <th>額外費用</th>
                                 <th>繳費明細</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <template v-for="od in unPaidOd">
-                                <tr>
-                                    <td>{{od.paymentSn}}</td>
-                                    <td>{{od.rentalFee}}</td>
-                                    <td>???</td>
-                                    <td>未付款</td>
-                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.paymentSn)" style="font-size: 20px;"></i></td>
-                                </tr>-->
-                @*<tr v-if="paymentDetail.includes(od.paymentSn)">
-                        <td colspan="5" class="p-3 mb-2 bg-light text-dark">
-                            <ul>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                            </ul>
-                        </td>
-                    </tr>*@
-                <!--</template>
+                            <template v-for="od in extraFeeOds">
+
+                                <tr v-if="od.totalExtraFee !== 0">
+                                    <td><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od.paymentId" @@click="selectExtraFeeOd(od.paymentId)"><i class="form-icon"></i></td>
+                                    <td>{{od.orderSn}}</td>
+                                    <td>{{od.equipmentSn}}</td>
+                                    <td>{{od.equipmentName}}</td>
+                                    <td>{{od.quantity}}</td>
+                                    <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td>{{od.totalExtraFee}}</td>
+                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.orderSn)" style="font-size: 20px;"></i></td>
+                                </tr>
+                                <tr v-if="paymentDetail.includes(od.orderSn)">
+                                    <td colspan="7" class="p-3 mb-2 bg-light text-dark">
+                                        <table bgcolor="#E8E8E8">
+                                            <tr>
+                                                <td>費用名稱</td>
+                                                <td>費用金額</td>
+                                                <td>費用明細</td>
+                                                <td>繳費日期</td>
+                                            </tr>
+                                            <tr>
+                                                <td>租金</td>
+                                                <td>{{od.price}}</td>
+                                                <td>--</td>
+                                                <td>{{od.rentalFee_payTime| timeString('YYYY-MM-DD')}}</td>
+                                            </tr>
+                                            <template v-for="extraFee in od.extraFees">
+                                                <tr v-if="extraFee.fee !==0">
+                                                    <td>罰金</td>
+                                                    <td>{{extraFee.fee}}</td>
+                                                    <td>{{extraFee.itemSn}}{{extraFee.description}}</td>
+                                                    <td>尚未繳納</td>
+                                                </tr>
+                                            </template>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
-                </div>-->
+                    <b-btn variant="danger"
+                           @@click="confirmAmount"
+                           :disabled="noItemSelected"
+                           data-toggle="modal"
+                           data-target="#confirmAmountModal">結帳 (總金額: {{countExtraFeePrice}})</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
+                </div>
             </b-tab>
 
             <!-- 已結清 -->
-            <b-tab title="已結清">
-                <!--<div>
-                    <table class="table table-hover">
+            <b-tab title="已結清" @@click="loadPaymentData">
+                <div>
+                    <table class="table">
                         <thead>
                             <tr>
                                 <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
-                                <th>租借天數</th>
                                 <th>下單時間</th>
                                 <th>總金額</th>
-                                <th>結清日期</th>
-                                <th>訂單明細</th>
+                                <th>繳費明細</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <template v-for="od in unPaidOd">
+                            <template v-for="od in finishOds">
                                 <tr>
-                                    <td>{{od.paymentSn}}</td>
-                                    <td>{{od.rentalFee}}</td>
-                                    <td>???</td>
-                                    <td>未付款</td>
-                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.paymentSn)" style="font-size: 20px;"></i></td>
-                                </tr>-->
-                @*<tr v-if="paymentDetail.includes(od.paymentSn)">
-                        <td colspan="5" class="p-3 mb-2 bg-light text-dark">
-                            <ul>
-                                <li></li>
-                                <li></li>
-                                <li></li>
-                            </ul>
-                        </td>
-                    </tr>*@
-                <!--</template>
+                                    <td>{{od.orderSn}}</td>
+                                    <td>{{od.equipmentSn}}</td>
+                                    <td>{{od.equipmentName}}</td>
+                                    <td>{{od.quantity}}</td>
+                                    <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td>{{od.totalExtraFee + od.price}}</td>
+                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.orderSn)" style="font-size: 20px;"></i></td>
+                                </tr>
+                                <tr v-if="paymentDetail.includes(od.orderSn)">
+                                    <td colspan="7" class="p-3 mb-2 bg-light text-dark">
+                                        <table bgcolor="#E8E8E8">
+                                            <tr>
+                                                <td>費用名稱</td>
+                                                <td>費用金額</td>
+                                                <td>費用明細</td>
+                                                <td>繳費日期</td>
+                                            </tr>
+                                            <tr>
+                                                <td>租金</td>
+                                                <td>{{od.price}}</td>
+                                                <td>--</td>
+                                                <td>{{od.rentalFee_payTime| timeString('YYYY-MM-DD')}}</td>
+                                            </tr>
+                                            <template v-for="extraFee in od.extraFees">
+                                                <tr v-if="extraFee.fee !==0">
+                                                    <td>罰金</td>
+                                                    <td>{{extraFee.fee}}</td>
+                                                    <td>物品序號:{{extraFee.itemSn}}({{extraFee.description}})</td>
+                                                    <td>{{od.extraFee_payTime| timeString('YYYY-MM-DD')}}</td>
+                                                </tr>
+                                            </template>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </template>
                         </tbody>
                     </table>
-                </div>-->
+                </div>
             </b-tab>
         </b-tabs>
     </b-card>
@@ -195,6 +240,70 @@
             </div>
         </div>
     </div>
+
+    <!--額外金額結帳Modal-->
+
+    <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">確認金額</h5>
+                </div>
+                <form method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
+                    <div class="modal-body">
+                        @* 這四個值要送給藍星，但不用顯示給 User 看 *@
+                        <input type="text"
+                               name="MerchantID"
+                               :value="mpgInfo.merchantID"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="TradeInfo"
+                               :value="mpgInfo.tradeInfo"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="TradeSha"
+                               :value="mpgInfo.tradeSha"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="Version"
+                               :value="mpgInfo.version"
+                               hidden
+                               readonly
+                               required />
+                        <div class="form-group">
+                            <label>請確認應付金額是否正確</label>
+                            @* 顯示用的 Input，這個值不會送給藍新，故不給 name*@
+                            <input type="number"
+                                   class="form-control"
+                                   :value="mpgInfo.totalPrice"
+                                   readonly />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                                @@click="clearMpgInfo">
+                            返回
+                        </button>
+                        <button type="submit"
+                                class="btn btn-primary"
+                                :disabled="isLoadingTradeInfo">
+                            確定
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
 </div>
 
 <script>
@@ -205,8 +314,8 @@
 
         el: '#app',
         data: {
-            orders:[],
-            unPaidOd:[],
+            orders: [],
+            unPaidOd: [],
             paidOd: [],
             paymentDetail: [],
             selectAll: false,
@@ -218,109 +327,260 @@
                 version: "",
                 totalPrice: 0
             },
-            cashTotalPrice: 0,
-            totalPrice:[0]
-            
+            paymentRawData: [],
+            extraFeeOds: [],
+            finishOds: [],
+            payTimes: [],
+            notify: false,
+            tabIndex: 0,
+            requestData: {},
+            loading: false
+
         },
+
+        watch: {
+            // call again the method if the route changes
+            $route: 'fetchOrderData'
+        },
+
 
         created() {
 
-            let url = '/OrderApi/GetOrders';
-            let request = {
-                method: "GET",
-                headers: { "content-type": "application/json" }
-            };
-            fetch(url, request)
-                .then(response => {
-                    if (response.ok) {
-                        console.log("資料庫連線成功");
-                        return response.json();
-
-                    } else {
-                        console.log("資料擷取失敗");
-                    }
-                }).then(response => {
-                    
-                    this.orders = response;
-                   
-                    this.unPaidOd = this.orders.filter(od => od.tabName === "待付款");
-                    console.log(this.unPaidOd);
-
-                }).catch(error => {
-                     alert("資料庫連線失敗");
-                     console.log(error);
-                })
+            //跟GetOrders API要待付款資料
+            this.fetchOrderData();
+            //跟Payment API要額外金額&已結清資料
+            this.fetchPaymentData();
+            
         },
 
         methods: {
 
-             paymentDetailCheck: function (paymentSn) {
-                        let index = this.paymentDetail.indexOf(paymentSn);
-                        if (index > -1) {
-                            this.paymentDetail.splice(index, 1)
+            fetchOrderData: function () {
+                this.loading = true
+                const fetchedId = this.$route
+
+                let order_url = '/OrderApi/GetOrders';
+                let order_request = {
+                    method: "GET",
+                    headers: { "content-type": "application/json" }
+                };
+                fetch(order_url, order_request)
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("資料庫連線成功");
+                            return response.json();
+
                         } else {
-                            this.paymentDetail = []
-                            this.paymentDetail.push(paymentSn)
+                            console.log("資料擷取失敗");
                         }
-             },
+                    }).then(response => {
 
-             selectAllAction: function () {
-                        this.selected = [];
-                        if (!this.selectAll) {
-                            for (let i = 0; i < this.unPaidOd.length; i++) {
-                                this.selected.push(this.unPaidOd[i]);
-                            }
+                        this.orders = response;
+                        this.unPaidOd = this.orders.filter(od => od.tabName === "待付款");
+                        this.loading = false;
 
+                    }).catch(error => {
+                        alert("資料庫連線失敗");
+                        console.log(error);
+                    })
+                if (this.$route !== fetchedId)
+                    return this.loading = false
+
+            },
+
+            fetchPaymentData: function () {
+
+                let payment_url = '/api/payment';
+                let payment_request = {
+                    method: "GET",
+                    headers: { "content-type": "application/json" }
+                };
+                fetch(payment_url, payment_request)
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("資料庫連線成功");
+                            return response.json();
+
+                        } else {
+                            console.log("資料擷取失敗");
                         }
-             },
+                    }).then(response => {
 
-             confirmAmount: async function () {
-                 let requestData = {
-                     isRentalFee: true,
-                     orderIDs: []
-                 }
-                 this.selected.forEach(order => {
-                     requestData.orderIDs.push(order.orderId)
-                 });
+                        this.paymentRawData = response;
 
-                 let response = await fetch("/api/payment", {
-                     method: "POST",
-                     headers: {
-                         "content-type": "application/json"
-                     },
-                     body: JSON.stringify(requestData)
-                 })
 
-                 if (!response.ok) {
-                     alert("付款資料讀取失敗");
-                     return;
-                 }
+                    }).catch(error => {
+                        alert("資料庫連線失敗");
+                        console.log(error);
+                    })
+            },
 
-                 this.mpgInfo = await response.json()
+           
+
+            loadPaymentData: async function () {
+
+                if (this.finishOds.length ==0 && this.extraFeeOds.length == 0) {
+                //分配Item資料
+                 await this.paymentRawData.forEach(x => {
+                    if (x.completed) {
+                        for (let i = 0; i < x.orders.length; i++) {
+                            this.finishOds.push(x.orders[i]);
+                        }
+                    } else {
+                        for (let i = 0; i < x.orders.length; i++) {
+                            this.extraFeeOds.push(x.orders[i]);
+                        }
+                    }
+                })
+
+                //幫extraFeeOds撈paymentId, payTime, totalExtraFee資料
+                this.extraFeeOds.forEach(od => {
+                    let index = this.paymentRawData.findIndex(element => element.orders.includes(od))
+                    od["paymentId"] = this.paymentRawData[index].paymentId
+                    this.paymentRawData[index].paymentDetails.forEach(pd => {
+                        if (pd.paymentDetailSn.substring(0, 1) == 0) {
+                            od["rentalFee_payTime"] = pd.payTime
+                        } else {
+                            od["extraFee_payTime"] = pd.payTime
+                        }
+                    })
+                    var totalExtraFeeArr = [0]
+                    od.extraFees.forEach(e => {
+                        totalExtraFeeArr.push(e.fee);
+                    })
+                    var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                    od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
+
+                })
+
+                /*幫finishOds撈paymentId, payTime, totalExtraFee資料*/
+                this.finishOds.forEach(od => {
+                    let index = this.paymentRawData.findIndex(element => element.orders.includes(od))
+                    od["paymentId"] = this.paymentRawData[index].paymentId
+                    this.paymentRawData[index].paymentDetails.forEach(pd => {
+                        if (pd.paymentDetailSn.substring(0, 1) == 0) {
+                            od["rentalFee_payTime"] = pd.payTime
+                        } else {
+                            od["extraFee_payTime"] = pd.payTime
+                        }
+                    })
+                    var totalExtraFeeArr = [0]
+                    od.extraFees.forEach(e => {
+                        totalExtraFeeArr.push(e.fee);
+                    })
+                    var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                    od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
+                })
+
+                //踢掉extraFeeOds裡面totalExtrafee為0的order並放到finishOds裡面
+                this.extraFeeOds.forEach(od => {
+                    if (od.totalExtraFee === 0) {
+                        let index = this.extraFeeOds.indexOf(od);
+                        this.finishOds.push(this.extraFeeOds[index]);
+                        this.extraFeeOds.splice(index, 1);
+                    }
+                })
+                }
+
+            },
+
+            paymentDetailCheck: function (orderSn) {
+                let index=this.paymentDetail.indexOf(orderSn)
+                if (index > -1) {
+
+                    this.paymentDetail.splice(index,1)
+
+                } else {
+                    this.paymentDetail = []
+                    this.paymentDetail.push(orderSn)
+                }
+            },
+
+            selectAllAction: function () {
+                this.selected = [];
+                if (!this.selectAll) {
+                    for (let i = 0; i < this.unPaidOd.length; i++) {
+                        this.selected.push(this.unPaidOd[i]);
+                    }
+
+                }
+            },
+
+            confirmAmount: async function () {
+
+                this.clearMpgInfo;
+                this.requestData = {};
+                if (this.tabIndex == 0) {
+
+                    this.requestData = {
+                        isRentalFee: true,
+                        orderIDs: []
+                    }
+                    this.selected.forEach(order => {
+                        this.requestData.orderIDs.push(order.orderId);
+                    })
+                } else if (this.tabIndex == 1) {
+
+                    this.requestData = {
+                        isRentalFee: false,
+                        orderIDs: ["b875a510-ee2b-4c4d-9dd0-030682b27e08"],
+                        paymentID: ""
+                    };
+                    this.selected.forEach(paymentId => {
+                        this.requestData.paymentID = paymentId
+                    })
+                } else {
+
+                    console.log(error);
+
+                }
+
+
+                let response = await fetch("/api/payment", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(this.requestData)
+                })
+
+                if (!response.ok) {
+                    alert("付款資料讀取失敗");
+                    return;
+                }
+
+                this.mpgInfo = await response.json()
             },
 
             clearMpgInfo: function () {
-                let info = this.mpgInfo;
-                info.merchantId = "";
-                info.tradeInfo = "";
-                info.tradeSha = "";
-                info.version = "";
+
+                this.mpgInfo.merchantId = "";
+                this.mpgInfo.tradeInfo = "";
+                this.mpgInfo.tradeSha = "";
+                this.mpgInfo.version = "";
+                this.mpgInfo.totalPrice = 0
+            },
+
+            selectExtraFeeOd(paymentId) {
+                this.selected = []
+                this.selected.push(paymentId)
             }
 
         },
 
         computed: {
+
             countTotalPrice() {
-                this.cashTotalPrice = 0
-                this.totalPrice = [0]
+                var cashTotalPrice = 0
+                var totalPrice = [0]
                 this.selected.forEach(od => {
 
                     var orderPrice = od.unitPrice * od.quantity * od.day;
-                    this.totalPrice.push(orderPrice);
+                    totalPrice.push(orderPrice);
                 })
 
                 var reducer = (accumulator, currentValue) => accumulator + currentValue;
-                return this.cashTotalPrice = this.totalPrice.reduce(reducer);
+                return cashTotalPrice = totalPrice.reduce(reducer);
 
             },
 
@@ -333,6 +593,29 @@
 
             noItemSelected() {
                 return this.selected.length <= 0;
+            },
+
+
+            countExtraFeePrice() {
+
+                var cashExtraFee = 0;
+                var countTotalFee = [0];
+                var selectOd = []
+                selectOd = this.extraFeeOds.filter(x => x.paymentId == this.selected)
+                if (selectOd.length > 1) {
+
+                    this.notify = true;
+                } else {
+
+                    this.notify = false;
+                }
+                selectOd.forEach(od => {
+
+                    countTotalFee.push(od.totalExtraFee)
+                })
+                var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                return cashExtraFee = countTotalFee.reduce(reducer);
+
             }
         }
 
