@@ -49,13 +49,13 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpGet("validate")]
         public async Task<IActionResult> ValidateUser(string validatedField, string value)
         {
-            if(string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
             {
                 return Ok(false);
             }
 
             bool userExists;
-            switch(validatedField)
+            switch (validatedField)
             {
                 case "username":
                     userExists = await _dbContext.Users.AnyAsync(u => u.Username == value);
@@ -70,7 +70,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     return Ok(false);
             }
 
-            if(userExists)
+            if (userExists)
                 return Ok(false);
 
             return Ok(true);
@@ -96,7 +96,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             IQueryable<User> userQry = _dbContext.Users;
 
-            if(!isAdmin)
+            if (!isAdmin)
             {
                 // If it's a user,
                 string userIdString = User.Claims
@@ -115,7 +115,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 // Or they can specify the id of the user they would like
                 // to get info about.
-                if(id != null)
+                if (id != null)
                     userQry = userQry.Where(u => u.UserId == id);
             }
 
@@ -170,7 +170,7 @@ namespace InventoryManagementSystem.Controllers.Api
             bool nullOrWhiteSpaceExist = notNullFields
                 .Any(f => string.IsNullOrWhiteSpace(f));
 
-            if(nullOrWhiteSpaceExist)
+            if (nullOrWhiteSpaceExist)
             {
                 return BadRequest();
             }
@@ -244,7 +244,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Authorize]
         public async Task<IActionResult> PutUser(Guid id, PutUserViewModel model)
         {
-            if(id != model.UserId)
+            if (id != model.UserId)
             {
                 return BadRequest();
             }
@@ -254,15 +254,15 @@ namespace InventoryManagementSystem.Controllers.Api
             bool isAdmin = User.HasClaim(ClaimTypes.Role, "admin");
 
             // User 只能改自己的資料
-            if(!isAdmin)
+            if (!isAdmin)
             {
                 string userIdString = User.Claims
-                    .FirstOrDefault(c => c.Type == ClaimTypes.Role)
+                    .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                     .Value;
 
                 Guid userId = Guid.Parse(userIdString);
 
-                if(userId != id)
+                if (userId != id)
                     return Unauthorized();
             }
             #endregion
@@ -278,13 +278,13 @@ namespace InventoryManagementSystem.Controllers.Api
 
             // 管理員修改時不需填寫密碼
             // 只有使用者修改時需要填
-            if(!isAdmin)
+            if (!isAdmin)
                 notNullFields.Add(model.OldPassword);
 
             bool nullOrWhiteSpaceExist = notNullFields
                 .Any(f => string.IsNullOrWhiteSpace(f));
 
-            if(nullOrWhiteSpaceExist)
+            if (nullOrWhiteSpaceExist)
             {
                 return BadRequest();
             }
@@ -295,17 +295,17 @@ namespace InventoryManagementSystem.Controllers.Api
 
             // 不是管理員就必須填入正確的密碼
             IHashPassword hasher = this as IHashPassword;
-            if(!isAdmin)
+            if (!isAdmin)
             {
                 byte[] oldPwBytes = Encoding.UTF8.GetBytes(model.OldPassword);
                 byte[] hashedOldPw = hasher.HashPasswordWithSalt(oldPwBytes, user.Salt);
 
-                if(!hashedOldPw.SequenceEqual(user.HashedPassword))
+                if (!hashedOldPw.SequenceEqual(user.HashedPassword))
                     return BadRequest();
             }
 
             // 有輸入新密碼才修改密碼
-            if(model.Password != null)
+            if (model.Password != null)
             {
                 byte[] newPwBytes = Encoding.UTF8.GetBytes(model.Password);
                 Random r = new Random();
@@ -348,7 +348,7 @@ namespace InventoryManagementSystem.Controllers.Api
             string lineID = string.Empty;
 
             #region Verify ID Token
-            using(HttpClient client = new HttpClient())
+            using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri("https://api.line.me/oauth2/v2.1/verify");
                 HttpContent content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -358,7 +358,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 });
                 HttpResponseMessage response = await client.PostAsync("", content);
 
-                if(!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
                     string failJsonString = await response.Content.ReadAsStringAsync();
                     var failData = JsonConvert.DeserializeObject<VerifyIDTokenFailResponse>(failJsonString);
@@ -378,7 +378,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Where(u => u.LineId == lineID)
                 .FirstOrDefaultAsync();
 
-            if(user != null)
+            if (user != null)
                 return Ok(false);
             else
                 return Ok(true);
@@ -393,7 +393,7 @@ namespace InventoryManagementSystem.Controllers.Api
             string lineID = string.Empty;
 
             #region Verify ID Token
-            using(HttpClient client = new HttpClient())
+            using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri("https://api.line.me/oauth2/v2.1/verify");
                 HttpContent content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -403,7 +403,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 });
                 HttpResponseMessage response = await client.PostAsync("", content);
 
-                if(!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
                     string failJsonString = await response.Content.ReadAsStringAsync();
                     var failData = JsonConvert.DeserializeObject<VerifyIDTokenFailResponse>(failJsonString);
@@ -423,7 +423,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Where(u => u.Username == model.Username)
                 .FirstOrDefaultAsync();
 
-            if(user == null)
+            if (user == null)
                 return Unauthorized("您輸入的帳號或密碼有誤");
 
             IHashPassword hasher = this as IHashPassword;
@@ -431,19 +431,19 @@ namespace InventoryManagementSystem.Controllers.Api
             byte[] passBytes = Encoding.UTF8.GetBytes(model.Password);
             byte[] hashedBytes = hasher.HashPasswordWithSalt(passBytes, user.Salt);
 
-            if(!hashedBytes.SequenceEqual(user.HashedPassword))
+            if (!hashedBytes.SequenceEqual(user.HashedPassword))
                 return Unauthorized("您輸入的帳號或密碼有誤");
             #endregion
 
             #region Check if the user already has a LineID
-            if(!string.IsNullOrWhiteSpace(user.LineId))
+            if (!string.IsNullOrWhiteSpace(user.LineId))
                 return BadRequest("很抱歉，綁定失敗。這個帳號已經綁定過 LINE 了，如要重新綁定請先取消原本的綁定。");
             #endregion
 
             #region Check if the LineID exists
             bool idExists = await _dbContext.Users
                 .AnyAsync(u => u.LineId == lineID);
-            if(idExists)
+            if (idExists)
                 return BadRequest("很抱歉，綁定失敗。這個 LINE 帳號已被綁定過，如要重新綁定請先取消原本的綁定。");
             #endregion
 
@@ -459,7 +459,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 return Conflict();
             }
 
-            using(HttpClient client = new HttpClient())
+            using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri("https://api.line.me/v2/bot/message/push");
                 client.DefaultRequestHeaders
@@ -494,7 +494,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             string lineID = string.Empty;
             #region Verify ID Token
-            using(HttpClient client = new HttpClient())
+            using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri("https://api.line.me/oauth2/v2.1/verify");
                 HttpContent content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -504,7 +504,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 });
                 HttpResponseMessage response = await client.PostAsync("", content);
 
-                if(!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
                     string failJsonString = await response.Content.ReadAsStringAsync();
                     var failData = JsonConvert.DeserializeObject<VerifyIDTokenFailResponse>(failJsonString);
@@ -523,7 +523,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Where(u => u.LineId == lineID)
                 .FirstOrDefaultAsync();
 
-            if(user == null)
+            if (user == null)
             {
                 return BadRequest("這個 LINE 帳號目前沒有被綁定");
             }
@@ -539,7 +539,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 return Conflict("解除綁定失敗");
             }
 
-            using(HttpClient client = new HttpClient())
+            using (HttpClient client = new HttpClient())
             {
 
                 PushMessage message = new PushMessage

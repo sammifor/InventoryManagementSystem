@@ -37,7 +37,7 @@ namespace InventoryManagementSystem.Controllers
                 .Where(u => u.Username == username)
                 .FirstOrDefaultAsync();
 
-            if(user == null)
+            if (user == null)
             {
                 return View("Login");
             }
@@ -46,7 +46,7 @@ namespace InventoryManagementSystem.Controllers
             var hasher = this as IHashPassword;
             byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, user.Salt);
 
-            if(hashedPassword.SequenceEqual(user.HashedPassword))
+            if (hashedPassword.SequenceEqual(user.HashedPassword))
             {
 
                 List<Claim> claims = new List<Claim>();
@@ -82,6 +82,18 @@ namespace InventoryManagementSystem.Controllers
 
         [HttpGet("login/line")]
         public IActionResult BindLine()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "admin")]
+        public IActionResult adminManageUser()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "user")]
+        public IActionResult userManage()
         {
             return View();
         }
