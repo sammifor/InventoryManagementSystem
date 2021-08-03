@@ -669,5 +669,90 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok();
         }
+
+        [HttpPost("password/validatetoken")]
+        public async Task<IActionResult> ValidateToken([FromForm] string token)
+        {
+            TokenValidationModel model = await TokenHandler(token);
+
+            if(!model.IsValid)
+            {
+                return BadRequest("密碼重設連結格式不正確或已過期");
+            }
+
+            return Ok();
+        }
+
+        [HttpPost("password/reset")]
+        public async Task<IActionResult> ResetPassword([FromForm] string token, [FromForm] string password)
+        {
+            #region Validate the token
+            TokenValidationModel model = await TokenHandler(token);
+
+            if(!model.IsValid)
+            {
+                return BadRequest("密碼重設連結格式不正確或已過期");
+            }
+            #endregion
+
+            #region Hash the password
+            User user = await _dbContext.Users
+                .FindAsync(model.ResetPasswordToken.UserId);
+
+            PBKDF2 hasher = new PBKDF2(password, null);
+
+            user.HashedPassword = hasher.HashedPassword;
+            user.Salt = hasher.Salt;
+            #endregion
+
+            #region Make the token expire
+            _dbContext.ResetPasswordTokens.Remove(model.ResetPasswordToken);
+            #endregion
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict("資料庫更新失敗");
+            }
+
+            return Ok("修改成功");
+
+
+        }
+
+        private async Task<TokenValidationModel> TokenHandler(string token)
+        {
+            var model = new TokenValidationModel();
+            byte[] tokenBytes;
+            try
+            {
+                tokenBytes = Convert.FromBase64String(token);
+            }
+            catch
+            {
+                return model;
+            }
+
+            byte[] hashedToken = SHA512.HashData(tokenBytes);
+
+            ResetPasswordToken userToken = await _dbContext.ResetPasswordTokens
+                .Where(rpt => rpt.HashedToken.SequenceEqual(hashedToken))
+                .FirstOrDefaultAsync();
+
+            if(userToken == null || userToken.ExpireTime < DateTime.Now)
+            {
+                return model;
+            }
+
+            User user = await _dbContext.Users.FindAsync(userToken.UserId);
+
+            model.IsValid = true;
+            model.ResetPasswordToken = userToken;
+
+            return model;
+
+        }
     }
 }
