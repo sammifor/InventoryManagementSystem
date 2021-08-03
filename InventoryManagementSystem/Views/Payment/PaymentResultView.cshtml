@@ -81,9 +81,9 @@
                                     <td>{{od.quantity}}</td>
                                     <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
                                     <td>{{od.totalExtraFee}}</td>
-                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.orderSn)" style="font-size: 20px;"></i></td>
+                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od)" style="font-size: 20px;"></i></td>
                                 </tr>
-                                <tr v-if="paymentDetail.includes(od.orderSn)">
+                                <tr v-if="paymentDetail.includes(od)">
                                     <td colspan="7" class="p-3 mb-2 bg-light text-dark">
                                         <table bgcolor="#E8E8E8">
                                             <tr>
@@ -144,9 +144,9 @@
                                     <td>{{od.quantity}}</td>
                                     <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
                                     <td>{{od.totalExtraFee + od.price}}</td>
-                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od.orderSn)" style="font-size: 20px;"></i></td>
+                                    <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od)" style="font-size: 20px;"></i></td>
                                 </tr>
-                                <tr v-if="paymentDetail.includes(od.orderSn)">
+                                <tr v-if="paymentDetail.includes(od)">
                                     <td colspan="7" class="p-3 mb-2 bg-light text-dark">
                                         <table bgcolor="#E8E8E8">
                                             <tr>
@@ -484,15 +484,15 @@
 
             },
 
-            paymentDetailCheck: function (orderSn) {
-                let index=this.paymentDetail.indexOf(orderSn)
+            paymentDetailCheck: function (order) {
+                let index=this.paymentDetail.indexOf(order)
                 if (index > -1) {
 
                     this.paymentDetail.splice(index,1)
 
                 } else {
                     this.paymentDetail = []
-                    this.paymentDetail.push(orderSn)
+                    this.paymentDetail.push(order)
                 }
             },
 
@@ -523,7 +523,6 @@
 
                     this.requestData = {
                         isRentalFee: false,
-                        orderIDs: ["b875a510-ee2b-4c4d-9dd0-030682b27e08"],
                         paymentID: ""
                     };
                     this.selected.forEach(paymentId => {
