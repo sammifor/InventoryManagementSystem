@@ -15,5 +15,8 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string ItemDescription { get; set; }
         public string OrderDetailStatusId { get; set; }
         public string OrderDetailStatus { get; set; }
+
+        // From ItemLog
+        public string ItemStatus { get; set; }
     }
 }
