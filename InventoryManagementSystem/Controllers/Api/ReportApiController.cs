@@ -69,6 +69,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 OrderDetailIdSn = r.OrderDetail.OrderDetailSn,
                 ItemSn = r.OrderDetail.Item.ItemSn,
                 Description = r.Description,
+                Note = r.Note,
                 ReportTime = r.ReportTime,
                 CloseTime = r.CloseTime
             })
