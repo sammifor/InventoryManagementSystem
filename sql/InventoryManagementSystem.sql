@@ -340,10 +340,15 @@ CREATE TABLE [Report](
 
         [Description] NVARCHAR(100) NOT NULL,
 
+        [Note] NVARCHAR(100),
+
         [ReportTime] DATETIME
                 CONSTRAINT [DF_Report_ReportTime] DEFAULT GETDATE(),
 
-        [CloseTime] DATETIME
+        [CloseTime] DATETIME,
+
+        [AdminID] UNIQUEIDENTIFIER NULL
+                CONSTRAINT [FK_Report_Admin] FOREIGN KEY REFERENCES [Admin]([AdminID])
 );
 
 CREATE TABLE [ItemLog](

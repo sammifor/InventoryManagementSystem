@@ -16,6 +16,7 @@ namespace InventoryManagementSystem.Models.ResultModels
         public int Quantity { get; set; }
         public DateTime EstimatedPickupTime { get; set; }
         public int Day { get; set; }
+        public DateTime ExpireTime { get; set; }
         public string OrderStatusId { get; set; }
         public DateTime? OrderTime { get; set; }
 

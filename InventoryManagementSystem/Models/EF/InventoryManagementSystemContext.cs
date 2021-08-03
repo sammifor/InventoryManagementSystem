@@ -679,11 +679,15 @@ namespace InventoryManagementSystem.Models.EF
                     .ValueGeneratedNever()
                     .HasColumnName("ReportID");
 
+                entity.Property(e => e.AdminId).HasColumnName("AdminID");
+
                 entity.Property(e => e.CloseTime).HasColumnType("datetime");
 
                 entity.Property(e => e.Description)
                     .IsRequired()
                     .HasMaxLength(100);
+
+                entity.Property(e => e.Note).HasMaxLength(100);
 
                 entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
 
@@ -694,6 +698,11 @@ namespace InventoryManagementSystem.Models.EF
                 entity.Property(e => e.ReportTime)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.HasOne(d => d.Admin)
+                    .WithMany(p => p.Reports)
+                    .HasForeignKey(d => d.AdminId)
+                    .HasConstraintName("FK_Report_Admin");
 
                 entity.HasOne(d => d.OrderDetail)
                     .WithMany(p => p.Reports)
