@@ -40,11 +40,11 @@
                 <div class="form-group text-center">
                     @if(Model.Success)
                     {
-                    <a class="btn btn-success btn-lg" asp-controller="Equips" asp-action="EquipQry">確認並返回</a>
+                    <a class="btn btn-success btn-lg" asp-controller="/Payment" asp-action="PaymentResultView">確認並返回</a>
                     }
                     else
                     {
-                    <a class="btn btn-danger btn-lg" asp-controller="Equips" asp-action="EquipQry">確認並返回</a>
+                    <a class="btn btn-danger btn-lg" asp-controller="/Payment" asp-action="PaymentResultView">確認並返回</a>
                     }
                 </div>
             </div>
