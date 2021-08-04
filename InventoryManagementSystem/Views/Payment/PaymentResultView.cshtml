@@ -47,11 +47,12 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <b-btn variant="danger"
+                        <b-btn v-if="loadPaymentBtn==false" variant="danger"
                                @@click="confirmAmount"
                                :disabled="noItemSelected"
-                               data-toggle="modal"
-                               data-target="#confirmAmountModal">結帳 (總金額: {{countTotalPrice}})</b-btn>
+                               @*data-toggle="modal"*@
+                               @*data-target="#confirmAmountModal"*@>結帳 (總金額: {{countTotalPrice}})</b-btn>
+                        <b-btn v-else variant="danger" disabled>處理中,請稍後...</b-btn>
                     </div>
                 </b-tab>
 
@@ -113,12 +114,13 @@
                                 </template>
                             </tbody>
                         </table>
-                        <b-btn variant="danger"
+                        <b-btn v-if="loadPaymentBtn==false" variant="danger"
                                @@click="confirmAmount"
                                :disabled="noItemSelected"
-                               data-toggle="modal"
-                               data-target="#confirmAmountModal"
-                               >結帳 (總金額: {{countExtraFeePrice}})</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
+                               @*data-toggle="modal"*@
+                               @*data-target="#confirmAmountModal"*@>結帳 (總金額: {{countExtraFeePrice}})</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
+                        <b-btn v-else variant="danger" disabled>處理中,請稍後...</b-btn>
+
                     </div>
                 </b-tab>
 
@@ -230,69 +232,7 @@
                         <button type="button"
                                 class="btn btn-secondary"
                                 data-dismiss="modal"
-                                @@click="clearMpgInfo">
-                            返回
-                        </button>
-                        <button type="submit"
-                                class="btn btn-primary"
-                                :disabled="isLoadingTradeInfo">
-                            確定
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!--額外金額結帳Modal-->
-
-    <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">確認金額</h5>
-                </div>
-                <form method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
-                    <div class="modal-body">
-                        @* 這四個值要送給藍星，但不用顯示給 User 看 *@
-                        <input type="text"
-                               name="MerchantID"
-                               :value="mpgInfo.merchantID"
-                               hidden
-                               readonly
-                               required />
-                        <input type="text"
-                               name="TradeInfo"
-                               :value="mpgInfo.tradeInfo"
-                               hidden
-                               readonly
-                               required />
-                        <input type="text"
-                               name="TradeSha"
-                               :value="mpgInfo.tradeSha"
-                               hidden
-                               readonly
-                               required />
-                        <input type="text"
-                               name="Version"
-                               :value="mpgInfo.version"
-                               hidden
-                               readonly
-                               required />
-                        <div class="form-group">
-                            <label>請確認應付金額是否正確</label>
-                            @* 顯示用的 Input，這個值不會送給藍新，故不給 name*@
-                            <input type="number"
-                                   class="form-control"
-                                   :value="mpgInfo.totalPrice"
-                                   readonly />
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button"
-                                class="btn btn-secondary"
-                                data-dismiss="modal"
-                                @@click="closeModal">
+                                @@click="cancelPaying">
                             取消
                         </button>
                         <button type="submit"
@@ -305,8 +245,6 @@
             </div>
         </div>
     </div>
-
-
 </div>
 
 <script>
@@ -340,7 +278,7 @@
             loading: true,
             extraFee_tab: false,
             finishOd_tab: false,
-            loadPaymentModal:false
+            loadPaymentBtn:false
 
         },
 
@@ -532,8 +470,7 @@
             },
 
             confirmAmount: async function () {
-
-
+                this.loadPaymentBtn = true;
                 this.clearMpgInfo;
                 this.requestData = {};
                 if (this.tabIndex == 0) {
@@ -569,13 +506,16 @@
                     body: JSON.stringify(this.requestData)
                 })
 
-                if (!response.ok) {
+                if (response.ok) {
+                    console.log("付款資料讀取成功");
+                    this.mpgInfo = await response.json();
+                    $("#confirmAmountModal").modal();
+                    
+                } else {
                     alert("付款資料讀取失敗");
                     return;
-                }
 
-                this.mpgInfo = await response.json();
-               
+                }
 
             },
 
@@ -593,10 +533,10 @@
                 this.selected.push(paymentId)
             },
 
-            closeModal: function () {
+            cancelPaying: function () {
 
+                this.loadPaymentBtn= false,
                 this.clearMpgInfo();
-
             }
         },
 
