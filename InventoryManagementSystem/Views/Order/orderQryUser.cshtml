@@ -196,53 +196,6 @@
                 </div>
             </b-tab>
 
-            <!-- 已結束 -->
-            <b-tab title="已結束" @@click="loadData_tab4">
-                <div>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>清單</th>
-                                <th>訂單序號</th>
-                                <th>設備序號</th>
-                                <th>設備名稱</th>
-                                <th>數量</th>
-                                <th>預計取貨時間</th>
-                                <th>租借天數</th>
-                                <th>總價</th>
-                                <th>訂單狀態</th>
-                                <th>下單時間</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template v-for="order in orders_4">
-                                <tr>
-                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
-                                    <td>{{order.orderSn}}</td>
-                                    <td>{{order.equipmentSn}}</td>
-                                    <td>{{order.equipmentName}}</td>
-                                    <td>{{order.quantity}}</td>
-                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td>{{order.day}}</td>
-                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                    <td><span v-if="order.orderDetails.length == 0">逾期未領取</span><span v-else >已結束</span></td>
-                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                </tr>
-                                <tr v-if="opened.includes(order.orderId)">
-                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
-                                        <ul>
-
-                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
-
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </b-tab>
-
             <!-- 已逾期 -->
             <b-tab title="已逾期" @@click="loadData_tab5">
                 <div>
@@ -276,6 +229,53 @@
                                     <td>已逾期</td>
                                     <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
                                     <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
+                                </tr>
+                                <tr v-if="opened.includes(order.orderId)">
+                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
+                                        <ul>
+
+                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
+
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </b-tab>
+
+            <!-- 已結束 -->
+            <b-tab title="已結束" @@click="loadData_tab4">
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>清單</th>
+                                <th>訂單序號</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>預計取貨時間</th>
+                                <th>租借天數</th>
+                                <th>總價</th>
+                                <th>訂單狀態</th>
+                                <th>下單時間</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="order in orders_4">
+                                <tr>
+                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
+                                    <td>{{order.orderSn}}</td>
+                                    <td>{{order.equipmentSn}}</td>
+                                    <td>{{order.equipmentName}}</td>
+                                    <td>{{order.quantity}}</td>
+                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td>{{order.day}}</td>
+                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                    <td><span v-if="order.orderDetails.length == 0">逾期未領取</span><span v-else>已結束</span></td>
+                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
                                 </tr>
                                 <tr v-if="opened.includes(order.orderId)">
                                     <td colspan="11" class="p-3 mb-2 bg-light text-dark">
