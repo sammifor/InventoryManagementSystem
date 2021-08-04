@@ -112,7 +112,8 @@
                     }).catch(err => alert(err));
 
                     if (!response.ok) {
-                        alert(response.statusText);
+                        let failText = await response.text();
+                        alert(failText);
                         return;
                     }
 

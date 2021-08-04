@@ -5,7 +5,7 @@
 
 
 <div class="row justify-content-center">
-    <div class="col-xl-6 col-12">
+    <div class="col-xl-6 col-11">
         <section class="card">
             <h1 class="card-header h3 text-center">使用者登入</h1>
             <form method="post" class="card-body">
@@ -18,12 +18,12 @@
                         <input class="form-control" name="password" id="password" type="password" />
                     </div>
                     <div class="form-group text-center">
-                        <button class="btn btn-primary btn-lg" type="submit">登入</button>
+                        <button class="btn btn-primary btn-block" type="submit">登入</button>
                     </div>
             </form>
             <div class="card-footer text-center">
-                <p>沒有帳號嗎？您可以<a href="/signup">註冊一個新帳號</a></p>
-                <p><a href="#">忘記密碼了嗎？</a></p>
+                <p>沒有帳號嗎？您可以<a asp-controller="User" asp-action="SignUp">註冊一個新帳號</a></p>
+                <p><a asp-controller="User" asp-action="ForgetPassword">忘記密碼了嗎？</a></p>
             </div>
         </section>
     </div>

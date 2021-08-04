@@ -116,16 +116,6 @@
                            id="address" />
                 </div>
 
-                <!-- May be removed -->
-                <div class="form-group">
-                    <label for="lineAccount">LINE 帳號</label>
-                    <input v-model="info.lineAccount"
-                           class="form-control"
-                           type="text"
-                           name="lineAccount"
-                           id="lineAccount" />
-                </div>
-
                 <div class="form-group">
                     <div class="form-check">
                         <input v-model="info.allowNotification"
@@ -157,16 +147,20 @@
 
                 <div class="form-group text-center">
                     <button @@click="clickSignUp"
-                            :class="['btn', 'btn-lg', submitBtnClass]"
+                            :class="['btn', 'btn-block', submitBtnClass]"
                             :disabled="btnIsDisabled" @*Not wrong. VS has no idea that this is Vue.js syntax.*@
                             type="button">
                         註冊
                     </button>
                 </div>
             </form>
-            <div :hidden="messageHidden" @*Not wrong. VS has no idea that this is Vue.js syntax.*@
-                     class="card-footer text-center">
-                <p class="card-text">
+            <div class="card-footer text-center">
+                <p class="card-text"
+                   :hidden="!messageHidden">
+                    <a asp-controller="User" asp-action="Authenticate">回到登入頁</a>
+                </p>
+                <p class="card-text"
+                   :hidden="messageHidden"> @*Not wrong. VS has no idea that this is Vue.js syntax.*@
                     註冊成功，請等待跳轉。若 5 秒後沒有跳轉，請<a :href="redirectURL">按此連結跳轉</a>。
                 </p>
             </div>

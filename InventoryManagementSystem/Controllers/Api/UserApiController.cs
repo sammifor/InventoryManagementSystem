@@ -1,11 +1,13 @@
 ﻿using InventoryManagementSystem.Models.EF;
-using InventoryManagementSystem.Models.Interfaces;
 using InventoryManagementSystem.Models.LINE;
+using InventoryManagementSystem.Models.NotificationModels;
+using InventoryManagementSystem.Models.Password;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,22 +20,29 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace InventoryManagementSystem.Controllers.Api
 {
     [Route("api/user")]
     [ApiController]
-    public class UserApiController : ControllerBase, IHashPassword
+    public class UserApiController : ControllerBase
     {
         private readonly InventoryManagementSystemContext _dbContext;
+        private readonly NotificationService notificationService;
         private readonly LineConfig _lineConfig;
 
-        public UserApiController(InventoryManagementSystemContext dbContext, IOptions<LineConfig> config)
+        public UserApiController(
+            InventoryManagementSystemContext dbContext, 
+            IOptions<LineConfig> lineConfig, 
+            NotificationService notificationService)
         {
             _dbContext = dbContext;
-            _lineConfig = config.Value;
+            this.notificationService = notificationService;
+            _lineConfig = lineConfig.Value;
         }
 
         /* method: GET
@@ -158,6 +167,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [Consumes("application/json")]
         public async Task<IActionResult> PostUser(PostUserViewModel model)
         {
+            #region 簡查 Required Field 是否都有填
             string[] notNullFields =
             {
                 model.Username,
@@ -172,23 +182,28 @@ namespace InventoryManagementSystem.Controllers.Api
 
             if (nullOrWhiteSpaceExist)
             {
-                return BadRequest();
+                return BadRequest("有必填欄位為空");
             }
+            #endregion
 
-            IHashPassword hasher = this as IHashPassword;
-            Random r = new Random();
-            byte[] saltBytes = new byte[32];
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(model.Password);
-            r.NextBytes(saltBytes);
-            byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, saltBytes);
+            #region Hash Password
+            PBKDF2 hasher = new PBKDF2(model.Password, null);
+            #endregion
+            //To be removed
+            //IHashPassword hasher = this as IHashPassword;
+            //Random r = new Random();
+            //byte[] saltBytes = new byte[32];
+            //byte[] passwordBytes = Encoding.UTF8.GetBytes(model.Password);
+            //r.NextBytes(saltBytes);
+            //byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, saltBytes);
 
             User user = new User
             {
                 UserId = Guid.NewGuid(),
                 Username = model.Username,
                 Email = model.Email,
-                HashedPassword = hashedPassword,
-                Salt = saltBytes,
+                HashedPassword = hasher.HashedPassword,
+                Salt = hasher.Salt,
                 FullName = model.FullName,
                 AllowNotification = model.AllowNotification,
                 Address = model.Address,
@@ -206,7 +221,7 @@ namespace InventoryManagementSystem.Controllers.Api
             }
             catch
             {
-                return Conflict();
+                return Conflict("資料庫更新失敗");
             }
 
             // 註冊成功後直接發 cookie，視同登入。
@@ -217,7 +232,7 @@ namespace InventoryManagementSystem.Controllers.Api
             ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             ClaimsPrincipal principal = new ClaimsPrincipal(identity);
             await HttpContext.SignInAsync(principal);
-            return RedirectToAction("equipQryUser", "Equips");
+            return RedirectToAction("EquipQry", "Equips");
 
         }
 
@@ -246,7 +261,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             if (id != model.UserId)
             {
-                return BadRequest();
+                return BadRequest("欲修改之 User ID 與實際傳入 ID 不同");
             }
 
             #region 檢查目前正在修改的人是否為管理員或本人
@@ -262,8 +277,8 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 Guid userId = Guid.Parse(userIdString);
 
-                if (userId != id)
-                    return Unauthorized();
+                if(userId != id)
+                    return Unauthorized("只能修改本人資料");
             }
             #endregion
 
@@ -294,27 +309,22 @@ namespace InventoryManagementSystem.Controllers.Api
             User user = await _dbContext.Users.FindAsync(id);
 
             // 不是管理員就必須填入正確的密碼
-            IHashPassword hasher = this as IHashPassword;
-            if (!isAdmin)
-            {
-                byte[] oldPwBytes = Encoding.UTF8.GetBytes(model.OldPassword);
-                byte[] hashedOldPw = hasher.HashPasswordWithSalt(oldPwBytes, user.Salt);
 
-                if (!hashedOldPw.SequenceEqual(user.HashedPassword))
-                    return BadRequest();
+            if(!isAdmin)
+            {
+                PBKDF2 hasher = new PBKDF2(model.OldPassword, user.Salt);
+
+                if(!hasher.HashedPassword.SequenceEqual(user.HashedPassword))
+                    return BadRequest("密碼錯誤");
             }
 
             // 有輸入新密碼才修改密碼
             if (model.Password != null)
             {
-                byte[] newPwBytes = Encoding.UTF8.GetBytes(model.Password);
-                Random r = new Random();
-                byte[] saltBytes = new byte[32];
-                r.NextBytes(saltBytes);
-                byte[] hashedNewPw = hasher.HashPasswordWithSalt(newPwBytes, saltBytes);
+                PBKDF2 hasher = new PBKDF2(model.Password, null);
 
-                user.Salt = saltBytes;
-                user.HashedPassword = hashedNewPw;
+                user.Salt = hasher.Salt;
+                user.HashedPassword = hasher.HashedPassword;
             }
 
             // 修改其他個資
@@ -365,7 +375,6 @@ namespace InventoryManagementSystem.Controllers.Api
                     //return BadRequest();
                     return BadRequest($"{failData.error}, {failData.error_description}");
                 }
-
                 string jsonString = await response.Content.ReadAsStringAsync();
                 var verifiedData = JsonConvert.DeserializeObject<VerifyIDTokenResponse>(jsonString);
 
@@ -426,12 +435,9 @@ namespace InventoryManagementSystem.Controllers.Api
             if (user == null)
                 return Unauthorized("您輸入的帳號或密碼有誤");
 
-            IHashPassword hasher = this as IHashPassword;
+            PBKDF2 hasher = new PBKDF2(model.Password, user.Salt);
 
-            byte[] passBytes = Encoding.UTF8.GetBytes(model.Password);
-            byte[] hashedBytes = hasher.HashPasswordWithSalt(passBytes, user.Salt);
-
-            if (!hashedBytes.SequenceEqual(user.HashedPassword))
+            if(!hasher.HashedPassword.SequenceEqual(user.HashedPassword))
                 return Unauthorized("您輸入的帳號或密碼有誤");
             #endregion
 
@@ -570,6 +576,184 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 return Ok();
             }
+        }
+
+        [HttpPost("sendresetlink")]
+        public async Task<IActionResult> SendResetLink([FromForm] string email)
+        {
+            #region 確認此 User 真的存在
+            var user = await _dbContext.Users
+                .Where(u => u.Email == email)
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.Username,
+                    u.FullName,
+                    u.Email
+                })
+                .FirstOrDefaultAsync();
+
+            if(user == null)
+            {
+                return Ok();
+            }
+            #endregion
+
+            #region 先把此 User 先前產生的 Token 移除
+            var rpts = await _dbContext.ResetPasswordTokens
+                .Where(rpt => rpt.UserId == user.UserId)
+                .ToArrayAsync();
+
+            _dbContext.ResetPasswordTokens.RemoveRange(rpts);
+            #endregion
+
+            string token;
+            byte[] hashedToken;
+            #region 產生有時效性的 Token
+            using(RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                byte[] tokenBytes = new byte[128];
+                rng.GetBytes(tokenBytes);
+
+                string base64 = Convert.ToBase64String(tokenBytes);
+                token = HttpUtility.UrlEncode(base64);
+
+                hashedToken = SHA512.HashData(tokenBytes);
+            }
+            #endregion
+
+            #region 在 ResetPasswordToken Table 新增一筆資料記錄此 Token
+            ResetPasswordToken resetPasswordToken = new ResetPasswordToken
+            {
+                UserId = user.UserId,
+                ExpireTime = DateTime.Now.AddMinutes(15),
+                HashedToken = hashedToken
+            };
+
+            _dbContext.ResetPasswordTokens.Add(resetPasswordToken);
+            #endregion
+
+            #region 更新資料庫
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict("資料庫更新失敗");
+            }
+            #endregion
+
+            string resetPasswordURL = $"{Request.Scheme}://{Request.Host}/resetpassword?token={token}";
+            StringBuilder builder = new StringBuilder();
+
+            builder.Append("<p>");
+            builder.AppendFormat("@{0} 您好：", user.Username);
+            builder.Append("<br><br>");
+            builder.AppendFormat("這是您的重設密碼連結：");
+            builder.Append("<br>");
+            builder.AppendFormat("<a href='{0}'>{0}</a>", resetPasswordURL);
+            builder.Append("<br>");
+            builder.Append("此連結有效時間為 15 分鐘。");
+            builder.Append("<br>");
+            builder.Append("本信為系統自動發送，請勿直接回覆此郵件。");
+            builder.Append("</p>");
+
+            string emailText = builder.ToString();
+
+            await notificationService.SendEmailNotification(
+                user.FullName,
+                user.Email,
+                "重設密碼",
+                "html",
+                emailText);
+
+            return Ok();
+        }
+
+        [HttpPost("password/validatetoken")]
+        public async Task<IActionResult> ValidateToken([FromForm] string token)
+        {
+            TokenValidationModel model = await TokenHandler(token);
+
+            if(!model.IsValid)
+            {
+                return BadRequest("密碼重設連結格式不正確或已過期");
+            }
+
+            return Ok();
+        }
+
+        [HttpPost("password/reset")]
+        public async Task<IActionResult> ResetPassword([FromForm] string token, [FromForm] string password)
+        {
+            #region Validate the token
+            TokenValidationModel model = await TokenHandler(token);
+
+            if(!model.IsValid)
+            {
+                return BadRequest("密碼重設連結格式不正確或已過期");
+            }
+            #endregion
+
+            #region Hash the password
+            User user = await _dbContext.Users
+                .FindAsync(model.ResetPasswordToken.UserId);
+
+            PBKDF2 hasher = new PBKDF2(password, null);
+
+            user.HashedPassword = hasher.HashedPassword;
+            user.Salt = hasher.Salt;
+            #endregion
+
+            #region Make the token expire
+            _dbContext.ResetPasswordTokens.Remove(model.ResetPasswordToken);
+            #endregion
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict("資料庫更新失敗");
+            }
+
+            return Ok("修改成功");
+
+
+        }
+
+        private async Task<TokenValidationModel> TokenHandler(string token)
+        {
+            var model = new TokenValidationModel();
+            byte[] tokenBytes;
+            try
+            {
+                tokenBytes = Convert.FromBase64String(token);
+            }
+            catch
+            {
+                return model;
+            }
+
+            byte[] hashedToken = SHA512.HashData(tokenBytes);
+
+            ResetPasswordToken userToken = await _dbContext.ResetPasswordTokens
+                .Where(rpt => rpt.HashedToken.SequenceEqual(hashedToken))
+                .FirstOrDefaultAsync();
+
+            if(userToken == null || userToken.ExpireTime < DateTime.Now)
+            {
+                return model;
+            }
+
+            User user = await _dbContext.Users.FindAsync(userToken.UserId);
+
+            model.IsValid = true;
+            model.ResetPasswordToken = userToken;
+
+            return model;
+
         }
     }
 }

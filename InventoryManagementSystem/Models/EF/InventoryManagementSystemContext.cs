@@ -37,6 +37,7 @@ namespace InventoryManagementSystem.Models.EF
         public virtual DbSet<PaymentOrder> PaymentOrders { get; set; }
         public virtual DbSet<Questionnaire> Questionnaires { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
+        public virtual DbSet<ResetPasswordToken> ResetPasswordTokens { get; set; }
         public virtual DbSet<Response> Responses { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<User> Users { get; set; }
@@ -86,14 +87,14 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.HashedPassword)
                     .IsRequired()
-                    .HasMaxLength(32)
+                    .HasMaxLength(64)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.RoleId).HasColumnName("RoleID");
 
                 entity.Property(e => e.Salt)
                     .IsRequired()
-                    .HasMaxLength(32)
+                    .HasMaxLength(64)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Username).HasMaxLength(50);
@@ -670,9 +671,15 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.ToTable("Report");
 
+                entity.HasIndex(e => e.ReportSn, "UQ_Report_ReportSN")
+                    .IsUnique()
+                    .IsClustered();
+
                 entity.Property(e => e.ReportId)
                     .ValueGeneratedNever()
                     .HasColumnName("ReportID");
+
+                entity.Property(e => e.AdminId).HasColumnName("AdminID");
 
                 entity.Property(e => e.CloseTime).HasColumnType("datetime");
 
@@ -680,17 +687,58 @@ namespace InventoryManagementSystem.Models.EF
                     .IsRequired()
                     .HasMaxLength(100);
 
+                entity.Property(e => e.Note).HasMaxLength(100);
+
                 entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
+
+                entity.Property(e => e.ReportSn)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("ReportSN");
 
                 entity.Property(e => e.ReportTime)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.HasOne(d => d.Admin)
+                    .WithMany(p => p.Reports)
+                    .HasForeignKey(d => d.AdminId)
+                    .HasConstraintName("FK_Report_Admin");
 
                 entity.HasOne(d => d.OrderDetail)
                     .WithMany(p => p.Reports)
                     .HasForeignKey(d => d.OrderDetailId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Report_OrderDetail");
+            });
+
+            modelBuilder.Entity<ResetPasswordToken>(entity =>
+            {
+                entity.HasKey(e => e.TokenId);
+
+                entity.ToTable("ResetPasswordToken");
+
+                entity.HasIndex(e => e.HashedToken, "UQ_ResetPasswordToken_HashedToken")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.UserId, "UQ_ResetPasswordToken_UserID")
+                    .IsUnique();
+
+                entity.Property(e => e.TokenId).HasColumnName("TokenID");
+
+                entity.Property(e => e.ExpireTime).HasColumnType("datetime");
+
+                entity.Property(e => e.HashedToken)
+                    .IsRequired()
+                    .HasMaxLength(64)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.UserId).HasColumnName("UserID");
+
+                entity.HasOne(d => d.User)
+                    .WithOne(p => p.ResetPasswordToken)
+                    .HasForeignKey<ResetPasswordToken>(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ResetPasswordToken_User");
             });
 
             modelBuilder.Entity<Response>(entity =>
@@ -800,7 +848,7 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.HashedPassword)
                     .IsRequired()
-                    .HasMaxLength(32)
+                    .HasMaxLength(64)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.LineId)
@@ -814,7 +862,7 @@ namespace InventoryManagementSystem.Models.EF
 
                 entity.Property(e => e.Salt)
                     .IsRequired()
-                    .HasMaxLength(32)
+                    .HasMaxLength(64)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.UserSn)

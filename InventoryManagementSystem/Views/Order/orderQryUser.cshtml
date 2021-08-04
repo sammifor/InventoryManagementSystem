@@ -18,7 +18,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>訂單ID</th>
+                                <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
@@ -49,11 +49,16 @@
             </b-tab>
 
             <!-- 待付款 -->
-            <b-tab title="待付款">
+            <b-tab title="待付款" @@click="loadData_tab1">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>
+                                    <label class="form-checkbox">
+                                        <input type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i>
+                                    </label>
+                                </th>
                                 <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
@@ -68,6 +73,11 @@
                         </thead>
                         <tbody>
                             <tr v-for="order in orders_1">
+                                <td>
+                                    <label class="form-checkbox">
+                                        <input type="checkbox" v-model="selected" :value="order"><i class="form-icon"></i>
+                                    </label>
+                                </td>
                                 <td>{{order.orderSn}}</td>
                                 <td>{{order.equipmentSn}}</td>
                                 <td>{{order.equipmentName}}</td>
@@ -81,18 +91,23 @@
                             </tr>
                         </tbody>
                     </table>
-                    <b-btn variant="danger" onclick="self.location.href='/Payment/PaymentResultView/'">我要結帳</b-btn>
+                    <b-btn variant="danger"
+                           @*@@click="cashOut"*@
+                           @@click="confirmAmount"
+                           :disabled="noItemSelected"
+                           data-toggle="modal"
+                           data-target="#confirmAmountModal">結帳 (總金額: {{countTotalPrice}})</b-btn>
                 </div>
             </b-tab>
 
             <!-- 待領取 -->
-            <b-tab title="待領取">
+            <b-tab title="待領取" @@click="loadData_tab2">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>清單</th>
-                                <th>訂單ID</th>
+                                <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
@@ -135,13 +150,13 @@
             </b-tab>
 
             <!-- 租借中 -->
-            <b-tab title="租借中">
+            <b-tab title="租借中" @@click="loadData_tab3">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>清單</th>
-                                <th>訂單ID</th>
+                                <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
@@ -156,7 +171,7 @@
                         <tbody>
                             <template v-for="order in orders_3">
                                 <tr>
-                                    <td><i class="fa fa-bars" @@click="toggle(order.orderId)"></i></td>
+                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
                                     <td>{{order.orderSn}}</td>
                                     <td>{{order.equipmentSn}}</td>
                                     <td>{{order.equipmentName}}</td>
@@ -184,13 +199,13 @@
             </b-tab>
 
             <!-- 已結束 -->
-            <b-tab title="已結束">
+            <b-tab title="已結束" @@click="loadData_tab4">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>清單</th>
-                                <th>訂單ID</th>
+                                <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
@@ -204,7 +219,7 @@
                         <tbody>
                             <template v-for="order in orders_4">
                                 <tr>
-                                    <td><i class="fa fa-bars" @@click="toggle(order.orderId)"></i></td>
+                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
                                     <td>{{order.orderSn}}</td>
                                     <td>{{order.equipmentSn}}</td>
                                     <td>{{order.equipmentName}}</td>
@@ -212,7 +227,7 @@
                                     <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
                                     <td>{{order.day}}</td>
                                     <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                    <td>已歸還</td>
+                                    <td><span v-if="order.orderDetails.length == 0">逾期未領取</span><span v-else >已結束</span></td>
                                     <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
                                 </tr>
                                 <tr v-if="opened.includes(order.orderId)">
@@ -231,13 +246,13 @@
             </b-tab>
 
             <!-- 已逾期 -->
-            <b-tab title="已逾期">
+            <b-tab title="已逾期" @@click="loadData_tab5">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>清單</th>
-                                <th>訂單ID</th>
+                                <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
                                 <th>數量</th>
@@ -252,7 +267,7 @@
                         <tbody>
                             <template v-for="order in orders_5">
                                 <tr>
-                                    <td><i class="fa fa-bars" @@click="toggle(order.orderId)"></i></td>
+                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
                                     <td>{{order.orderSn}}</td>
                                     <td>{{order.equipmentSn}}</td>
                                     <td>{{order.equipmentName}}</td>
@@ -296,7 +311,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label class="col-form-label">訂單編號</label>
-                            <input type="text" class="form-control" :value="currentOrder.orderId" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.orderSn" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">設備名稱</label>
@@ -314,15 +329,15 @@
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">物品序號</label>
-                            <select class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)" v-model="reportOrder.reportItemSn">
+                            <select required class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)" v-model="reportOrder.reportItemSn">
                                 <option disabled selected>請先選擇序號</option>
-                                <option v-for="eachOrderDetails in currentOrder.orderDetails" :value="eachOrderDetails.itemSn">{{eachOrderDetails.itemSn}}</option>
+                                <option v-for="itemSn in reportOrder.reportItemList" :value="itemSn">{{itemSn}}</option>
                             </select>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <a :href="reportUrl" class="btn btn-primary active" role="button" aria-pressed="true">填寫設備報修申請</a>
+                        <b-btn class="btn btn-primary active" :href="reportUrl" :disabled="cannotReport">填寫設備報修申請</b-btn>                    
                     </div>
                 </div>
             </div>
@@ -344,7 +359,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label class="col-form-label">訂單編號</label>
-                            <input type="text" class="form-control" :value="currentOrder.orderId" readonly>
+                            <input type="text" class="form-control" :value="currentOrder.orderSn" readonly>
                         </div>
                         <div class="form-group col-md-4">
                             <label class="col-form-label">設備名稱</label>
@@ -382,14 +397,73 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" @@click="cancelConfirm($event)">確定</button>
+                        <b-btn type="button" class="btn btn-primary" @@click="cancelConfirm($event)" :disabled="cannotCancel">確定</b-btn>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    
+    <!-- TODO 確認金額Modal -->
+    <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">確認金額</h5>
+                </div>
+                <form method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
+                    <div class="modal-body">
+                        @* 這四個值要送給藍新，但不用顯示給 User 看 *@
+                        <input type="text"
+                               name="MerchantID"
+                               :value="mpgInfo.merchantID"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="TradeInfo"
+                               :value="mpgInfo.tradeInfo"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="TradeSha"
+                               :value="mpgInfo.tradeSha"
+                               hidden
+                               readonly
+                               required />
+                        <input type="text"
+                               name="Version"
+                               :value="mpgInfo.version"
+                               hidden
+                               readonly
+                               required />
+                        <div class="form-group">
+                            <label>請確認應付金額是否正確</label>
+                            @* 顯示用的 Input，這個值不會送給藍新，故不給 name*@
+                            <input type="number"
+                                   class="form-control"
+                                   :value="mpgInfo.totalPrice"
+                                   readonly />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                                @@click="clearMpgInfo">
+                            返回
+                        </button>
+                        <button type="submit"
+                                class="btn btn-primary"
+                                :disabled="isLoadingTradeInfo">
+                            確定
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
 </div>
@@ -411,6 +485,7 @@
             orders_4: [],
             orders_5: [],
             currentOrder: {
+                
 
             },
             cancelOrder: {
@@ -420,7 +495,8 @@
 
             reportOrder: {
                 reportItemSn: "",
-                reportOrderDetailId: ""
+                reportOrderDetailId: "",
+                reportItemList: []
 
             },
             reportUrl: "",
@@ -458,28 +534,8 @@
                 }).then(response => {
 
                     this.orders = response;
-                    this.orders.forEach(order => {
-                        switch (order.tabName) {
-                            case "待核可":
-                                this.orders_0.push(order);
-                                break;
-                            case "待付款":
-                                this.orders_1.push(order);
-                            case "待領取":
-                                this.orders_2.push(order);
-                                break;
-                            case "租借中":
-                                this.orders_3.push(order);
-                                break;
-                            case "已結束":
-                                this.orders_4.push(order);
-                                break;
-                            case "已逾期":
-                                this.orders_5.push(order);
-                                break;
-                        }
-                    });
-
+                    this.orders_0 = this.orders.filter(od => od.tabName === "待核可");
+   
                 }).catch(error => {
                     alert("資料庫連線失敗");
                     console.log(error);
@@ -490,6 +546,33 @@
 
 
         methods: {
+            loadData_tab1: function () {
+
+                this.orders_1 = this.orders.filter(od => od.tabName === "待付款");
+
+            },
+            loadData_tab2: function () {
+
+                this.orders_2 = this.orders.filter(od => od.tabName === "待領取");
+
+            },
+            loadData_tab3: function () {
+
+                this.orders_3 = this.orders.filter(od => od.tabName === "租借中");
+
+            },
+
+            loadData_tab4: function () {
+
+                this.orders_4 = this.orders.filter(od => od.tabName === "已結束");
+
+            },
+
+            loadData_tab5: function () {
+
+                this.orders_5 = this.orders.filter(od => od.tabName === "已逾期");
+
+            },
 
             cancelOrderAction: function (orderData) {
                 this.currentOrder = orderData;
@@ -497,7 +580,7 @@
             },
 
             cancelConfirm: function () {
-
+  
                 let requestData = {
                     orderID: this.currentOrder.orderId,
                     description: this.cancelOrder.cancelDiscription
@@ -528,12 +611,24 @@
             },
 
             reportAction: function (orderData) {
+
                 this.currentOrder = orderData;
+                if (this.reportOrder.reportItemList.length == 0) {
+                this.currentOrder.orderDetails.forEach(od => {
+
+                    if (od.orderDetailStatusId == "T") {
+
+                        this.reportOrder.reportItemList.push(od.itemSn);
+
+                    }
+
+                })
+                }
             },
 
             selectReportItem: function (orderDetailData) {
                 this.reportOrder.reportOrderDetailId = orderDetailData[0].orderDetailId;
-                this.reportUrl = 'orderReport?orderDetailId=' + this.reportOrder.reportOrderDetailId + '&ename='
+                this.reportUrl = '/orderreport?orderDetailId=' + this.reportOrder.reportOrderDetailId + '&ename='
                     + this.currentOrder.equipmentName + "&esn=" + this.currentOrder.equipmentSn + "&itemsn=" + this.reportOrder.reportItemSn
             },
 
@@ -545,8 +640,89 @@
                     }
 
                 }
+            },
+
+            confirmAmount: async function () {
+
+                let requestData = {
+                    isRentalFee: true,
+                    orderIDs: []
+                };
+                this.selected.forEach(order => {
+                    requestData.orderIDs.push(order.orderId)
+                });
+
+                let response = await fetch("/api/payment", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(requestData)
+                })
+
+                if (!response.ok) {
+                    alert(response.text());
+                    return;
+                }
+
+                this.mpgInfo = await response.json()
+            },
+
+            toggle: function (orderId) {
+
+                let index = this.opened.indexOf(orderId);
+                if (index > -1) {
+                    this.opened.splice(index, 1)
+                } else {
+                    this.opened = []
+                    this.opened.push(orderId)
+                }
+            },
+            clearMpgInfo: function () {
+                let info = this.mpgInfo;
+                info.merchantId = "";
+                info.tradeInfo = "";
+                info.tradeSha = "";
+                info.version = "";
             }
-        
+        },
+
+        computed: {
+            countTotalPrice() {
+                this.cashTotalPrice = 0
+                this.totalPrice = [0]
+                this.selected.forEach(order => {
+
+                    var orderPrice = order.unitPrice * order.quantity * order.day;
+                    this.totalPrice.push(orderPrice);
+                })
+
+                var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                return this.cashTotalPrice = this.totalPrice.reduce(reducer);
+
+            },
+
+            isLoadingTradeInfo() {
+                return this.mpgInfo.merchantID === "" ||
+                    this.mpgInfo.tradeInfo === "" ||
+                    this.mpgInfo.tradeSha === "" ||
+                    this.mpgInfo.version === "";
+            },
+
+            noItemSelected() {
+                return this.selected.length <= 0;
+            },
+
+            cannotCancel() {
+                return this.cancelOrder.cancelDiscription==""
+
+            },
+
+            cannotReport() {
+
+                return this.reportOrder.reportItemSn ==""
+
+            }
         }
     })
 

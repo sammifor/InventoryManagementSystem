@@ -16,6 +16,7 @@ namespace InventoryManagementSystem.Models.ResultModels
         public int Quantity { get; set; }
         public DateTime EstimatedPickupTime { get; set; }
         public int Day { get; set; }
+        public DateTime ExpireTime { get; set; }
         public string OrderStatusId { get; set; }
         public DateTime? OrderTime { get; set; }
 
@@ -36,6 +37,7 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string TabName { get; set; }
 
         public OrderDetailResultModel[] OrderDetails { get; set; }
+        public int OpenReportCount { get; set; }
 
         // From Payment table
         public Guid? PaymentId { get; set; }

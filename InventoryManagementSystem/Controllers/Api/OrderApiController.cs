@@ -25,11 +25,16 @@ namespace InventoryManagementSystem.Controllers.Api
     {
 
         private readonly InventoryManagementSystemContext _dbContext;
+        private readonly NotificationService notificationService;
         private readonly NotificationConfig _notificationConfig;
 
-        public OrderApiController(InventoryManagementSystemContext dbContext, IOptions<NotificationConfig> config)
+        public OrderApiController(
+            InventoryManagementSystemContext dbContext, 
+            IOptions<NotificationConfig> config,
+            NotificationService notificationService)
         {
             _dbContext = dbContext;
+            this.notificationService = notificationService;
             _notificationConfig = config.Value;
         }
 
@@ -117,6 +122,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 Quantity = o.Quantity,
                 EstimatedPickupTime = o.EstimatedPickupTime,
                 Day = o.Day,
+                ExpireTime = o.EstimatedPickupTime.AddDays(o.Day),
                 OrderStatusId = o.OrderStatusId,
                 OrderTime = o.OrderTime,
 
@@ -131,15 +137,26 @@ namespace InventoryManagementSystem.Controllers.Api
 
                 StatusName = o.OrderStatus.StatusName,
 
+                OpenReportCount = o.OrderDetails
+                    .SelectMany(od => od.Reports)
+                    .Count(r => r.CloseTime == null),
+
                 OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
                 {
                     OrderDetailId = od.OrderDetailId,
                     OrderDetailSn = od.OrderDetailSn,
                     ItemId = od.ItemId,
                     ItemSn = od.Item.ItemSn,
+                    OpenReportCounts = od.Reports.Count(r => r.CloseTime == null),
+                    ItemDescription = od.Item.Description,
 
                     OrderDetailStatusId = od.OrderDetailStatusId,
-                    OrderDetailStatus = od.OrderDetailStatus.StatusName
+                    OrderDetailStatus = od.OrderDetailStatus.StatusName,
+
+                    ItemStatus = od.ItemLogs
+                        .OrderByDescending(il => il.CreateTime)
+                        .Select(il => il.Condition.ConditionName)
+                        .FirstOrDefault()
                 })
                         .ToArray(),
 
@@ -342,6 +359,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     u.Username,
                     u.FullName,
                     u.Email,
+                    u.LineId,
                     u.AllowNotification
                 })
                 .FirstOrDefaultAsync();
@@ -356,42 +374,43 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Select(eq => eq.EquipmentName)
                 .FirstOrDefaultAsync();
 
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_notificationConfig.Name, _notificationConfig.User));
-            message.To.Add(new MailboxAddress(user.FullName, user.Email));
 
             StringBuilder builder = new StringBuilder();
+            string subject = string.Empty;
             if(model.Reply == true)
             {
-                message.Subject = "申請租借核可通知";
-                builder.AppendFormat("<p>@{0} 您好：<br><br>", user.Username);
+                subject = "申請租借核可通知";
+                builder.AppendFormat("@{0} 您好：\n\n", user.Username);
                 builder.AppendFormat("您所申請租借的「{0}」已被核可，請儘速前往結帳，謝謝。", equipName);
             }
             else
             {
-                message.Subject = "申請租借拒絕通知";
-                builder.AppendFormat("<p>@{0} 您好：<br><br>", user.Username);
+                subject = "申請租借拒絕通知";
+                builder.AppendFormat("@{0} 您好：\n\n", user.Username);
                 builder.AppendFormat("很抱歉，您所申請租借的「{0}」遭拒絕。", equipName);
             }
 
-            builder.Append("<br>");
+
+            if(!string.IsNullOrWhiteSpace(user.LineId))
+            {
+                string lineText = builder.ToString();
+                await notificationService.SendLineNotification(user.LineId, lineText);
+            }
+
+            builder.Append("\n");
             builder.Append("本信為系統自動發送，請勿直接回覆此郵件。");
+            builder.Replace("\n", "<br>");
+            builder.Insert(0, "<p>");
             builder.Append("</p>");
 
-            message.Body = new TextPart("html")
-            {
-                Text = builder.ToString()
-            };
+            string emailText = builder.ToString();
+            await notificationService.SendEmailNotification(
+                user.FullName,
+                user.Email,
+                subject, 
+                "html",
+                emailText);
 
-            using(var client = new SmtpClient())
-            {
-                await client.ConnectAsync(_notificationConfig.Host, _notificationConfig.Port, false);
-                await client.AuthenticateAsync(_notificationConfig.User, _notificationConfig.Pass);
-                await client.SendAsync(message);
-
-                if(client.IsConnected)
-                    await client.DisconnectAsync(true);
-            }
 
             return Ok();
         }

@@ -7,7 +7,7 @@ namespace InventoryManagementSystem.Models.ViewModels
 {
     public class ReturnItemsCheckViewModel
     {
-        public Guid OrderDetailID { get; set; }
+        public Guid OrderDetailId { get; set; }
         public bool FunctionsNormally { get; set; } // 是否運作正常？
         public string Description { get; set; } // 詳細描述
     }

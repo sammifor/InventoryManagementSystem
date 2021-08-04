@@ -10,6 +10,7 @@ namespace InventoryManagementSystem.Models.EF
         public Admin()
         {
             ItemLogs = new HashSet<ItemLog>();
+            Reports = new HashSet<Report>();
             Responses = new HashSet<Response>();
         }
 
@@ -24,6 +25,7 @@ namespace InventoryManagementSystem.Models.EF
 
         public virtual Role Role { get; set; }
         public virtual ICollection<ItemLog> ItemLogs { get; set; }
+        public virtual ICollection<Report> Reports { get; set; }
         public virtual ICollection<Response> Responses { get; set; }
     }
 }

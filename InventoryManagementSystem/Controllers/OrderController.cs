@@ -19,7 +19,7 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
         
-        [HttpGet("order")]
+        [HttpGet("/order")]
         [Authorize]
         public IActionResult OrderQry()
         {
@@ -31,6 +31,7 @@ namespace InventoryManagementSystem.Controllers
                 return View("orderQryUser");
         }
 
+        [HttpGet("/orderreport")]
         [Authorize(Roles = "user")]
         public IActionResult orderReport()
         {

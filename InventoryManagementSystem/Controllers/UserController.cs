@@ -1,5 +1,6 @@
 ﻿using InventoryManagementSystem.Models.EF;
-using InventoryManagementSystem.Models.Interfaces;
+using InventoryManagementSystem.Models.NotificationModels;
+using InventoryManagementSystem.Models.Password;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +13,11 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace InventoryManagementSystem.Controllers
 {
-    public class UserController : Controller, IHashPassword
+    public class UserController : Controller
     {
         private readonly InventoryManagementSystemContext _dbContext;
 
@@ -42,11 +44,9 @@ namespace InventoryManagementSystem.Controllers
                 return View("Login");
             }
 
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
-            var hasher = this as IHashPassword;
-            byte[] hashedPassword = hasher.HashPasswordWithSalt(passwordBytes, user.Salt);
+            PBKDF2 hasher = new PBKDF2(password, user.Salt);
 
-            if (hashedPassword.SequenceEqual(user.HashedPassword))
+            if(hasher.HashedPassword.SequenceEqual(user.HashedPassword))
             {
 
                 List<Claim> claims = new List<Claim>();
@@ -91,9 +91,21 @@ namespace InventoryManagementSystem.Controllers
         {
             return View();
         }
-
+        
         [Authorize(Roles = "user")]
         public IActionResult userManage()
+        {
+            return View();
+        }
+        
+        [HttpGet("password/forget")]
+        public IActionResult ForgetPassword()
+        {
+            return View();
+        }
+        
+        [HttpGet("/resetpassword")]
+        public async Task<IActionResult> ResetPassword(string token)
         {
             return View();
         }

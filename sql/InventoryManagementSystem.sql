@@ -29,9 +29,9 @@ CREATE TABLE [Admin](
 
         [Username] NVARCHAR(50),
 
-        [HashedPassword] BINARY(32) NOT NULL,
+        [HashedPassword] BINARY(64) NOT NULL,
 
-        [Salt] BINARY(32) NOT NULL,
+        [Salt] BINARY(64) NOT NULL,
 
         [FullName] NVARCHAR(50) NOT NULL,
 
@@ -54,9 +54,9 @@ CREATE TABLE [User](
 
         [Email] VARCHAR(100),
 
-        [HashedPassword] BINARY(32) NOT NULL,
+        [HashedPassword] BINARY(64) NOT NULL,
 
-        [Salt] BINARY(32) NOT NULL,
+        [Salt] BINARY(64) NOT NULL,
 
         [FullName] NVARCHAR(50) NOT NULL,
 
@@ -335,12 +335,20 @@ CREATE TABLE [Report](
         [OrderDetailID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [FK_Report_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
 
+        [ReportSN] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [UQ_Report_ReportSN] UNIQUE CLUSTERED,
+
         [Description] NVARCHAR(100) NOT NULL,
+
+        [Note] NVARCHAR(100),
 
         [ReportTime] DATETIME
                 CONSTRAINT [DF_Report_ReportTime] DEFAULT GETDATE(),
 
-        [CloseTime] DATETIME
+        [CloseTime] DATETIME,
+
+        [AdminID] UNIQUEIDENTIFIER NULL
+                CONSTRAINT [FK_Report_Admin] FOREIGN KEY REFERENCES [Admin]([AdminID])
 );
 
 CREATE TABLE [ItemLog](
@@ -410,4 +418,18 @@ CREATE TABLE [ExtraFee](
         [Fee] DECIMAL NOT NULL,
 
         [Description] NVARCHAR(100)
+);
+
+CREATE TABLE [ResetPasswordToken](
+        [TokenID] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [PK_ResetPasswordToken] PRIMARY KEY CLUSTERED,
+
+        [UserID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [FK_ResetPasswordToken_User] FOREIGN KEY REFERENCES [User]([UserID])
+                CONSTRAINT [UQ_ResetPasswordToken_UserID] UNIQUE NONCLUSTERED,
+
+        [HashedToken] BINARY(64) NOT NULL
+                CONSTRAINT [UQ_ResetPasswordToken_HashedToken] UNIQUE NONCLUSTERED,
+
+        [ExpireTime] DATETIME NOT NULL
 );
