@@ -39,7 +39,7 @@ namespace InventoryManagementSystem.Controllers
                 .Where(u => u.Username == username)
                 .FirstOrDefaultAsync();
 
-            if(user == null)
+            if (user == null)
             {
                 return View("Login");
             }
@@ -86,46 +86,28 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
 
+        [Authorize(Roles = "admin")]
+        public IActionResult adminManageUser()
+        {
+            return View();
+        }
+        
+        [Authorize(Roles = "user")]
+        public IActionResult userManage()
+        {
+            return View();
+        }
+        
         [HttpGet("password/forget")]
         public IActionResult ForgetPassword()
         {
             return View();
         }
-
-        [HttpPost("password/reset")]
-        public async Task<IActionResult> ResetPassword()
-        {
-            return View();
-        }
-
+        
         [HttpGet("/resetpassword")]
         public async Task<IActionResult> ResetPassword(string token)
         {
-            byte[] tokenBytes;
-            string errorMessage = "密碼重設連結格式不正確或已過期";
-            try
-            {
-                tokenBytes = Convert.FromBase64String(token);
-            }
-            catch
-            {
-                return BadRequest(errorMessage);
-            }
-
-            byte[] hashedToken = SHA512.HashData(tokenBytes);
-
-            ResetPasswordToken userToken = await _dbContext.ResetPasswordTokens
-                .Where(rpt => rpt.HashedToken.SequenceEqual(hashedToken))
-                .FirstOrDefaultAsync();
-
-            if(userToken == null || userToken.ExpireTime < DateTime.Now)
-            {
-                return BadRequest(errorMessage);
-            }
-
-            User user = await _dbContext.Users.FindAsync(userToken.UserId);
-
-            return Content("重設密碼網址建置中……");
+            return View();
         }
     }
 }

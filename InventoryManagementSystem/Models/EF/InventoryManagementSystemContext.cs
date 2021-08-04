@@ -36,6 +36,7 @@ namespace InventoryManagementSystem.Models.EF
         public virtual DbSet<PaymentDetail> PaymentDetails { get; set; }
         public virtual DbSet<PaymentOrder> PaymentOrders { get; set; }
         public virtual DbSet<Questionnaire> Questionnaires { get; set; }
+        public virtual DbSet<QuestionnaireToken> QuestionnaireTokens { get; set; }
         public virtual DbSet<Report> Reports { get; set; }
         public virtual DbSet<ResetPasswordToken> ResetPasswordTokens { get; set; }
         public virtual DbSet<Response> Responses { get; set; }
@@ -662,6 +663,33 @@ namespace InventoryManagementSystem.Models.EF
                     .HasForeignKey(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("UQ_Questionnaire_Order");
+            });
+
+            modelBuilder.Entity<QuestionnaireToken>(entity =>
+            {
+                entity.HasKey(e => e.TokenId);
+
+                entity.ToTable("QuestionnaireToken");
+
+                entity.HasIndex(e => e.HashedToken, "UQ_QuestionnaireToken_HashedToken")
+                    .IsUnique();
+
+                entity.Property(e => e.TokenId).HasColumnName("TokenID");
+
+                entity.Property(e => e.ExpireTime).HasColumnType("datetime");
+
+                entity.Property(e => e.HashedToken)
+                    .IsRequired()
+                    .HasMaxLength(64)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.OrderId).HasColumnName("OrderID");
+
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.QuestionnaireTokens)
+                    .HasForeignKey(d => d.OrderId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_QuestionnaireToken_Order");
             });
 
             modelBuilder.Entity<Report>(entity =>
