@@ -14,11 +14,11 @@
 <div id="app">
     <div v-if="loading"><span id="loading_wrap"><img src="~/image/loading Gif.gif"></span></div>
     <div v-if="loading==false">
-        <b-card>
-            <b-tabs v-model="tabIndex" content-class="mt-3" fill>
+        <b-card no-body>
+            <b-tabs v-model="tabIndex" content-class="mt-3" fill card>
                 <!-- 未付款 -->
                 <b-tab :title="tab1_title" active :title-link-class="linkClass(0)">
-                    <div>
+                    <b-card-body bgcolor="#F5F5F5">
                         <table class="table table-responsive">
                             <thead>
                                 <tr>
@@ -53,7 +53,7 @@
                                @*data-toggle="modal"*@
                                @*data-target="#confirmAmountModal"*@>結帳 (總金額: {{countTotalPrice}})</b-btn>
                         <b-btn v-else variant="danger" disabled>處理中,請稍後...</b-btn>
-                    </div>
+                    </b-card-body>
                 </b-tab>
 
                 <!-- 額外費用 -->
