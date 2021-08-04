@@ -18,11 +18,11 @@
             <b-tabs v-model="tabIndex" content-class="mt-3" fill card>
                 <!-- 未付款 -->
                 <b-tab :title="tab1_title" active :title-link-class="linkClass(0)">
-                    <b-card-body bgcolor="#F5F5F5">
-                        <table class="table table-responsive">
+                    <div class="tableFixHead">
+                        <table class="table">
                             <thead>
                                 <tr>
-                                    <th style="width:100px"><input aria-label="Checkbox" type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i></th>
+                                    <th style="width:100px;text-align:center"><input aria-label="Checkbox" type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i></th>
                                     <th style="width:200px">訂單序號</th>
                                     <th style="width:200px">設備序號</th>
                                     <th style="width:200px">設備名稱</th>
@@ -35,7 +35,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="od in unPaidOd">
-                                    <td><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od"><i class="form-icon"></i></td>
+                                    <td style="text-align:center"><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od"><i class="form-icon"></i></td>
                                     <td>{{od.orderSn}}</td>
                                     <td>{{od.equipmentSn}}</td>
                                     <td>{{od.equipmentName}}</td>
@@ -53,7 +53,7 @@
                                @*data-toggle="modal"*@
                                @*data-target="#confirmAmountModal"*@>結帳 (總金額: {{countTotalPrice}})</b-btn>
                         <b-btn v-else variant="danger" disabled>處理中,請稍後...</b-btn>
-                    </b-card-body>
+                    </div>
                 </b-tab>
 
                 <!-- 額外費用 -->
