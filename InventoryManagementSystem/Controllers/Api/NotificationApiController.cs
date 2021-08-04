@@ -118,5 +118,20 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok();
         }
+
+        [HttpPost("contactus")]
+        public async Task<IActionResult> ContactUs(
+            [FromForm] string name,
+            [FromForm] string email,
+            [FromForm] string feedback)
+        {
+            StringBuilder builder = new StringBuilder(feedback);
+            builder.Replace("\n", "<br>");
+            builder.Append($"<br>聯絡信箱：{email}");
+            builder.Insert(0, "<p>");
+            builder.Append("</p>");
+            await _notificationService.SendEmailNotification(_notificaionConfig.Name, _notificaionConfig.User, $"來自「{name}」的意見反映", "html", builder.ToString());
+            return Ok();
+        }
     }
 }

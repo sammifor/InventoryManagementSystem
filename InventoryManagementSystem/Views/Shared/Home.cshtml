@@ -36,6 +36,11 @@
     <meta name="theme-color" content="#478ac9">
     <meta property="og:title" content="Home">
     <meta property="og:type" content="website">
+    <style>
+        body{
+            margin: 0;
+        }
+    </style>
 </head>
 <body class="u-body u-overlap">
     <header class="u-header u-sticky" id="sec-01da" data-animation-name="" data-animation-duration="0" data-animation-delay="0" data-animation-direction="">
@@ -149,22 +154,23 @@
                         <div class="u-align-center-sm u-align-center-xs u-align-left-lg u-align-left-md u-align-left-xl u-container-style u-layout-cell u-left-cell u-size-33 u-layout-cell-1">
                             <div class="u-container-layout u-valign-middle u-container-layout-1">
                                 <div class="u-form u-form-1">
-                                    <form action="#" method="POST" class="u-clearfix u-form-spacing-15 u-form-vertical u-inner-form" style="padding: 15px;" source="custom">
+                                    <form id="contactus" action="#" method="POST" class="u-clearfix u-form-spacing-15 u-form-vertical u-inner-form" style="padding: 15px;" source="custom">
                                         <div class="u-form-group u-form-name">
                                             <label for="name-0cec" class="u-form-control-hidden u-label">Name</label>
-                                            <input type="text" placeholder="Name" id="name-0cec" name="name" class="u-border-no-bottom u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle u-white" required="">
+                                            <input type="text" placeholder="Name" v-model="contactInfo.name" id="name-0cec" name="name" class="u-border-no-bottom u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle u-white" required="">
                                         </div>
                                         <div class="u-form-email u-form-group">
                                             <label for="email-0cec" class="u-form-control-hidden u-label">Email</label>
-                                            <input type="email" placeholder="Email" id="email-0cec" name="email" class="u-border-no-bottom u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle u-white" required="">
+                                            <input type="email" placeholder="Email" v-model="contactInfo.email" id="email-0cec" name="email" class="u-border-no-bottom u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle u-white" required="">
                                         </div>
                                         <div class="u-form-group u-form-message">
-                                            <label for="message-0cec" class="u-form-control-hidden u-label">Address</label>
-                                            <textarea placeholder="Enter here" rows="4" cols="50" id="message-0cec" name="input" class="u-border-no-bottom u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle u-white" required=""></textarea>
+                                            <label for="message-0cec" class="u-form-control-hidden u-label">Feedback</label>
+                                            <textarea placeholder="Enter here" rows="4" cols="50" v-model="contactInfo.feedback" id="message-0cec" name="feedback" class="u-border-no-bottom u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle u-white" required=""></textarea>
                                         </div>
                                         <div class="u-form-group u-form-submit">
-                                            <a href="#" class="u-border-none u-btn u-btn-submit u-button-style u-hover-grey-75 u-palette-5-dark-3 u-btn-1">Submit</a>
-                                            <input type="submit" value="submit" class="u-form-control-hidden">
+                                            <button class="u-border-none u-btn u-btn-submit u-button-style u-hover-grey-75 u-palette-5-dark-3 u-btn-1"
+                                                    @@click="submitFeedback($event)"
+                                                    :disabled="!canSubmit">{{isSending ? 'Sending...' : 'Submit'}}</button>
                                         </div>
                                         <div class="u-form-send-message u-form-send-success">#FormSendSuccess</div>
                                         <div class="u-form-send-error u-form-send-message">#FormSendError</div>
@@ -292,5 +298,49 @@
     </section>*@
 </body>
 
+
 </html>
-<script>$("#topBar").hide();</script>
+<script>
+    $("#topBar").hide();
+
+    let contactus = new Vue({
+        el: "#contactus",
+        data() {
+            return {
+                contactInfo: {
+                    name: "",
+                    email: "",
+                    feedback: ""
+                },
+                isSending: false
+            }
+        },
+        methods: {
+            async submitFeedback(e) {
+                this.isSending = true;
+                e.preventDefault();
+                let response = await fetch("/api/notification/contactus", {
+                    method: "POST",
+                    body: new URLSearchParams(this.contactInfo)
+                });
+
+                if (!response.ok) {
+                    alert("送出失敗");
+                }
+                else {
+                    alert("送出成功");
+                }
+                this.isSending = false;
+            }
+        },
+        computed: {
+            canSubmit() {
+                let emailRule = /^\w+((-\w+)|(\.\w+))*\@@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+                return this.contactInfo.name.length > 0 &&
+                    emailRule.test(this.contactInfo.email) &&
+                    this.contactInfo.feedback.length > 0 &&
+                    !this.isSending;
+            }
+        }
+    });
+</script>
