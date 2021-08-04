@@ -117,7 +117,7 @@
                                @@click="confirmAmount"
                                :disabled="noItemSelected"
                                data-toggle="modal"
-                               data-target="#confirmAmountModal">結帳 (總金額: {{countExtraFeePrice}})</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
+                               >結帳 (總金額: {{countExtraFeePrice}})</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
                     </div>
                 </b-tab>
 
@@ -245,7 +245,7 @@
 
     <!--額外金額結帳Modal-->
 
-    <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div v-if="loadPaymentModal==true" class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -291,8 +291,8 @@
                         <button type="button"
                                 class="btn btn-secondary"
                                 data-dismiss="modal"
-                                @@click="clearMpgInfo">
-                            返回
+                                @@click="closeModal">
+                            取消
                         </button>
                         <button type="submit"
                                 class="btn btn-primary"
@@ -337,15 +337,16 @@
             tabIndex: 0,
             requestData: {},
             loading: false,
-            allOrders: [],
             extraFee_tab: false,
-            finishOd_tab: false
+            finishOd_tab: false,
+            loadPaymentModal:false
 
         },
 
         watch: {
             // call again the method if the route changes
-            $route: 'arrangePaymentData'
+            $route: 'arrangePaymentData',
+            $route2:'confirmAmount'
         },
 
 
@@ -366,10 +367,9 @@
 
                 let order_url = '/OrderApi/GetOrders/OrderApi/GetOrders?noPending=true&noReady=true&noOnGoing=true&noClosed=true&noOverdue=true';
                 let order_request = {
-                    method: "GET",
-                    headers: { "content-type": "application/json" }
+                    method: "GET"
                 };
-                fetch(order_url, order_request)
+                fetch(order_url)
                     .then(response => {
                         if (response.ok) {
                             console.log("資料庫連線成功");
@@ -414,66 +414,66 @@
                         this.arrangePaymentData(this.paymentRawData);
 
                     }).catch(error => {
-                            alert("資料庫連線失敗");
-                            console.log(error);
+                        alert("資料庫連線失敗");
+                        console.log(error);
                     })
 
-                    if (this.$route !== fetchedId) {
+                if (this.$route !== fetchedId) {
                     this.loading = false
                 }
             },
 
             arrangePaymentData: async function () {
-                   
-                    await this.paymentRawData.forEach(x => {
-                        if (x.completed) {
-                            for (let i = 0; i < x.orders.length; i++) {
-                                this.finishOds.push(x.orders[i]);
-                            }
-                        } else {
 
-                            for (let i = 0; i < x.orders.length; i++) {
-                                this.extraFeeOds.push(x.orders[i]);
+                await this.paymentRawData.forEach(x => {
+                    if (x.completed) {
+                        for (let i = 0; i < x.orders.length; i++) {
+                            this.finishOds.push(x.orders[i]);
+                        }
+                    } else {
 
-                            }
+                        for (let i = 0; i < x.orders.length; i++) {
+                            this.extraFeeOds.push(x.orders[i]);
 
                         }
-                    })
 
-                    var move_orders = this.extraFeeOds.filter(od => od.extraFees.length == 0)
+                    }
+                })
 
-                    await move_orders.forEach(od => { this.finishOds.push(od); })
+                var move_orders = this.extraFeeOds.filter(od => od.extraFees.length == 0)
 
-                    this.extraFeeOds = await this.extraFeeOds.filter(od => od.extraFees.length !== 0)
+                await move_orders.forEach(od => { this.finishOds.push(od); })
 
-                
+                this.extraFeeOds = await this.extraFeeOds.filter(od => od.extraFees.length !== 0)
+
+
             },
 
             loadExtraFeeOds: async function () {
 
                 if (!this.extraFee_tab) {
 
-                //幫extraFeeOds撈paymentId, payTime, totalExtraFee資料
-                await this.extraFeeOds.forEach(od => {
-                    let index = this.paymentRawData.findIndex(element => element.orders.includes(od))
-                    od["paymentId"] = this.paymentRawData[index].paymentId
-                    this.paymentRawData[index].paymentDetails.forEach(pd => {
-                        if (pd.paymentDetailSn.substring(0, 1) == 0) {
-                            od["rentalFee_payTime"] = pd.payTime
-                        } else {
-                            od["extraFee_payTime"] = pd.payTime
-                        }
-                    })
-                    var totalExtraFeeArr = [0]
-                    od.extraFees.forEach(e => {
-                        totalExtraFeeArr.push(e.fee);
-                    })
-                    var reducer = (accumulator, currentValue) => accumulator + currentValue;
-                    od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
-                    
-                    
+                    //幫extraFeeOds撈paymentId, payTime, totalExtraFee資料
+                    await this.extraFeeOds.forEach(od => {
+                        let index = this.paymentRawData.findIndex(element => element.orders.includes(od))
+                        od["paymentId"] = this.paymentRawData[index].paymentId
+                        this.paymentRawData[index].paymentDetails.forEach(pd => {
+                            if (pd.paymentDetailSn.substring(0, 1) == 0) {
+                                od["rentalFee_payTime"] = pd.payTime
+                            } else {
+                                od["extraFee_payTime"] = pd.payTime
+                            }
+                        })
+                        var totalExtraFeeArr = [0]
+                        od.extraFees.forEach(e => {
+                            totalExtraFeeArr.push(e.fee);
+                        })
+                        var reducer = (accumulator, currentValue) => accumulator + currentValue;
+                        od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
 
-                })
+
+
+                    })
 
                     this.extraFee_tab = true;
 
@@ -486,7 +486,7 @@
 
                 if (!this.finishOd_tab) {
 
-                   
+
 
                     /*幫finishOds撈paymentId, payTime, totalExtraFee資料*/
                     await this.finishOds.forEach(od => {
@@ -508,93 +508,103 @@
                         this.finishOd_tab = true;
                     })
 
-                     
 
-                } 
+
+                }
 
             },
 
             paymentDetailCheck: function (order) {
-            let index = this.paymentDetail.indexOf(order)
-            if (index > -1) {
+                let index = this.paymentDetail.indexOf(order)
+                if (index > -1) {
 
-                this.paymentDetail.splice(index, 1)
+                    this.paymentDetail.splice(index, 1)
 
-            } else {
-                this.paymentDetail = []
-                this.paymentDetail.push(order)
-            }
-        },
+                } else {
+                    this.paymentDetail = []
+                    this.paymentDetail.push(order)
+                }
+            },
 
             selectAllAction: function () {
-            this.selected = [];
-            if (!this.selectAll) {
-                for (let i = 0; i < this.unPaidOd.length; i++) {
-                    this.selected.push(this.unPaidOd[i]);
-                }
+                this.selected = [];
+                if (!this.selectAll) {
+                    for (let i = 0; i < this.unPaidOd.length; i++) {
+                        this.selected.push(this.unPaidOd[i]);
+                    }
 
-            }
-        },
+                }
+            },
 
             confirmAmount: async function () {
 
-            this.clearMpgInfo;
-            this.requestData = {};
-            if (this.tabIndex == 0) {
+                this.loadPaymentModal = false;
+                var fetchedId = this.$route2
+                this.clearMpgInfo;
+                this.requestData = {};
+                if (this.tabIndex == 0) {
 
-                this.requestData = {
-                    isRentalFee: true,
-                    orderIDs: []
+                    this.requestData = {
+                        isRentalFee: true,
+                        orderIDs: []
+                    }
+                    this.selected.forEach(order => {
+                        this.requestData.orderIDs.push(order.orderId);
+                    })
+                } else if (this.tabIndex == 1) {
+
+                    this.requestData = {
+                        isRentalFee: false,
+                        paymentID: ""
+                    };
+                    this.selected.forEach(paymentId => {
+                        this.requestData.paymentID = paymentId
+                    })
+                } else {
+
+                    console.log(error);
+
                 }
-                this.selected.forEach(order => {
-                    this.requestData.orderIDs.push(order.orderId);
+
+
+                let response = await fetch("/api/payment", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(this.requestData)
                 })
-            } else if (this.tabIndex == 1) {
 
-                this.requestData = {
-                    isRentalFee: false,
-                    paymentID: ""
-                };
-                this.selected.forEach(paymentId => {
-                    this.requestData.paymentID = paymentId
-                })
-            } else {
+                if (!response.ok) {
+                    alert("付款資料讀取失敗");
+                    return;
+                }
 
-                console.log(error);
-
-            }
-
-
-            let response = await fetch("/api/payment", {
-                method: "POST",
-                headers: {
-                    "content-type": "application/json"
-                },
-                body: JSON.stringify(this.requestData)
-            })
-
-            if (!response.ok) {
-                alert("付款資料讀取失敗");
-                return;
-            }
-
-            this.mpgInfo = await response.json()
-        },
+                this.mpgInfo = await response.json()
+                if (this.$route2 !== fetchedId) {
+                    this.loadPaymentModal = true;
+                }
+            },
 
             clearMpgInfo: function () {
 
-            this.mpgInfo.merchantId = "";
-            this.mpgInfo.tradeInfo = "";
-            this.mpgInfo.tradeSha = "";
-            this.mpgInfo.version = "";
-            this.mpgInfo.totalPrice = 0
-        },
+                this.mpgInfo.merchantId = "";
+                this.mpgInfo.tradeInfo = "";
+                this.mpgInfo.tradeSha = "";
+                this.mpgInfo.version = "";
+                this.mpgInfo.totalPrice = 0
+            },
 
-            selectExtraFeeOd(paymentId) {
-            this.selected = []
-            this.selected.push(paymentId)
+            selectExtraFeeOd: function (paymentId) {
+                this.selected = []
+                this.selected.push(paymentId)
+            },
+
+            closeModal: function () {
+                this.loadPaymentModal = false;
+                this.clearMpgInfo();
+
             }
-
         },
 
         computed: {
