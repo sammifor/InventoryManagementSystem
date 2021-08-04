@@ -336,7 +336,7 @@
             notify: false,
             tabIndex: 0,
             requestData: {},
-            loading: false,
+            loading: true,
             extraFee_tab: false,
             finishOd_tab: false,
             loadPaymentModal:false
@@ -365,11 +365,13 @@
             fetchOrderData: function () {
 
 
-                let order_url = '/OrderApi/GetOrders/OrderApi/GetOrders?noPending=true&noReady=true&noOnGoing=true&noClosed=true&noOverdue=true';
+                let order_url = '/OrderApi/GetOrders?noPending=true&noReady=true&noOnGoing=true&noClosed=true&noOverdue=true';
                 let order_request = {
-                    method: "GET"
+                    method: "GET",
+                    headers: { "content-type": "application/json" }
+                    
                 };
-                fetch(order_url)
+                fetch(order_url, order_request)
                     .then(response => {
                         if (response.ok) {
                             console.log("資料庫連線成功");
@@ -380,9 +382,8 @@
                         }
                     }).then(response => {
 
-                        this.orders = response;
+                        this.unPaidOd = response;
                         /*this.unPaidOd = this.orders.filter(od => od.tabName === "待付款");*/
-                        this.loading = false;
 
                     }).catch(error => {
                         alert("資料庫連線失敗");
@@ -394,7 +395,6 @@
 
             fetchPaymentData: function () {
                 this.loading = true
-                const fetchedId = this.$route
                 let payment_url = '/api/payment';
                 let payment_request = {
                     method: "GET",
@@ -404,23 +404,28 @@
                     .then(response => {
                         if (response.ok) {
                             console.log("資料庫連線成功");
+                            this.loading = false
                             return response.json();
 
                         } else {
-                            console.log("資料擷取失敗");
+                            this.loading = false
+                            alert("資料擷取失敗");
                         }
+
+                         
+                        
                     }).then(response => {
                         this.paymentRawData = response;
                         this.arrangePaymentData(this.paymentRawData);
 
                     }).catch(error => {
+                        this.loading = false
                         alert("資料庫連線失敗");
                         console.log(error);
                     })
-
-                if (this.$route !== fetchedId) {
-                    this.loading = false
-                }
+                
+                
+                 
             },
 
             arrangePaymentData: async function () {
@@ -539,7 +544,6 @@
             confirmAmount: async function () {
 
                 this.loadPaymentModal = false;
-                var fetchedId = this.$route2
                 this.clearMpgInfo;
                 this.requestData = {};
                 if (this.tabIndex == 0) {
@@ -580,10 +584,9 @@
                     return;
                 }
 
-                this.mpgInfo = await response.json()
-                if (this.$route2 !== fetchedId) {
-                    this.loadPaymentModal = true;
-                }
+                this.mpgInfo = await response.json();
+                this.loadPaymentModal = true;
+
             },
 
             clearMpgInfo: function () {
