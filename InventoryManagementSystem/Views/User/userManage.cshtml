@@ -336,8 +336,8 @@
 
             //生日日期限制
             validDate: function (date) {
-                let max = moment(new Date()).format();
-                if (moment(date) > max) {
+                let max = moment(new Date()).format('YYYY-MM-DD');
+                if (date > max) {
                     alert('無效時間');
                     this.tempUpdate.dateOfBirth = '';
                 }
