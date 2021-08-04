@@ -117,6 +117,7 @@
                                @@click="confirmAmount"
                                :disabled="noItemSelected"
                                data-toggle="modal"
+                               data-target="#confirmAmountModal"
                                >結帳 (總金額: {{countExtraFeePrice}})</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
                     </div>
                 </b-tab>
@@ -245,7 +246,7 @@
 
     <!--額外金額結帳Modal-->
 
-    <div v-if="loadPaymentModal==true" class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -378,7 +379,8 @@
                             return response.json();
 
                         } else {
-                            console.log("資料擷取失敗");
+                            this.loading = false
+                            alert("資料擷取失敗");
                         }
                     }).then(response => {
 
@@ -386,8 +388,8 @@
                         /*this.unPaidOd = this.orders.filter(od => od.tabName === "待付款");*/
 
                     }).catch(error => {
+                        this.loading = false
                         alert("資料庫連線失敗");
-                        console.log(error);
                     })
 
 
@@ -404,19 +406,18 @@
                     .then(response => {
                         if (response.ok) {
                             console.log("資料庫連線成功");
-                            this.loading = false
+                            
                             return response.json();
 
                         } else {
                             this.loading = false
                             alert("資料擷取失敗");
                         }
-
-                         
                         
                     }).then(response => {
                         this.paymentRawData = response;
                         this.arrangePaymentData(this.paymentRawData);
+                        this.loading = false
 
                     }).catch(error => {
                         this.loading = false
@@ -439,18 +440,13 @@
 
                         for (let i = 0; i < x.orders.length; i++) {
                             this.extraFeeOds.push(x.orders[i]);
-
                         }
-
                     }
                 })
 
                 var move_orders = this.extraFeeOds.filter(od => od.extraFees.length == 0)
-
                 await move_orders.forEach(od => { this.finishOds.push(od); })
-
                 this.extraFeeOds = await this.extraFeeOds.filter(od => od.extraFees.length !== 0)
-
 
             },
 
@@ -476,8 +472,6 @@
                         var reducer = (accumulator, currentValue) => accumulator + currentValue;
                         od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
 
-
-
                     })
 
                     this.extraFee_tab = true;
@@ -490,8 +484,6 @@
             loadfinishOds: async function () {
 
                 if (!this.finishOd_tab) {
-
-
 
                     /*幫finishOds撈paymentId, payTime, totalExtraFee資料*/
                     await this.finishOds.forEach(od => {
@@ -512,8 +504,6 @@
                         od["totalExtraFee"] = totalExtraFeeArr.reduce(reducer);
                         this.finishOd_tab = true;
                     })
-
-
 
                 }
 
@@ -543,7 +533,7 @@
 
             confirmAmount: async function () {
 
-                this.loadPaymentModal = false;
+
                 this.clearMpgInfo;
                 this.requestData = {};
                 if (this.tabIndex == 0) {
@@ -585,7 +575,7 @@
                 }
 
                 this.mpgInfo = await response.json();
-                this.loadPaymentModal = true;
+               
 
             },
 
@@ -604,7 +594,7 @@
             },
 
             closeModal: function () {
-                this.loadPaymentModal = false;
+
                 this.clearMpgInfo();
 
             }
