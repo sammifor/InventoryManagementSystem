@@ -1,0 +1,381 @@
+﻿<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+<div id="app">
+    <div>
+        <label>查詢：</label>
+        <input type="text" placeholder="請輸入姓名" v-model="search" />
+    </div>
+    <br />
+    <table class="table table-hover">
+        <thead class="badge-secondary">
+            <tr>
+                <th>使用者ID</th>
+                <th>使用者名稱</th>
+                <th>全名</th>
+                <th>電子信箱</th>
+                <th>LINE 帳號</th>
+                <th>違規次數</th>
+                <th>禁止</th>
+                <th>使用者資料</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="user in userSearch" :key="user.userId">
+                <td>{{user.userId}}</td>
+                <td>{{user.username}}</td>
+                <td>{{user.fullName}}</td>
+                <td>{{user.email}}</td>
+                <td>{{user.lineAccount}}</td>
+                <td>{{user.violationTimes}}</td>
+                <td>{{user.banned}}</td>
+                <td>
+                    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#userData" v-on:click="userInformation(user)">詳細資訊</button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#userUpdate" v-on:click="userEdit(user)">修改</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    @*使用者詳細資訊*@
+    <div class="modal fade" id="userData" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">使用者資訊</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label class="col-form-label">使用者ID:</label>
+                            <p class="form-control">{{tempUser.userId}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">使用者序號:</label>
+                            <p class="form-control">{{tempUser.userSn}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">使用者名稱：</label>
+                            <p class="form-control">{{tempUser.username}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">全名：</label>
+                            <p class="form-control">{{tempUser.fullName}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">電子信箱：</label>
+                            <p class="form-control">{{tempUser.email}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">手機：</label>
+                            <p class="form-control">{{tempUser.phoneNumber}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">性別：</label>
+                            <p class="form-control">{{tempUser.gender}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">生日：</label>
+                            <p class="form-control">{{tempUser.dateOfBirth |dateOfBirthFormat}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">地址：</label>
+                            <p class="form-control">{{tempUser.address}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">LINE 帳號：</label>
+                            <p class="form-control">{{tempUser.lineAccount}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">允許收到通知：</label>
+                            <p class="form-control">{{tempUser.allowNotification}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">違規次數：</label>
+                            <p class="form-control">{{tempUser.violationTimes}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">禁止：</label>
+                            <p class="form-control">{{tempUser.banned}}</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">建立時間：</label>
+                            <p class="form-control">{{tempUser.createTime}}</p>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">確認</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*修改使用者資料*@
+    <div class="modal fade" id="userUpdate" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">使用者資料修改</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label class="col-form-label">使用者ID:</label>
+                            <input type="text"
+                                   class="form-control"
+                                   v-model.trim="tempUpdate.userId"
+                                   readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="username" class="col-form-label">使用者名稱：</label>
+                            <input type="text"
+                                   id="username"
+                                   class="form-control"
+                                   v-bind:class="{'is-invalid': usernameValid }"
+                                   @@input="username(tempUpdate.username)"
+                                   v-model.trim="tempUpdate.username"
+                                   required
+                                   placeholder="必填">
+                            <div class="invalid-feedback">
+                                {{usernameError}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="fullName" class="col-form-label">全名：</label>
+                            <input type="text"
+                                   id="fullName"
+                                   class="form-control"
+                                   v-bind:class="{'is-invalid': fullNameValid }"
+                                   @@input="fullName(tempUpdate.fullName)"
+                                   v-model.trim="tempUpdate.fullName"
+                                   required
+                                   placeholder="必填">
+                            <div class="invalid-feedback">
+                                {{fullNameError}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="col-form-label">電子信箱:</label>
+                            <input type="text"
+                                   id="email"
+                                   class="form-control"
+                                   v-bind:class="{'is-invalid': emailValid }"
+                                   @@input="email(tempUpdate.email)"
+                                   v-model.trim="tempUpdate.email"
+                                   required
+                                   placeholder="必填">
+                            <div class="invalid-feedback">
+                                {{emailError}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber" class="col-form-label">手機:</label>
+                            <input type="text"
+                                   id="phoneNumber"
+                                   class="form-control"
+                                   v-bind:class="{'is-invalid': phoneNumberValid }"
+                                   @@input="phoneNumber(tempUpdate.phoneNumber)"
+                                   v-model.trim="tempUpdate.phoneNumber"
+                                   required
+                                   placeholder="必填" />
+                            <div class="invalid-feedback">
+                                {{phoneNumberError}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">性別：</label>
+                            <select class="form-control" v-model.trim="tempUpdate.gender">
+                                <option v-for="gender in genders" :value="gender.value">{{gender.text}}</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">生日：</label>
+                            <input type="date"
+                                   class="form-control"
+                                   @@input="validDate"
+                                   v-model.trim="tempUpdate.dateOfBirth" />
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">地址：</label>
+                            <input type="text"
+                                   class="form-control"
+                                   v-model.trim="tempUpdate.address">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">LINE 帳號：</label>
+                            <input type="text"
+                                   class="form-control"
+                                   v-model.trim="tempUpdate.lineAccount">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">允許收到通知：</label>
+                            <input type="checkbox"
+                                   class="form-control"
+                                   v-model.trim="tempUpdate.allowNotification">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" v-on:click="updateUser" :disabled="btnOk">儲存</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //生日格式過濾
+    Vue.filter('dateOfBirthFormat', function (dateOfBirth, myDateOfBirth) {
+        return moment(dateOfBirth).format(myDateOfBirth || 'YYYY-MM-DD');
+    });
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            users: [],
+            tempUser: {},
+            search: '',
+            tempUpdate: {},
+            genders: [
+                {
+                    value: "M",
+                    text: "男性"
+                },
+                {
+                    value: "F",
+                    text: "女性"
+                }
+            ],
+            usernameValid: false,
+            usernameError: '',
+            fullNameValid: false,
+            fullNameError: '',
+            emailValid: false,
+            emailError: '',
+            phoneNumberValid: false,
+            phoneNumberError: ''
+        },
+
+        created: function () {
+            fetch('/api/user', { methods: 'GET' })
+                .then(response => {
+                    return response.json();
+                })
+                .then(response => {
+                    this.users = response;
+                    console.log(this.users);
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+        },
+
+        methods: {
+            //使用者詳細資訊
+            userInformation: function (userData) {
+                this.tempUser = Object.assign({}, userData);
+            },
+
+            //資料傳到修改modal
+            userEdit: function (userData) {
+                this.tempUpdate = Object.assign({}, userData);
+            },
+            //修改使用者資訊
+            updateUser: function () {
+                fetch('/api/user/' + this.tempUpdate.userId, {
+                    method: 'PUT',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(this.tempUpdate)
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('修改成功');
+                            for (i = 0; i < this.users.length; i++) {
+                                if (this.users[i].userId == this.tempUpdate.userId) {
+                                    this.users[i] = Object.assign({}, this.tempUpdate);
+                                }
+                                location.href = 'adminManageUser';
+                            }
+                        } else {
+                            alert('修改失敗');
+                        }
+                    })
+            },
+
+            //出生日期限制
+            validDate: function (date) {
+                let max = moment(new Date()).format();
+                if (date.target.value > max) {
+                    alert('無效時間');
+                    this.tempUpdate.dateOfBirth = '';
+                }
+            },
+
+            //使用者名稱必填
+            username: function (data) {
+                if (data.length == 0) {
+                    this.usernameValid = true;
+                    this.usernameError = '未填寫使用者名稱';
+                } else {
+                    this.usernameValid = false;
+                }
+            },
+
+            //全名必填
+            fullName: function (data) {
+                if (data.length == 0) {
+                    this.fullNameValid = true;
+                    this.fullNameError = '未填寫全名';
+                } else {
+                    this.fullNameValid = false;
+                }
+            },
+
+            //電子信箱必填
+            email: function (data) {
+                let isEmail = /^\w+((-\w+)|(\.\w+))*\@@[A-Za -z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+
+                if (data.length == 0) {
+                    this.emailValid = true;
+                    this.emailError = '未填寫電子信箱';
+                } else if (!isEmail.test(this.tempUpdate.email)) {
+                    this.emailValid = true;
+                    this.emailError = '電子信箱格式錯誤';
+                } else {
+                    this.emailValid = false;
+                }
+            },
+
+            //手機必填
+            phoneNumber: function (data) {
+                if (data.length == 0) {
+                    this.phoneNumberValid = true;
+                    this.phoneNumberError = '未填寫手機';
+                } else {
+                    this.phoneNumberValid = false;
+                }
+            },
+
+        },
+
+        computed: {
+            //使用者全名查詢
+            userSearch: function () {
+                return this.users.filter((user) => {
+                    return user.fullName.match(this.search)
+                })
+            },
+
+            //確認是否輸入正確才開啟按鈕
+            btnOk() {
+                return (this.usernameValid || this.oldPasswordValid || this.passwordValid || this.passwordCheckValid || this.fullNameValid || this.emailValid || this.phoneNumberValid);
+            },
+
+        },
+
+    })
+</script>

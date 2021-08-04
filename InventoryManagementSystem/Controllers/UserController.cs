@@ -39,7 +39,7 @@ namespace InventoryManagementSystem.Controllers
                 .Where(u => u.Username == username)
                 .FirstOrDefaultAsync();
 
-            if(user == null)
+            if (user == null)
             {
                 return View("Login");
             }
@@ -86,12 +86,24 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
 
+        [Authorize(Roles = "admin")]
+        public IActionResult adminManageUser()
+        {
+            return View();
+        }
+        
+        [Authorize(Roles = "user")]
+        public IActionResult userManage()
+        {
+            return View();
+        }
+        
         [HttpGet("password/forget")]
         public IActionResult ForgetPassword()
         {
             return View();
         }
-
+        
         [HttpGet("/resetpassword")]
         public async Task<IActionResult> ResetPassword(string token)
         {
