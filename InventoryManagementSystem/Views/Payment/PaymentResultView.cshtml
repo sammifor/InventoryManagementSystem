@@ -352,20 +352,19 @@
         created: async function () {
 
             //跟GetOrders API要待付款資料
-            await this.fetchOrderData();
+            this.fetchOrderData();
             //跟Payment API要額外金額&已結清資料
-            await this.fetchPaymentData();
+            this.fetchPaymentData();
 
-            await this.arrangePaymentData();
 
         },
 
         methods: {
 
             fetchOrderData: function () {
-                
 
-                let order_url = '/OrderApi/GetOrders';
+
+                let order_url = '/OrderApi/GetOrders/OrderApi/GetOrders?noPending=true&noReady=true&noOnGoing=true&noClosed=true&noOverdue=true';
                 let order_request = {
                     method: "GET",
                     headers: { "content-type": "application/json" }
@@ -382,19 +381,20 @@
                     }).then(response => {
 
                         this.orders = response;
-                        this.unPaidOd = this.orders.filter(od => od.tabName === "待付款");
+                        /*this.unPaidOd = this.orders.filter(od => od.tabName === "待付款");*/
                         this.loading = false;
 
                     }).catch(error => {
                         alert("資料庫連線失敗");
                         console.log(error);
                     })
-                
+
 
             },
 
             fetchPaymentData: function () {
-
+                this.loading = true
+                const fetchedId = this.$route
                 let payment_url = '/api/payment';
                 let payment_request = {
                     method: "GET",
@@ -410,19 +410,21 @@
                             console.log("資料擷取失敗");
                         }
                     }).then(response => {
-
                         this.paymentRawData = response;
-
+                        this.arrangePaymentData(this.paymentRawData);
 
                     }).catch(error => {
-                        alert("資料庫連線失敗");
-                        console.log(error);
+                            alert("資料庫連線失敗");
+                            console.log(error);
                     })
+
+                    if (this.$route !== fetchedId) {
+                    this.loading = false
+                }
             },
 
             arrangePaymentData: async function () {
-                   this.loading = true
-                   const fetchedId = this.$route
+                   
                     await this.paymentRawData.forEach(x => {
                         if (x.completed) {
                             for (let i = 0; i < x.orders.length; i++) {
@@ -442,44 +444,14 @@
 
                     await move_orders.forEach(od => { this.finishOds.push(od); })
 
-                this.extraFeeOds = await this.extraFeeOds.filter(od => od.extraFees.length !== 0)
+                    this.extraFeeOds = await this.extraFeeOds.filter(od => od.extraFees.length !== 0)
 
-                 if (this.$route !== fetchedId) {
-                     this.loading = false
-                }
+                
             },
-
-
 
             loadExtraFeeOds: async function () {
 
-
-                //分配Item資料
                 if (!this.extraFee_tab) {
-
-                    if (this.extraFeeOds.length == 0) {
-                        await this.paymentRawData.forEach(x => {
-                            if (x.completed) {
-                                for (let i = 0; i < x.orders.length; i++) {
-                                    this.finishOds.push(x.orders[i]);
-                                }
-                            } else {
-
-                                for (let i = 0; i < x.orders.length; i++) {
-                                    this.extraFeeOds.push(x.orders[i]);
-
-                                }
-
-                            }
-                        })
-
-                        var move_orders = this.extraFeeOds.filter(od => od.extraFees.length == 0)
-
-                        await move_orders.forEach(od => { this.finishOds.push(od); })
-
-                        this.extraFeeOds = await this.extraFeeOds.filter(od => od.extraFees.length !== 0)
-                    }
-
 
                 //幫extraFeeOds撈paymentId, payTime, totalExtraFee資料
                 await this.extraFeeOds.forEach(od => {
@@ -512,31 +484,9 @@
 
             loadfinishOds: async function () {
 
-
-            //分配Item資料
                 if (!this.finishOd_tab) {
 
-                    if (this.finishOds.length == 0) { 
-                    await this.paymentRawData.forEach(x => {
-                        if (x.completed) {
-                            for (let i = 0; i < x.orders.length; i++) {
-                                this.finishOds.push(x.orders[i]);
-                            }
-
-                        } else {
-
-                            for (let i = 0; i < x.orders.length; i++) {
-                                this.extraFeeOds.push(x.orders[i]);
-
-                            }
-
-                        }
-                    })
-                        var move_orders = this.extraFeeOds.filter(od => od.extraFees.length == 0)
-                        await move_orders.forEach(od => { this.finishOds.push(od); })
-                        this.extraFeeOds = await this.extraFeeOds.filter(od => od.extraFees.length !== 0)
-
-                    }
+                   
 
                     /*幫finishOds撈paymentId, payTime, totalExtraFee資料*/
                     await this.finishOds.forEach(od => {
@@ -643,7 +593,7 @@
             selectExtraFeeOd(paymentId) {
             this.selected = []
             this.selected.push(paymentId)
-        }
+            }
 
         },
 
@@ -700,13 +650,13 @@
             tab1_title() {
 
                 let tab1 = "待付款"
-                return tab1 + "(" + this.unPaidOd.length.toString() + ")"
+                return tab1 +" "+"(" + this.unPaidOd.length.toString() + ")"
             },
 
             tab2_title() {
 
                 let tab2 = "額外費用"
-                return  tab2 + "(" + this.extraFeeOds.length.toString() + ")"
+                return tab2 + " " +"(" + this.extraFeeOds.length.toString() + ")"
 
 
             },
@@ -714,7 +664,7 @@
             tab3_title() {
 
                 let tab3 = "已結清"
-                return tab3 + "(" + this.finishOds.length.toString() + ")"
+                return tab3 + " " +"(" + this.finishOds.length.toString() + ")"
 
 
             }
