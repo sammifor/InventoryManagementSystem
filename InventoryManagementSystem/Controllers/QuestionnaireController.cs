@@ -10,7 +10,7 @@ namespace InventoryManagementSystem.Controllers
     public class QuestionnaireController : Controller
     {
         //滿意度調查問卷
-        [Authorize(Roles = "user")]
+        [HttpGet("/questionnaire")]
         public IActionResult questionnaire()
         {
             return View();

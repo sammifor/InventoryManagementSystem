@@ -1,14 +1,23 @@
 ﻿using InventoryManagementSystem.Models.EF;
+using InventoryManagementSystem.Models.LINE;
+using InventoryManagementSystem.Models.NotificationModels;
+using InventoryManagementSystem.Models.Password;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace InventoryManagementSystem.Controllers.Api
 {
@@ -17,10 +26,17 @@ namespace InventoryManagementSystem.Controllers.Api
     public class OrderDetailApiController : ControllerBase
     {
         private readonly InventoryManagementSystemContext _dbContext;
+        private readonly NotificationService notificationService;
+        private readonly LineConfig lineConfig;
 
-        public OrderDetailApiController(InventoryManagementSystemContext dbContext)
+        public OrderDetailApiController(
+            InventoryManagementSystemContext dbContext,
+            NotificationService notificationService,
+            IOptions<LineConfig> lineConfig)
         {
             _dbContext = dbContext;
+            this.notificationService = notificationService;
+            this.lineConfig = lineConfig.Value;
         }
 
         /* method: POST
@@ -141,6 +157,7 @@ namespace InventoryManagementSystem.Controllers.Api
             {
                 Order order = await _dbContext.Orders.FindAsync(detail.OrderId);
                 order.OrderStatusId = "E";
+                await SendQuestionnaireLink(detail.OrderId);
             }
 
             // Get AdminID
@@ -221,6 +238,7 @@ namespace InventoryManagementSystem.Controllers.Api
             {
                 Order order = await _dbContext.Orders.FindAsync(detail.OrderId);
                 order.OrderStatusId = "E";
+                await SendQuestionnaireLink(detail.OrderId);
             }
 
             // Get AdminID
@@ -253,5 +271,148 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok();
         }
+
+        private async Task SendQuestionnaireLink(Guid orderId)
+        {
+            byte[] tokenBytes = new byte[128];
+            byte[] hashedToken;
+            using(RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+            {
+                do
+                {
+                    rng.GetBytes(tokenBytes);
+                    hashedToken = SHA512.HashData(tokenBytes);
+
+                    bool tokenExists = await _dbContext.QuestionnaireTokens
+                        .AnyAsync(qt => qt.HashedToken.SequenceEqual(hashedToken));
+
+                    if(!tokenExists)
+                        break;
+
+                } while(true);
+            }
+
+
+            QuestionnaireToken questionnaireToken = new QuestionnaireToken
+            {
+                OrderId = orderId,
+                HashedToken = hashedToken,
+                ExpireTime = DateTime.Now.AddDays(2),
+            };
+            _dbContext.QuestionnaireTokens.Add(questionnaireToken);
+
+            string tokenBase64 = Convert.ToBase64String(tokenBytes);
+            string tokenUrlEncoded = HttpUtility.UrlEncode(tokenBase64);
+
+            var rentalInfo = _dbContext.Orders
+                .Where(o => o.OrderId == orderId)
+                .Select(o => new
+                {
+                    o.User.Email,
+                    o.User.FullName,
+                    o.User.Username,
+                    o.User.LineId,
+                    o.Equipment.EquipmentName
+                })
+                .FirstOrDefault();
+
+            if(rentalInfo == null)
+            {
+                return;
+            }
+
+            string quesUrl = $"{Request.Scheme}://{Request.Host}/questionnaire?token={tokenUrlEncoded}";
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append($"@{rentalInfo.Username} 您好：\n");
+            builder.Append($"請對於您本次租借「{rentalInfo.EquipmentName}」填寫滿意度調查問卷。\n");
+
+            string subject = "租借滿意度調查";
+            // 有綁 LINE 就傳送 LINE
+            if(!string.IsNullOrWhiteSpace(rentalInfo.LineId))
+            {
+                using(HttpClient client = new HttpClient())
+                {
+                    HttpRequestMessage request = new HttpRequestMessage();
+                    request.Method = new HttpMethod("POST");
+                    request.RequestUri = new Uri("https://api.line.me/v2/bot/message/push");
+                    request.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", lineConfig.AccessToken);
+
+                    request.Content = JsonContent.Create(new
+                    {
+                        to = "U4ba3f21ed2374e0164d0a802ea81991c",
+                        messages = new[]
+                        {
+                        new
+                        {
+                            type = "flex",
+                            altText = subject,
+                            contents = new
+                            {
+                                type = "bubble",
+                                body = new
+                                {
+                                    type = "box",
+                                    layout = "vertical",
+                                    contents = new[]
+                                    {
+                                        new
+                                        {
+                                            type = "text",
+                                            text = builder.ToString(),
+                                            wrap = true
+                                        }
+                                    }
+                                },
+                                footer = new
+                                {
+                                    type = "box",
+                                    layout = "horizontal",
+                                    contents = new[]
+                                    {
+                                        new
+                                        {
+                                            type = "button",
+                                            style = "primary",
+                                            action = new
+                                            {
+                                                type = "uri",
+                                                label = "前往問卷調查",
+                                                uri = quesUrl
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } }
+
+                    });
+
+
+                    HttpResponseMessage response = await client.SendAsync(request);
+                    //builder.Insert(0, $"【{subject}】\n");
+                    //await notificationService.SendLineNotification(rentalInfo.LineId, builder.ToString());
+                }
+            }
+            else
+            {
+                builder.Append($"問卷連結：{quesUrl} \n");
+                builder.Append($"本連結將於 48 小時後失效。");
+                builder.Replace("\n", "<br>");
+                builder.Append("<br>");
+                builder.Append("本信為系統自動發送，請勿直接回覆此郵件。");
+                builder.Insert(0, "<p>");
+                builder.Append("</p>");
+                await notificationService.SendEmailNotification(
+                        rentalInfo.FullName,
+                        rentalInfo.Email,
+                        subject,
+                        "html",
+                        builder.ToString());
+            }
+            return;
+        }
     }
 }
+
