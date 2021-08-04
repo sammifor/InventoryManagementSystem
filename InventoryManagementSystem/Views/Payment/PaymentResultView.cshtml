@@ -118,8 +118,8 @@
                                @@click="confirmAmount"
                                :disabled="noItemSelected"
                                @*data-toggle="modal"*@
-                               @*data-target="#confirmAmountModal"*@>結帳 (總金額: {{countExtraFeePrice}})</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
-                        <b-btn v-else variant="danger" disabled>處理中,請稍後...</b-btn>
+                               @*data-target="#confirmAmountModal"*@>結帳 (總金額: {{countExtraFeePrice}})</b-btn><b-btn v-else variant="danger" disabled>處理中,請稍後...</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
+                        
 
                     </div>
                 </b-tab>
