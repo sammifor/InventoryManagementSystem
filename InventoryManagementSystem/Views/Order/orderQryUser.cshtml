@@ -116,7 +116,6 @@
                                 <th>總價</th>
                                 <th>訂單狀態</th>
                                 <th>下單時間</th>
-                                <th>取消租借</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -132,7 +131,6 @@
                                     <td>{{order.unitPrice * order.day * order.quantity}}</td>
                                     <td>待領取</td>
                                     <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
                                 </tr>
                                 <tr v-if="opened.includes(order.orderId)">
                                     <td colspan="11" class="p-3 mb-2 bg-light text-dark">
