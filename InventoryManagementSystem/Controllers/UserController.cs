@@ -86,18 +86,19 @@ namespace InventoryManagementSystem.Controllers
             return View();
         }
 
-        [Authorize(Roles = "admin")]
-        public IActionResult adminManageUser()
+        [HttpGet("/account")]
+        [Authorize]
+        public IActionResult UserManagement()
         {
-            return View();
+            bool isAdmin = User.IsInRole("admin");
+
+            if(isAdmin)
+                return View("adminManageUser");
+            else
+                return View("userManage");
+
         }
-        
-        [Authorize(Roles = "user")]
-        public IActionResult userManage()
-        {
-            return View();
-        }
-        
+
         [HttpGet("password/forget")]
         public IActionResult ForgetPassword()
         {

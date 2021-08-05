@@ -153,6 +153,7 @@ namespace InventoryManagementSystem.Controllers
             return View(model);
         }
 
+        [HttpGet("/payment")]
         [Authorize(Roles = "user")]
         public IActionResult PaymentResultView() {
 

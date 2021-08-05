@@ -68,12 +68,14 @@ namespace InventoryManagementSystem.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult adminManage()
+        [HttpGet("/admin")]
+        public IActionResult AdminManagement()
         {
             return View();
         }
 
-        public IActionResult addAdmin()
+        [HttpGet("/addadmin")]
+        public IActionResult AddAdmin()
         {
             return View();
         }
