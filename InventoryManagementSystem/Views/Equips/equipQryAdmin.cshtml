@@ -60,36 +60,36 @@
                         </div>
                     </h4>
                 </template>
-                <table class="table table-hover">
-                    <thead class="badge-secondary">
-                        <tr>
-                            <td>&#9746;</td>
-                            <td>序號</td>
-                            <td>名稱</td>
-                            <td>品牌</td>
-                            <td>型號</td>
-                            <td>單價</td>
-                            <td>出租/待領/在庫/總數</td>
-                            <td>描述</td>
-                            <td>修改</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="equip in equips" v-if="equips.length !==0">
-                            <td><input type="checkbox" aria-label="Checkbox" :value="equip" v-model="checkedEquips"></td>
-                            <td>{{equip.equipmentSn}}</td>
-                            <td>{{equip.equipmentName}}</td>
-                            <td>{{equip.brand}}</td>
-                            <td>{{equip.model}}</td>
-                            <td>{{equip.unitPrice}}</td>
-                            <td><button type="button" class="btn btn-outline-primary" :value="equip.equipmentId" v-on:click="btnItem">&#10148; {{equip.quantityUsable-equip.quantityInStock-equip.quantityReserved}} / {{equip.quantityReserved}} / {{equip.quantityInStock}} / {{equip.quantityUsable}}</button></td>
-                            <td>{{equip.description}}</td>
-                            <td><a @@click="updateClickEquip(equip)" data-toggle="modal" data-target="#equipUpdateModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M17.263 2.177a1.75 1.75 0 012.474 0l2.586 2.586a1.75 1.75 0 010 2.474L19.53 10.03l-.012.013L8.69 20.378a1.75 1.75 0 01-.699.409l-5.523 1.68a.75.75 0 01-.935-.935l1.673-5.5a1.75 1.75 0 01.466-.756L14.476 4.963l2.787-2.786zm-2.275 4.371l-10.28 9.813a.25.25 0 00-.067.108l-1.264 4.154 4.177-1.271a.25.25 0 00.1-.059l10.273-9.806-2.94-2.939zM19 8.44l2.263-2.262a.25.25 0 000-.354l-2.586-2.586a.25.25 0 00-.354 0L16.061 5.5 19 8.44z"></path></svg></a></td>
+                <b-table-simple class="table table-hover" responsive>
+                    <b-thead class="badge-secondary">
+                        <b-tr>
+                            <b-td>&#9746;</b-td>
+                            <b-td>序號</b-td>
+                            <b-td>名稱</b-td>
+                            <b-td>品牌</b-td>
+                            <b-td>型號</b-td>
+                            <b-td>單價</b-td>
+                            <b-td>出租/待領/在庫/總數</b-td>
+                            <b-td>描述</b-td>
+                            <b-td>修改</b-td>
+                        </b-tr>
+                    </b-thead>
+                    <b-tbody>
+                        <b-tr v-for="equip in equips" v-if="equips.length !==0">
+                            <b-td><input type="checkbox" aria-label="Checkbox" :value="equip" v-model="checkedEquips"></b-td>
+                            <b-td>{{equip.equipmentSn}}</b-td>
+                            <b-td>{{equip.equipmentName}}</b-td>
+                            <b-td>{{equip.brand}}</b-td>
+                            <b-td>{{equip.model}}</b-td>
+                            <b-td>{{equip.unitPrice}}</b-td>
+                            <b-td><button type="button" class="btn btn-outline-primary" :value="equip.equipmentId" v-on:click="btnItem">&#10148; {{equip.quantityUsable-equip.quantityInStock-equip.quantityReserved}} / {{equip.quantityReserved}} / {{equip.quantityInStock}} / {{equip.quantityUsable}}</button></b-td>
+                            <b-td>{{equip.description}}</b-td>
+                            <b-td><a @@click="updateClickEquip(equip)" data-toggle="modal" data-target="#equipUpdateModal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M17.263 2.177a1.75 1.75 0 012.474 0l2.586 2.586a1.75 1.75 0 010 2.474L19.53 10.03l-.012.013L8.69 20.378a1.75 1.75 0 01-.699.409l-5.523 1.68a.75.75 0 01-.935-.935l1.673-5.5a1.75 1.75 0 01.466-.756L14.476 4.963l2.787-2.786zm-2.275 4.371l-10.28 9.813a.25.25 0 00-.067.108l-1.264 4.154 4.177-1.271a.25.25 0 00.1-.059l10.273-9.806-2.94-2.939zM19 8.44l2.263-2.262a.25.25 0 000-.354l-2.586-2.586a.25.25 0 00-.354 0L16.061 5.5 19 8.44z"></path></svg></a></b-td>
 
-                        </tr>
-                    </tbody>
-                </table>
-                </b-card>
+                        </b-tr>
+                    </b-tbody>
+                </b-table-simple>
+</b-card>
             <hr>
             
                 <b-card class="form-group border w-auto">
