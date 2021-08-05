@@ -41,5 +41,8 @@ namespace InventoryManagementSystem.Models.ResultModels
 
         // From Payment table
         public Guid? PaymentId { get; set; }
+
+        // From ExtraFee table
+        public decimal TotalExtraFee { get; set; }
     }
 }

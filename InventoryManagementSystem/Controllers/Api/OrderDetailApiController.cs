@@ -153,9 +153,9 @@ namespace InventoryManagementSystem.Controllers.Api
             bool allReturned = details
                 .All(od => od.OrderDetailStatusId != "T");
 
+            Order order = await _dbContext.Orders.FindAsync(detail.OrderId);
             if(allReturned)
             {
-                Order order = await _dbContext.Orders.FindAsync(detail.OrderId);
                 order.OrderStatusId = "E";
                 await SendQuestionnaireLink(detail.OrderId);
             }
@@ -179,6 +179,14 @@ namespace InventoryManagementSystem.Controllers.Api
 
             _dbContext.ItemLogs.Add(log);
 
+            #region 若已逾期，違規次數加一
+            DateTime deadline = order.EstimatedPickupTime.AddDays(order.Day);
+            if(DateTime.Now > deadline)
+            {
+                User user = await _dbContext.Users.FindAsync(order.UserId);
+                user.ViolationTimes = user.ViolationTimes.GetValueOrDefault() + 1;
+            }
+            #endregion
             try
             {
                 await _dbContext.SaveChangesAsync();
@@ -234,9 +242,9 @@ namespace InventoryManagementSystem.Controllers.Api
             bool allReturned = details
                 .All(od => od.OrderDetailStatusId != "T");
 
+            Order order = await _dbContext.Orders.FindAsync(detail.OrderId);
             if(allReturned)
             {
-                Order order = await _dbContext.Orders.FindAsync(detail.OrderId);
                 order.OrderStatusId = "E";
                 await SendQuestionnaireLink(detail.OrderId);
             }
@@ -259,6 +267,15 @@ namespace InventoryManagementSystem.Controllers.Api
             };
 
             _dbContext.ItemLogs.Add(log);
+
+            #region 若已逾期，違規次數加一
+            DateTime deadline = order.EstimatedPickupTime.AddDays(order.Day);
+            if(DateTime.Now > deadline)
+            {
+                User user = await _dbContext.Users.FindAsync(order.UserId);
+                user.ViolationTimes = user.ViolationTimes.GetValueOrDefault() + 1;
+            }
+            #endregion
 
             try
             {

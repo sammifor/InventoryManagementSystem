@@ -9,6 +9,7 @@ namespace InventoryManagementSystem.Models.EF
     {
         public Payment()
         {
+            PayingAttempts = new HashSet<PayingAttempt>();
             PaymentDetails = new HashSet<PaymentDetail>();
             PaymentOrders = new HashSet<PaymentOrder>();
         }
@@ -17,6 +18,7 @@ namespace InventoryManagementSystem.Models.EF
         public string PaymentSn { get; set; }
         public decimal RentalFee { get; set; }
 
+        public virtual ICollection<PayingAttempt> PayingAttempts { get; set; }
         public virtual ICollection<PaymentDetail> PaymentDetails { get; set; }
         public virtual ICollection<PaymentOrder> PaymentOrders { get; set; }
     }
