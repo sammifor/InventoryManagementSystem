@@ -8,6 +8,7 @@ namespace InventoryManagementSystem.Models.ViewModels
     public class PutUserViewModel : PostUserViewModel
     {
         public Guid UserId { get; set; }
+        public bool LineEnabled { get; set; }
         public string OldPassword { get; set; }
     }
 }

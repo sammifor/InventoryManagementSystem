@@ -16,6 +16,6 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string ConditionName { get; set; }
         public string AdminFullName { get; set; }
         public string Description { get; set; }
-        public DateTime? CreateTime { get; set; }
+        public string CreateTime { get; set; }
     }
 }

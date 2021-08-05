@@ -9,5 +9,7 @@ namespace InventoryManagementSystem.Models.EF
     {
         public string PaymentDetailSn { get; set; }
         public int OrderSn { get; set; }
+
+        public virtual Order OrderSnNavigation { get; set; }
     }
 }
