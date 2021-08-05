@@ -38,38 +38,87 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">管理員修改</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">管理員資料修改</h5>
                 </div>
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
                             <label class="col-form-label">管理員ID:</label>
-                            <input type="text" class="form-control" readonly v-model="tempAdmin.adminId">
+                            <input type="text"
+                                   class="form-control"
+                                   v-model.trim="tempAdmin.adminId"
+                                   readonly>
                         </div>
+
                         <div class="form-group">
                             <label class="col-form-label">角色ID:</label>
-                            <br />
-                            <select size="1" v-model="tempAdmin.roleId">
+                            <select size="1"
+                                    class="form-control"
+                                    v-model.trim="tempAdmin.roleId">
                                 <option disabled selected>請選擇權限</option>
-                                <option v-for="role in roles" :value="role.roleId">{{role.roleName}}</option>
+                                <option v-for="role in roles"
+                                        :value="role.roleId">
+                                    {{role.roleName}}
+                                </option>
                             </select>
                         </div>
+
                         <div class="form-group">
-                            <label class="col-form-label">使用者名稱：</label>
-                            <input type="text" class="form-control" v-model="tempAdmin.username">
+                            <label for="username" class="col-form-label">使用者名稱：</label>
+                            <input type="text"
+                                   id="username"
+                                   class="form-control"
+                                   v-bind:class="{'is-invalid': usernameValid }"
+                                   @@input="username(tempAdmin.username)"
+                                   v-model.trim="tempAdmin.username">
+                            <div class="invalid-feedback">
+                                {{usernameError}}
+                            </div>
                         </div>
+
                         <div class="form-group">
-                            <label class="col-form-label">全名：</label>
-                            <input type="text" class="form-control" v-model="tempAdmin.fullName">
+                            <label for="fullName" class="col-form-label">全名：</label>
+                            <input type="text"
+                                   id="fullName"
+                                   class="form-control"
+                                   v-bind:class="{'is-invalid': fullNameValid }"
+                                   @@input="fullName(tempAdmin.fullName)"
+                                   v-model.trim="tempAdmin.fullName">
+                            <div class="invalid-feedback">
+                                {{fullNameError}}
+                            </div>
                         </div>
+
                         <div class="form-group">
-                            <label class="col-form-label">密碼：</label>
-                            <input type="text" class="form-control" placeholder="只允許更改自己的密碼" v-model="tempAdmin.password">
+                            <label for="password" class="col-form-label">新密碼：</label>
+                            <input type="password"
+                                   id="password"
+                                   class="form-control"
+                                   v-bind:class="{'is-invalid': passwordValid }"
+                                   @@input="password(tempAdmin.password)"
+                                   v-model.trim="tempAdmin.password"
+                                   placeholder="只允許更改自己的密碼">
+                            <div class="invalid-feedback">
+                                {{passwordError}}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="passwordCheck"
+                                   class="col-form-label">新密碼確認：</label>
+                            <input type="password"
+                                   id="passwordCheck"
+                                   class="form-control"
+                                   v-bind:class="{'is-invalid': passwordCheckValid }"
+                                   @@input="passwordCheck">
+                            <div class="invalid-feedback">
+                                {{passwordCheckError}}
+                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" v-on:click="updateAdmin">確認</button>
+                    <button type="button" class="btn btn-primary" v-on:click="updateAdmin" :disabled="btnOk">儲存</button>
                     <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
                 </div>
             </div>
@@ -85,10 +134,18 @@
             admins: [],
             roles: {},
             tempAdmin: {},
-            search: ''
+            search: '',
+            usernameValid: false,
+            usernameError: '',
+            fullNameValid: false,
+            fullNameError: '',
+            passwordValid: false,
+            passwordError: '',
+            passwordCheckValid: false,
+            passwordCheckError: ''
         },
 
-        beforeCreate: function () {
+        created: function () {
             fetch('/api/admin', { method: 'GET' })
                 .then(response => {
                     return response.json();
@@ -112,7 +169,6 @@
                 .catch(error => {
                     console.log(error);
                 })
-
 
         },
 
@@ -149,17 +205,64 @@
                 if (result) {
                     this.admins.splice(index, 1);
                 }
+            },
+
+            //使用者名稱未填寫
+            username: function (data) {
+                if (data.length == 0) {
+                    this.usernameValid = true;
+                    this.usernameError = '未填寫使用者名稱';
+                } else {
+                    this.usernameValid = false;
+                }
+            },
+
+            //全名未填寫
+            fullName: function (data) {
+                if (data.length == 0) {
+                    this.fullNameValid = true;
+                    this.fullNameError = '未填寫全名';
+                } else {
+                    this.fullNameValid = false;
+                }
+            },
+
+            //新密碼
+            password: function (data) {
+                if (data.length > 6) {
+                    this.passwordValid = true;
+                    this.passwordError = '請勿超過6個字';
+                } else {
+                    this.passwordValid = false;
+                }
+            },
+
+            //新密碼確認
+            passwordCheck: function (data) {
+                if (data.target.value != this.tempAdmin.password) {
+                    this.passwordCheckValid = true;
+                    this.passwordCheckError = '與新密碼不一致';
+                } else {
+                    this.passwordCheckValid = false;
+                }
             }
 
         },
 
         computed: {
+            //管理員全名查詢
             adminSearch: function () {
                 return this.admins.filter((admin) => {
                     return admin.fullName.match(this.search);
                 })
+            },
+
+            //確認是否都正確才開啟按鈕
+            btnOk: function () {
+                return (this.usernameValid || this.fullNameValid || this.passwordCheckValid || this.passwordCheckValid);
             }
-        }
+
+        },
 
     })
 </script>
