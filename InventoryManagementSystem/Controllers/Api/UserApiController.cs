@@ -336,6 +336,13 @@ namespace InventoryManagementSystem.Controllers.Api
             user.Address = model.Address;
             user.Gender = model.Gender;
             user.DateOfBirth = model.DateOfBirth;
+
+            if(!model.LineEnabled && !string.IsNullOrWhiteSpace(user.LineId))
+            {
+                string lineText = "您已解除 LINE 綁定，將不再收到 LINE 通知。";
+                await notificationService.SendLineNotification(user.LineId, lineText, user.UserId);
+                user.LineId = string.Empty;
+            }
             #endregion
 
             #region Update the database
