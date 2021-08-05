@@ -362,6 +362,13 @@ namespace InventoryManagementSystem.Models.EF
                     .IsFixedLength(true);
 
                 entity.Property(e => e.OrderSn).HasColumnName("OrderSN");
+
+                entity.HasOne(d => d.OrderSnNavigation)
+                    .WithMany(p => p.NewPayingAttempts)
+                    .HasPrincipalKey(p => p.OrderSn)
+                    .HasForeignKey(d => d.OrderSn)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_NewPayingAttempt_Order");
             });
 
             modelBuilder.Entity<Notification>(entity =>
@@ -545,6 +552,12 @@ namespace InventoryManagementSystem.Models.EF
                     .IsFixedLength(true);
 
                 entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
+
+                entity.HasOne(d => d.Payment)
+                    .WithMany(p => p.PayingAttempts)
+                    .HasForeignKey(d => d.PaymentId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_PayingAttempt_Payment");
             });
 
             modelBuilder.Entity<Payment>(entity =>
