@@ -117,7 +117,7 @@
             fullNameError: ''
         },
 
-        beforeCreate: function () {
+        created: function () {
             fetch('/api/role', { method: 'GET' })
                 .then(response => {
                     return response.json();
