@@ -147,7 +147,7 @@
                                 <th>總金額</th>
                                 <th>訂單狀態</th>
                                 <th>下單時間</th>
-                                <th>問題回報</th>
+                                <th>問題反映</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -163,7 +163,7 @@
                                     <td>{{order.unitPrice * order.day * order.quantity}}</td>
                                     <td>租借中</td>
                                     <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
+                                    <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題反映</b-btn></td>
                                 </tr>
                                 <tr v-if="opened.includes(order.orderId)">
                                     <td colspan="11" class="p-3 mb-2 bg-light text-dark">
@@ -286,7 +286,7 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h5 class="modal-title font-weight-bold text-danger" id="exampleModalLabel">問題報修</h5>
+                    <h5 class="modal-title font-weight-bold text-danger" id="exampleModalLabel">問題反映</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
