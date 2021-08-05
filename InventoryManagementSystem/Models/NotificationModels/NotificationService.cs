@@ -1,4 +1,5 @@
-﻿using InventoryManagementSystem.Models.LINE;
+﻿using InventoryManagementSystem.Models.EF;
+using InventoryManagementSystem.Models.LINE;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
@@ -19,11 +20,14 @@ namespace InventoryManagementSystem.Models.NotificationModels
 
         private readonly IConfiguration Configuration;
 
-        public NotificationService(IConfiguration configuration)
+        private readonly InventoryManagementSystemContext DbContext;
+
+        public NotificationService(IConfiguration configuration, InventoryManagementSystemContext dbContext)
         {
             httpClient = new HttpClient();
             smtpClient = new SmtpClient();
             Configuration = configuration;
+            DbContext = dbContext;
         }
 
         /// <summary>
@@ -65,7 +69,7 @@ namespace InventoryManagementSystem.Models.NotificationModels
             await smtpClient.SendAsync(message);
         }
 
-        public async Task SendLineNotification(string lineId, string text)
+        public async Task SendLineNotification(string lineId, string text, Guid userId)
         {
             LineConfig lineConfig = Configuration.GetSection("LINE").Get<LineConfig>();
             PushMessage pushMessage = new PushMessage
@@ -92,6 +96,23 @@ namespace InventoryManagementSystem.Models.NotificationModels
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", lineConfig.AccessToken);
             request.Content = content;
             await httpClient.SendAsync(request);
+
+            Notification notification = new Notification
+            {
+                NotificationId = Guid.NewGuid(),
+                UserId = userId,
+                Message = text,
+                CreateTime = DateTime.Now
+            };
+
+            try
+            {
+                await DbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                // nop
+            }
         }
     }
 }

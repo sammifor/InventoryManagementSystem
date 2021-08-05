@@ -60,6 +60,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Where(u => u.AllowNotification == true)
                 .Select(u => new
                 {
+                    UserId = u.UserId,
                     FullName = u.FullName,
                     Username = u.Username,
                     Email = u.Email,
@@ -112,7 +113,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 if(string.IsNullOrWhiteSpace(user.LineId))
                     continue;
 
-                await _notificationService.SendLineNotification(user.LineId, lineText);
+                await _notificationService.SendLineNotification(user.LineId, lineText, user.UserId);
                 #endregion
             }
 
