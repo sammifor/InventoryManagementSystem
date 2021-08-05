@@ -11,7 +11,6 @@ namespace InventoryManagementSystem.Models.EF
         {
             ExtraFees = new HashSet<ExtraFee>();
             ItemLogs = new HashSet<ItemLog>();
-            Notifications = new HashSet<Notification>();
             Reports = new HashSet<Report>();
         }
 
@@ -26,7 +25,6 @@ namespace InventoryManagementSystem.Models.EF
         public virtual OrderDetailStatus OrderDetailStatus { get; set; }
         public virtual ICollection<ExtraFee> ExtraFees { get; set; }
         public virtual ICollection<ItemLog> ItemLogs { get; set; }
-        public virtual ICollection<Notification> Notifications { get; set; }
         public virtual ICollection<Report> Reports { get; set; }
     }
 }
