@@ -258,6 +258,19 @@ CREATE TABLE [Questionnaire](
         [Feedback] NVARCHAR(200)
 );
 
+CREATE TABLE [QuestionnaireToken](
+        [TokenID] INT IDENTITY(1, 1) NOT NULL
+                CONSTRAINT [PK_QuestionnaireToken] PRIMARY KEY,
+
+        [HashedToken] BINARY(64) NOT NULL
+                CONSTRAINT [UQ_QuestionnaireToken_HashedToken] UNIQUE NONCLUSTERED,
+
+        [OrderID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [FK_QuestionnaireToken_Order] FOREIGN KEY REFERENCES [Order]([OrderID]),
+
+        [ExpireTime] DATETIME NOT NULL
+);
+
 CREATE TABLE [Payment](
         [PaymentID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_Payment] PRIMARY KEY NONCLUSTERED,
@@ -392,7 +405,8 @@ CREATE TABLE [Notification](
 CREATE TABLE [NewPayingAttempt](
         [PaymentDetailSN] CHAR(18) NOT NULL,
 
-        [OrderSN] INT NOT NULL,
+        [OrderSN] INT NOT NULL
+                CONSTRAINT [FK_NewPayingAttempt_Order] FOREIGN KEY REFERENCES [Order]([OrderSN]),
 
         CONSTRAINT [PK_NewPayingAttempt] PRIMARY KEY NONCLUSTERED (PaymentDetailSN, OrderSN)
 );
@@ -400,7 +414,8 @@ CREATE TABLE [NewPayingAttempt](
 CREATE TABLE [PayingAttempt](
         [PaymentDetailSN] CHAR(18) NOT NULL,
 
-        [PaymentID] UNIQUEIDENTIFIER NOT NULL,
+        [PaymentID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [FK_PayingAttempt_Payment] FOREIGN KEY REFERENCES [Payment]([PaymentID]),
 
         CONSTRAINT [PK_PayingAttempt] PRIMARY KEY NONCLUSTERED (PaymentDetailSN, PaymentID)
 );

@@ -9,6 +9,7 @@ namespace InventoryManagementSystem.Models.EF
     {
         public Order()
         {
+            NewPayingAttempts = new HashSet<NewPayingAttempt>();
             OrderDetails = new HashSet<OrderDetail>();
             QuestionnaireTokens = new HashSet<QuestionnaireToken>();
             Questionnaires = new HashSet<Questionnaire>();
@@ -30,6 +31,7 @@ namespace InventoryManagementSystem.Models.EF
         public virtual User User { get; set; }
         public virtual CanceledOrder CanceledOrder { get; set; }
         public virtual PaymentOrder PaymentOrder { get; set; }
+        public virtual ICollection<NewPayingAttempt> NewPayingAttempts { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
         public virtual ICollection<QuestionnaireToken> QuestionnaireTokens { get; set; }
         public virtual ICollection<Questionnaire> Questionnaires { get; set; }
