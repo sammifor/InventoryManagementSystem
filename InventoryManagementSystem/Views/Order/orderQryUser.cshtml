@@ -54,11 +54,6 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>
-                                    <label class="form-checkbox">
-                                        <input type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i>
-                                    </label>
-                                </th>
                                 <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
@@ -73,11 +68,6 @@
                         </thead>
                         <tbody>
                             <tr v-for="order in orders_1">
-                                <td>
-                                    <label class="form-checkbox">
-                                        <input type="checkbox" v-model="selected" :value="order"><i class="form-icon"></i>
-                                    </label>
-                                </td>
                                 <td>{{order.orderSn}}</td>
                                 <td>{{order.equipmentSn}}</td>
                                 <td>{{order.equipmentName}}</td>
@@ -91,12 +81,6 @@
                             </tr>
                         </tbody>
                     </table>
-                    <b-btn variant="danger"
-                           @*@@click="cashOut"*@
-                           @@click="confirmAmount"
-                           :disabled="noItemSelected"
-                           data-toggle="modal"
-                           data-target="#confirmAmountModal">結帳 (總金額: {{countTotalPrice}})</b-btn>
                 </div>
             </b-tab>
 
@@ -208,8 +192,8 @@
                                 <th style="width:200px">設備名稱</th>
                                 <th style="width:200px">租借數量</th>
                                 <th style="width:200px">取貨時間</th>
-                                <th style="width:200px">租借天數</th>
-                                <th style="width:200px">總金額</th>
+                                <th style="width:175px">租借天數</th>
+                                <th style="width:175px">總金額</th>
                                 <th style="width:200px">訂單狀態</th>
                                 <th style="width:200px">下單時間</th>
                                 <th style="width:200px">額外費用</th>
@@ -257,8 +241,8 @@
                                 <th style="width:200px">設備名稱</th>
                                 <th style="width:200px">租借數量</th>
                                 <th style="width:200px">取貨時間</th>
-                                <th style="width:200px">租借天數</th>
-                                <th style="width:200px">總金額</th>
+                                <th style="width:175px">租借天數</th>
+                                <th style="width:175px">總金額</th>
                                 <th style="width:200px">訂單狀態</th>
                                 <th style="width:200px">下單時間</th>
                                 <th style="width:200px">額外費用</th>
@@ -400,67 +384,6 @@
                         <b-btn type="button" class="btn btn-primary" @@click="cancelConfirm($event)" :disabled="cannotCancel">確定</b-btn>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TODO 確認金額Modal -->
-    <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">確認金額</h5>
-                </div>
-                <form method="post" action="https://ccore.newebpay.com/MPG/mpg_gateway">
-                    <div class="modal-body">
-                        @* 這四個值要送給藍新，但不用顯示給 User 看 *@
-                        <input type="text"
-                               name="MerchantID"
-                               :value="mpgInfo.merchantID"
-                               hidden
-                               readonly
-                               required />
-                        <input type="text"
-                               name="TradeInfo"
-                               :value="mpgInfo.tradeInfo"
-                               hidden
-                               readonly
-                               required />
-                        <input type="text"
-                               name="TradeSha"
-                               :value="mpgInfo.tradeSha"
-                               hidden
-                               readonly
-                               required />
-                        <input type="text"
-                               name="Version"
-                               :value="mpgInfo.version"
-                               hidden
-                               readonly
-                               required />
-                        <div class="form-group">
-                            <label>請確認應付金額是否正確</label>
-                            @* 顯示用的 Input，這個值不會送給藍新，故不給 name*@
-                            <input type="number"
-                                   class="form-control"
-                                   :value="mpgInfo.totalPrice"
-                                   readonly />
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button"
-                                class="btn btn-secondary"
-                                data-dismiss="modal"
-                                @@click="clearMpgInfo">
-                            返回
-                        </button>
-                        <button type="submit"
-                                class="btn btn-primary"
-                                :disabled="isLoadingTradeInfo">
-                            確定
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -628,78 +551,11 @@
                     }
 
                 }
-            },
-
-            confirmAmount: async function () {
-
-                let requestData = {
-                    isRentalFee: true,
-                    orderIDs: []
-                };
-                this.selected.forEach(order => {
-                    requestData.orderIDs.push(order.orderId)
-                });
-
-                let response = await fetch("/api/payment", {
-                    method: "POST",
-                    headers: {
-                        "content-type": "application/json"
-                    },
-                    body: JSON.stringify(requestData)
-                })
-
-                if (!response.ok) {
-                    alert(response.text());
-                    return;
-                }
-
-                this.mpgInfo = await response.json()
-            },
-
-            toggle: function (orderId) {
-
-                let index = this.opened.indexOf(orderId);
-                if (index > -1) {
-                    this.opened.splice(index, 1)
-                } else {
-                    this.opened = []
-                    this.opened.push(orderId)
-                }
-            },
-            clearMpgInfo: function () {
-                let info = this.mpgInfo;
-                info.merchantId = "";
-                info.tradeInfo = "";
-                info.tradeSha = "";
-                info.version = "";
             }
         },
 
         computed: {
-            countTotalPrice() {
-                this.cashTotalPrice = 0
-                this.totalPrice = [0]
-                this.selected.forEach(order => {
 
-                    var orderPrice = order.unitPrice * order.quantity * order.day;
-                    this.totalPrice.push(orderPrice);
-                })
-
-                var reducer = (accumulator, currentValue) => accumulator + currentValue;
-                return this.cashTotalPrice = this.totalPrice.reduce(reducer);
-
-            },
-
-            isLoadingTradeInfo() {
-                return this.mpgInfo.merchantID === "" ||
-                    this.mpgInfo.tradeInfo === "" ||
-                    this.mpgInfo.tradeSha === "" ||
-                    this.mpgInfo.version === "";
-            },
-
-            noItemSelected() {
-                return this.selected.length <= 0;
-            },
 
             cannotCancel() {
                 return this.cancelOrder.cancelDiscription==""
