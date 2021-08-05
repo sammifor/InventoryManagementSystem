@@ -383,13 +383,13 @@ namespace InventoryManagementSystem.Models.EF
                     .IsRequired()
                     .HasMaxLength(200);
 
-                entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
+                entity.Property(e => e.UserId).HasColumnName("UserID");
 
-                entity.HasOne(d => d.OrderDetail)
+                entity.HasOne(d => d.User)
                     .WithMany(p => p.Notifications)
-                    .HasForeignKey(d => d.OrderDetailId)
+                    .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Notification_OrderDetail");
+                    .HasConstraintName("FK_Notification_User");
             });
 
             modelBuilder.Entity<Order>(entity =>

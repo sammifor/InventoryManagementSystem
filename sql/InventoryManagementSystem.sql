@@ -380,8 +380,8 @@ CREATE TABLE [Notification](
         [NotificationID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_Notification] PRIMARY KEY NONCLUSTERED,
 
-        [OrderDetailID] UNIQUEIDENTIFIER NOT NULL
-                CONSTRAINT [FK_Notification_OrderDetail] FOREIGN KEY REFERENCES [OrderDetail]([OrderDetailID]),
+        [UserID] UNIQUEIDENTIFIER NOT NULL
+                CONSTRAINT [FK_Notification_User] FOREIGN KEY REFERENCES [User]([UserID]),
 
         [CreateTime] DATETIME
                 CONSTRAINT [DF_Notification_CreateTime] DEFAULT GETDATE(),

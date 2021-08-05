@@ -379,6 +379,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Where(u => u.UserId == order.UserId)
                 .Select(u => new
                 {
+                    u.UserId,
                     u.Username,
                     u.FullName,
                     u.Email,
@@ -417,7 +418,7 @@ namespace InventoryManagementSystem.Controllers.Api
             if(!string.IsNullOrWhiteSpace(user.LineId))
             {
                 string lineText = builder.ToString();
-                await notificationService.SendLineNotification(user.LineId, lineText);
+                await notificationService.SendLineNotification(user.LineId, lineText, user.UserId);
             }
 
             builder.Append("\n");

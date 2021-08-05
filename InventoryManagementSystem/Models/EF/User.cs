@@ -10,6 +10,7 @@ namespace InventoryManagementSystem.Models.EF
         public User()
         {
             CanceledOrders = new HashSet<CanceledOrder>();
+            Notifications = new HashSet<Notification>();
             Orders = new HashSet<Order>();
         }
 
@@ -33,6 +34,7 @@ namespace InventoryManagementSystem.Models.EF
 
         public virtual ResetPasswordToken ResetPasswordToken { get; set; }
         public virtual ICollection<CanceledOrder> CanceledOrders { get; set; }
+        public virtual ICollection<Notification> Notifications { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
     }
 }

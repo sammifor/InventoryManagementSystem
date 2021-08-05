@@ -11,7 +11,7 @@
 
 <div id="app">
     <b-card>
-        <b-tabs content-class="mt-3" fill>
+        <b-tabs content-class="mt-3" fill v-model="tabIndex">
             <!-- 待核可 -->
             <b-tab title="待核可" active>
                 <div>
@@ -49,7 +49,7 @@
             </b-tab>
 
             <!-- 待付款 -->
-            <b-tab title="待付款" @@click="loadData_tab1">
+            <b-tab title="待付款" @@click="loadData_tab">
                 <div>
                     <table class="table table-hover">
                         <thead>
@@ -101,7 +101,7 @@
             </b-tab>
 
             <!-- 待領取 -->
-            <b-tab title="待領取" @@click="loadData_tab2">
+            <b-tab title="待領取" @@click="loadData_tab">
                 <div>
                     <table class="table table-hover">
                         <thead>
@@ -116,7 +116,6 @@
                                 <th>總價</th>
                                 <th>訂單狀態</th>
                                 <th>下單時間</th>
-                                <th>取消租借</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -132,7 +131,6 @@
                                     <td>{{order.unitPrice * order.day * order.quantity}}</td>
                                     <td>待領取</td>
                                     <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
                                 </tr>
                                 <tr v-if="opened.includes(order.orderId)">
                                     <td colspan="11" class="p-3 mb-2 bg-light text-dark">
@@ -150,7 +148,7 @@
             </b-tab>
 
             <!-- 租借中 -->
-            <b-tab title="租借中" @@click="loadData_tab3">
+            <b-tab title="租借中" @@click="loadData_tab">
                 <div>
                     <table class="table table-hover">
                         <thead>
@@ -198,55 +196,8 @@
                 </div>
             </b-tab>
 
-            <!-- 已結束 -->
-            <b-tab title="已結束" @@click="loadData_tab4">
-                <div>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>清單</th>
-                                <th>訂單序號</th>
-                                <th>設備序號</th>
-                                <th>設備名稱</th>
-                                <th>數量</th>
-                                <th>預計取貨時間</th>
-                                <th>租借天數</th>
-                                <th>總價</th>
-                                <th>訂單狀態</th>
-                                <th>下單時間</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template v-for="order in orders_4">
-                                <tr>
-                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
-                                    <td>{{order.orderSn}}</td>
-                                    <td>{{order.equipmentSn}}</td>
-                                    <td>{{order.equipmentName}}</td>
-                                    <td>{{order.quantity}}</td>
-                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td>{{order.day}}</td>
-                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                    <td><span v-if="order.orderDetails.length == 0">逾期未領取</span><span v-else >已結束</span></td>
-                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                </tr>
-                                <tr v-if="opened.includes(order.orderId)">
-                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
-                                        <ul>
-
-                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
-
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </b-tab>
-
             <!-- 已逾期 -->
-            <b-tab title="已逾期" @@click="loadData_tab5">
+            <b-tab title="逾期或毀損" @@click="loadData_tab">
                 <div>
                     <table class="table table-hover">
                         <thead>
@@ -278,6 +229,53 @@
                                     <td>已逾期</td>
                                     <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
                                     <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
+                                </tr>
+                                <tr v-if="opened.includes(order.orderId)">
+                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
+                                        <ul>
+
+                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
+
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </b-tab>
+
+            <!-- 已結束 -->
+            <b-tab title="已結束" @@click="loadData_tab">
+                <div>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>清單</th>
+                                <th>訂單序號</th>
+                                <th>設備序號</th>
+                                <th>設備名稱</th>
+                                <th>數量</th>
+                                <th>預計取貨時間</th>
+                                <th>租借天數</th>
+                                <th>總價</th>
+                                <th>訂單狀態</th>
+                                <th>下單時間</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template v-for="order in orders_4">
+                                <tr>
+                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
+                                    <td>{{order.orderSn}}</td>
+                                    <td>{{order.equipmentSn}}</td>
+                                    <td>{{order.equipmentName}}</td>
+                                    <td>{{order.quantity}}</td>
+                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td>{{order.day}}</td>
+                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                    <td><span v-if="order.orderDetails.length == 0">逾期未領取</span><span v-else>已結束</span></td>
+                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
                                 </tr>
                                 <tr v-if="opened.includes(order.orderId)">
                                     <td colspan="11" class="p-3 mb-2 bg-light text-dark">
@@ -477,6 +475,7 @@
 
         el: '#app',
         data: {
+            tabIndex:0,
             orders: [],
             orders_0: [],
             orders_1: [],
@@ -546,32 +545,19 @@
 
 
         methods: {
-            loadData_tab1: function () {
-
-                this.orders_1 = this.orders.filter(od => od.tabName === "待付款");
-
-            },
-            loadData_tab2: function () {
-
-                this.orders_2 = this.orders.filter(od => od.tabName === "待領取");
-
-            },
-            loadData_tab3: function () {
-
-                this.orders_3 = this.orders.filter(od => od.tabName === "租借中");
-
-            },
-
-            loadData_tab4: function () {
-
-                this.orders_4 = this.orders.filter(od => od.tabName === "已結束");
-
-            },
-
-            loadData_tab5: function () {
-
-                this.orders_5 = this.orders.filter(od => od.tabName === "已逾期");
-
+            loadData_tab: function () {
+                switch (this.tabIndex) {
+                    case 1:
+                        this.orders_1 = this.orders.filter(od => od.tabName === "待付款");
+                    case 2:
+                        this.orders_2 = this.orders.filter(od => od.tabName === "待領取");
+                    case 3:
+                        this.orders_3 = this.orders.filter(od => od.tabName === "租借中");
+                    case 4:
+                        this.orders_4 = this.orders.filter(od => od.tabName === "已結束");
+                    case 5:
+                        this.orders_5 = this.orders.filter(od => od.tabName === "已逾期");
+                }
             },
 
             cancelOrderAction: function (orderData) {
