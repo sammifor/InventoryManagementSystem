@@ -108,6 +108,7 @@
                                           aria-controls="my-table"></b-pagination>
                         </div>
                         <p></br></p>
+                        <p></br></p>
                     </div>
                 </template>
         </b-tab>
@@ -151,10 +152,17 @@
                                 </b-icon-x-circle-fill>
                             </template>
                         </b-table>
+                        <div>
+                            <b-pagination v-model="currentPage"
+                                          :total-rows="rows"
+                                          :per-page="perPage" align="right"
+                                          aria-controls="my-table"></b-pagination>
+                        </div>
+                        <p></br></p>
                         <p></br></p>
                     </div>
                 </template>
-
+                
         </b-tab>
 
         <!-- 分配 item modal -->
@@ -287,9 +295,17 @@
                                 </b-card>
                             </template>
                         </b-table>
+                        <div>
+                            <b-pagination v-model="currentPage"
+                                          :total-rows="rows"
+                                          :per-page="perPage" align="right"
+                                          aria-controls="my-table"></b-pagination>
+                        </div>
+                        <p></br></p>
                         <p></br></p>
                     </div>
                 </template>
+                
         </b-tab>
 
 
@@ -348,10 +364,18 @@
                                     </b-card>
                                 </template>
                             </b-table>
+                            <div>
+                                <b-pagination v-model="currentPage"
+                                              :total-rows="rows"
+                                              :per-page="perPage" align="right"
+                                              aria-controls="my-table"></b-pagination>
+                            </div>
+                            <p></br></p>
                             <p></br></p>
                         </div>
                     </div>
                 </template>
+                
         </b-tab>
 
         <div>
@@ -438,7 +462,7 @@
                                         <b-col><b>物品描述</b></b-col>
                                         <b-col><b>物品狀態</b></b-col>
                                         <b-col><b>歸還/遺失</b></b-col>
-                                        <b-col v-if="row.item.openReportCount !== 0"><b>問題反映</b></b-col>
+                                        <b-col><b>問題反映</b></b-col>
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
@@ -453,14 +477,21 @@
                                                 <b-icon-question-circle size="sm" @@click="showLostModal(item)"></b-icon-question-circle>
                                             </span>
                                         </b-col>
-                                        <b-col v-if="row.item.openReportCount !== 0">
-                                            <b-button v-if="row.item.openReportCount > 0" size="sm" @@click="showReportModal(item)">查看</b-button>
+                                        <b-col>
+                                            <b-button v-if="item.openReportCounts != 0" size="sm" @@click="showReportModal(item)">查看</b-button>
                                         </b-col>
                                     </b-row>
                                     <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
                                 </b-card>
                             </template>
                         </b-table>
+                        <div>
+                            <b-pagination v-model="currentPage"
+                                          :total-rows="rows"
+                                          :per-page="perPage" align="right"
+                                          aria-controls="my-table"></b-pagination>
+                        </div>
+                        <p></br></p>
                         <p></br></p>
                     </div>
                 </template>
@@ -489,6 +520,7 @@
                                      value=false>
                         損壞
                     </b-form-checkbox>
+                    
                     <label :for="returnData.description">請輸入歸還檢查備註:</label>
                     <b-form-input :id="returnData.description"
                                   type="text"
@@ -600,7 +632,7 @@
                                         <b-col><b>物品狀態</b></b-col>
                                         <b-col><b>歸還/遺失</b></b-col>
                                         <b-col><b>罰金</b></b-col>
-                                        <b-col v-if="row.item.openReportCount !==0"><b>問題反映</b></b-col>
+                                        <b-col><b>問題反映</b></b-col>
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
@@ -615,59 +647,81 @@
                                                 <b-icon-question-circle size="sm" @@click="showLostModal(item)"></b-icon-question-circle>
                                             </span>
                                         </b-col>
-                                        <b-col>還沒說怎麼計算!</b-col>
-                                        <b-col v-if="row.item.openReportCount !==0">
-                                            <b-button size="sm" @@click="showReportModal(item)">查看</b-button>
+                                        <b-col><b-icon-cash-stack @@click="showExtraFeeModal(item)"></b-icon-cash-stack></b-col>
+                                        <b-col>
+                                            <b-button size="sm" @@click="showReportModal(item)" v-if="item.openReportCounts != 0">查看</b-button>
                                         </b-col>
                                     </b-row>
                                     <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
                                 </b-card>
                             </template>
                         </b-table>
+                        <div>
+                            <b-pagination v-model="currentPage"
+                                          :total-rows="rows"
+                                          :per-page="perPage" align="right"
+                                          aria-controls="my-table"></b-pagination>
+                        </div>
+                        <p></br></p>
                         <p></br></p>
                     </div>
                 </template>
+                
         </b-tab>
 
+        <!--罰金modal-->
         <div>
-            <b-modal id="reportInfoClosed-modal"
-                     hide-footer scrollable>
+            <b-modal id="extraFee-modal"
+                     @@ok="confirmExtraFee"
+                     ok-title="確認"
+                     cancel-title="返回"
+                     :ok-disabled="checkInputValid">
                 <template #modal-title>
                     <p class="font-weight-bold">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 查看問題反映
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 輸入罰款明細
                     </p>
                 </template>
-                <b-table-simple hover caption-top stacked>
-                    <b-thead head-variant="dark">
-                        <b-tr>
-                            <b-th>報修編號</b-th>
-                            <b-th>報修時間</b-th>
-                            <b-th>使用者報修描述</b-th>
-                            <b-th>管理員報修描述</b-th>
-                            <b-th v-if="items.openReportCount > 0">結案時間</b-th>
-                            <b-th v-if="items.openReportCount != 0">結案</b-th>
-                        </b-tr>
-                    </b-thead>
-                    <b-tbody>
-                        <b-tr v-for="details in reportDetail">
-                            <b-td stacked-heading="報修編號">{{details.reportSn}}</b-td>
-                            <b-td stacked-heading="報修時間">{{details.reportTime}}</b-td>
-                            <b-td stacked-heading="使用者報修描述">{{details.description}}</b-td>
-                            <b-td stacked-heading="結案時間">{{details.closeTime}}</b-td>
-                            <b-td stacked-heading="管理員報修描述">
-                                <b-form-input :value="details.note"
-                                              @*v-model="closeData.note"*@
-                                             :disabled="checkInputValid(details)" />
-                            </b-td>
-                            <b-td>
-                                <b-button v-if="details.closeTime == null" @@click="confirmClosed(details)" variant="primary" class="d-flex justify-content-end">結案</b-button>
-                            </b-td>
-                        </b-tr>
-                    </b-tbody>
-                </b-table-simple>
-                       
+                <div>
+                    <label :for="extraFeeData.fee">請輸入罰款金額:</label>
+                    <b-input-group prepend="$">
+                        <b-form-input :id="extraFeeData.fee"
+                                      type="number"
+                                      :state="nameState"
+                                      aria-describedby="input-live-help input-live-feedback"
+                                      placeholder="請輸入金額"
+                                      trim
+                                      v-model="extraFeeData.fee"></b-form-input>
+                    </b-input-group>
+                    <b-form-invalid-feedback id="input-live-feedback">
+                        請輸入確切金額
+                    </b-form-invalid-feedback>
+
+                </div>
+                <div>
+                    <label :for="extraFeeData.description">請輸入罰款備註:</label>
+                    <b-form-input :id="extraFeeData.description"
+                                  type="text"
+                                  
+                                  v-model="extraFeeData.description"></b-form-input>
+                </div>
+            </b-modal>
+            <!--輸入罰金失敗 modal-->
+            <b-modal id="ExtraFee-failed"
+                     ok-only
+                     ok-title="返回"
+                     ok-variant="secondary">
+                輸入罰金失敗
+            </b-modal>
+
+            <!--輸入罰金成功 modal-->
+            <b-modal id="ExtraFee-success"
+                     ok-only
+                     @@ok="extraFeeSuccess()"
+                     ok-title="完成">
+                輸入罰金成功
             </b-modal>
         </div>
+
 
         <!--CLOSED ORDERS-->
         <b-tab title="已結束" :title-link-class="linkClass(6)" v-on:click="ClosedOrders">
@@ -712,7 +766,8 @@
                                         <b-col><b>物品序號</b></b-col>
                                         <b-col><b>物品描述</b></b-col>
                                         <b-col><b>物品狀態</b></b-col>
-                                        <b-col v-if="row.item.openReportCount !==0"><b>問題反映</b></b-col>
+                                        <b-col><b>罰金</b></b-col>
+                                        <b-col><b>問題反映</b></b-col>
                                     </b-row>
                                     <hr />
                                     <b-row v-for="item in row.item.orderDetails">
@@ -720,17 +775,68 @@
                                         <b-col>{{ item.itemSn }}</b-col>
                                         <b-col>{{ item.itemDescription }}</b-col>
                                         <b-col>{{ item.orderDetailStatus }}</b-col>
-                                        <b-col v-if="row.item.openReportCount > 0"><b-button size="sm" @@click="showReportModal(item)">查看</b-button></b-col>
+                                        <b-col><b-icon-cash-stack @@click="showExtraFeeModal(item)"></b-icon-cash-stack></b-col>
+                                        <b-col><b-button v-if="item.openReportCounts != 0" size="sm" @@click="showReportModal(item)">查看</b-button></b-col>
                                     </b-row>
 
                                     <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
                                 </b-card>
                             </template>
                         </b-table>
+                        <div>
+                            <b-pagination v-model="currentPage"
+                                          :total-rows="rows"
+                                          :per-page="perPage" align="right"
+                                          aria-controls="my-table"></b-pagination>
+                        </div>
+                        <p></br></p>
                         <p></br></p>
                     </div>
                 </template>
+                
         </b-tab>
+
+        <!--問題查詢modal-->
+        <div>
+            <b-modal id="reportInfoClosed-modal"
+                     hide-footer scrollable>
+                <template #modal-title>
+                    <p class="font-weight-bold">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 查看問題反映
+                    </p>
+                </template>
+                <b-table-simple hover caption-top stacked>
+                    <b-thead head-variant="dark">
+                        <b-tr>
+                            <b-th>報修編號</b-th>
+                            <b-th>報修時間</b-th>
+                            <b-th>使用者報修描述</b-th>
+                            <b-th>管理員報修描述</b-th>
+                            <b-th>結案時間</b-th>
+                            <b-th></b-th>
+                        </b-tr>
+                    </b-thead>
+                    <b-tbody>
+                        <b-tr v-for="details in reportDetail">
+                            <b-td stacked-heading="報修編號">{{details.reportSn}}</b-td>
+                            <b-td stacked-heading="報修時間">{{details.reportTime}}</b-td>
+                            <b-td stacked-heading="使用者報修描述">{{details.description}}</b-td>
+                            <b-td stacked-heading="結案時間">{{details.closeTime}}</b-td>
+                            <b-td stacked-heading="管理員報修描述">
+                                {{details.note}}
+                                @*<b-form-input :value="details.note"
+                                v-if="details.closeTime == null"
+                                :disabled="checkInputValid(details)" />*@
+                            </b-td>
+                            <b-td>
+                                <b-button v-if="details.closeTime == null" @@click="showReportClosedModalForView(details)" variant="primary">結案</b-button>
+                            </b-td>
+                        </b-tr>
+                    </b-tbody>
+                </b-table-simple>
+
+            </b-modal>
+        </div>
 
         <!--REPORTED ORDERS-->
         <b-tab title="報修訂單" :title-link-class="linkClass(7)" v-on:click="GetAllReports()">
@@ -760,14 +866,22 @@
                                  sort-icon-left striped responsive="sm">
                             <template #cell(closeItem)="report">
                                 <b-icon-card-checklist v-if="report.item.closeTime == null" size="sm" @@click="showReportClosedModal(report)"></b-icon-card-checklist>
-                                @*<b-icon-three-dots @@click="showReportClosedDetailModal(report)" v-if="app.descriptionByAdmin !== null"></b-icon-three-dots>*@
                             </template>
                         </b-table>
+                        <div>
+                            <b-pagination v-model="currentPage"
+                                          :total-rows="rows"
+                                          :per-page="perPage" align="right"
+                                          aria-controls="my-table"></b-pagination>
+                        </div>
+                        <p></br></p>
                         <p></br></p>
                     </div>
                 </template>
+                
         </b-tab>
 
+        <!--結案modal-->
         <div>
             <b-modal id="reportClosed-modal"
                      @@ok="confirmClosed"
@@ -782,7 +896,7 @@
                     <label :for="closeData.note">請輸入結案備註:</label>
                     <b-form-input :id="closeData.note"
                                   type="text"
-                                  :value="closeData.note"
+                                  
                                   v-model="closeData.note"></b-form-input>
                 </div>
             </b-modal>
@@ -801,23 +915,6 @@
                      ok-title="完成">
                 結案成功
             </b-modal>
-
-            <!--管理員與使用者描述不一致時 modal-->
-            <!--<b-modal id="reportClosedDetail-modal"
-                     ok-only
-                     ok-title="返回">
-                <template #modal-title>
-                    <p class="font-weight-bold">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 查看管理員結案備註
-                    </p>
-                </template>
-                
-                <label :for="closeData.note">管理員結案備註:</label>
-                <b-form-input :id="closeData.note"
-                              type="text" disabled
-                              :value="closeData.note"
-                              v-model="closeData.note"></b-form-input>
-            </b-modal>-->
         </div>
 </div>
 
@@ -887,6 +984,7 @@
 
     let app = new Vue({
         el: '#app',
+        
         data() {
             return {
                 sortBy: 'orderSn',
@@ -937,13 +1035,16 @@
                     reportId: '',
                     note: ''
                 },
+                extraFeeData: {
+                    orderDetailId: '',
+                    fee: '',
+                    description: ''
+                },
                 Allreports: [],
                 reportDetail: []
             }
         },
-        //beforeCreate: function () {
-        //    GetReports();
-        //},
+        
         created: function () {
             fetchOrders.call(this).then(() => this.items = this.orders);
             GetReports.call(this).then(() => this.reportLength = this.Allreports.filter(o => o.closeTime == null));
@@ -1282,7 +1383,7 @@
                 } else if (this.items.length > 0 && this.items[0].tabName === "已逾期") {
                     fetchOrders.call(this)
                         .then(() =>
-                            this.OverdueOrders.call(this)
+                            this.OverDueOrders.call(this)
                         );
 
                 }
@@ -1362,22 +1463,33 @@
                         this.$bvModal.show("reportInfoClosed-modal");
                     });
                 
-                //this.reportData.reportId = ;
-                //this.reportData.description = data.description;
-                //this.reportData.closeTime = data.getDate();
-                //console.log(data);
-                //console.log(this.reportData.closeTime);
             },
             showReportClosedModal(data) {
-                this.closeData.reportId = data.item.reportId;
-                console.log(data.item.reportId);
-                console.log(data.item.note);
-                this.closeData.note = data.item.note;
-                console.log(data);
+                
+                    this.closeData.reportId = data.item.reportId;
+                    console.log(data.item.reportId);
+                    console.log(data.item.note);
+                    this.closeData.note = data.item.note;
+                    console.log(data);
+                    
+                          
                 this.$bvModal.show("reportClosed-modal");
             },
-            async confirmClosed(data) {
+            showReportClosedModalForView(data) {
+
                 this.closeData.reportId = data.reportId;
+                console.log(data.reportId);
+                console.log(data.note);
+                this.closeData.note = data.note;
+                console.log(data);
+
+
+                this.$bvModal.show("reportClosed-modal");
+            },
+            async confirmClosed() {
+                //console.log(data);
+                //this.closeData.reportId = data.reportId;
+                
                 let response = await fetch("/ReportApi/CloseReport/", {
                     method: "POST",
                     headers: {
@@ -1404,17 +1516,23 @@
                     fetchOrders.call(this)
                         .then(() =>
                             this.OverDueOrders.call(this)
+                    ).then(() =>
+                        GetReports.call(this)
                         );
                 } else if (this.items.length > 0 && this.items[0].tabName === "租借中") {
                     fetchOrders.call(this)
                         .then(() =>
                             this.OnGoingOrders.call(this)
-                        );
+                    ).then(() =>
+                        GetReports.call(this)
+                    );
                 } else if (this.items.length > 0 && this.items[0].tabName === "已結束") {
                     fetchOrders.call(this)
                         .then(() =>
                             this.ClosedOrders.call(this)
-                        );
+                            ).then(() =>
+                                GetReports.call(this)
+                            );
                 }
                 else if (this.items.length > 0 && this.items[0].tabName === "報修訂單") {
                     GetReports.call(this)
@@ -1431,17 +1549,74 @@
                 console.log(data);
                 this.$bvModal.show("reportClosedDetail-modal");
             },
-            checkInputValid(details) {
-                return details.closeTime != null;
+            showExtraFeeModal(data) {
+                this.extraFeeData.orderDetailId = data.orderDetailId;
+                console.log(data);
+                this.$bvModal.show("extraFee-modal");
+            },
+            async confirmExtraFee(data) {
+                console.log(data);
+                //this.extraFeeData.fee = data.fee;
+                //this.extraFeeData.description = data.description;
+                console.log(this.extraFeeData);
+                let response = await fetch("/api/extrafee/", {
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json"
+                    },
+                    body: JSON.stringify(this.extraFeeData)
+                }).catch(e => console.log(e));
+
+                if (!response.ok) {
+                    console.log("輸入罰金失敗");
+                    this.$bvModal.show("ExtraFee-failed");
+                    this.extraFeeData.fee = '';
+                    this.returnData.description = '';
+
+                    return;
+                }
+
+                console.log("輸入罰金成功");
+                this.$bvModal.show("ExtraFee-success");
+                this.extraFeeData.fee = '';
+                this.extraFeeData.description = '';
+            },
+            extraFeeSuccess() {
+                if (this.items.length > 0 && this.items[0].tabName === "已結束") {
+                    fetchOrders.call(this)
+                        .then(() =>
+                            this.ClosedOrders.call(this)
+                        );
+                } else if (this.items.length > 0 && this.items[0].tabName === "已逾期") {
+                    fetchOrders.call(this)
+                        .then(() => {
+                            console.log(this);
+                            console.log(this.OverDueOrders);
+                            this.OverDueOrders.call(this);
+                            
+                        }
+                        );
+
+                }
+
             }
+            
         },
         computed: {
             distributionInvalid() {
                 return this.itemsToBeDistributed.quantity - this.distributionData.itemIDs.length !== 0;
             },
-            
+            checkInputValid() {
+                if (this.extraFeeData.fee > 0) {
+                    return false;
+                }
+                return true;
+            },
             rows() {
                 return this.items.length;
+            },
+            nameState() {
+                return this.extraFeeData.fee > 0 ? true : false
             }
 
         }
