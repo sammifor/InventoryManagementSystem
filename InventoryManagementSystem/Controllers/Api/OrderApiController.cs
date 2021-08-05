@@ -166,7 +166,14 @@ namespace InventoryManagementSystem.Controllers.Api
                 })
                         .ToArray(),
 
-                PaymentId = o.PaymentOrder.PaymentId
+                PaymentId = o.PaymentOrder.PaymentId,
+
+
+                TotalExtraFee = o.OrderDetails
+                            .SelectMany(od => od.ExtraFees)
+                            .Select(f =>f.Fee)
+                            .ToArray()
+                            .Sum()
             })
                 .ToArrayAsync();
 

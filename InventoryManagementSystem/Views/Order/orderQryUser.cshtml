@@ -21,10 +21,10 @@
                                 <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
-                                <th>數量</th>
-                                <th>預計取貨時間</th>
+                                <th>租借數量</th>
+                                <th>取貨時間</th>
                                 <th>租借天數</th>
-                                <th>總價</th>
+                                <th>總金額</th>
                                 <th>訂單狀態</th>
                                 <th>下單時間</th>
                                 <th>取消租借</th>
@@ -62,10 +62,10 @@
                                 <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
-                                <th>數量</th>
-                                <th>預計取貨時間</th>
+                                <th>租借數量</th>
+                                <th>取貨時間</th>
                                 <th>租借天數</th>
-                                <th>總價</th>
+                                <th>總金額</th>
                                 <th>訂單狀態</th>
                                 <th>下單時間</th>
                                 <th>取消租借</th>
@@ -106,14 +106,14 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>清單</th>
+                                <th>訂單明細</th>
                                 <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
-                                <th>數量</th>
-                                <th>預計取貨時間</th>
+                                <th>租借數量</th>
+                                <th>取貨時間</th>
                                 <th>租借天數</th>
-                                <th>總價</th>
+                                <th>總金額</th>
                                 <th>訂單狀態</th>
                                 <th>下單時間</th>
                             </tr>
@@ -153,14 +153,14 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>清單</th>
+                                <th>訂單明細</th>
                                 <th>訂單序號</th>
                                 <th>設備序號</th>
                                 <th>設備名稱</th>
-                                <th>數量</th>
-                                <th>預計取貨時間</th>
+                                <th>租借數量</th>
+                                <th>取貨時間</th>
                                 <th>租借天數</th>
-                                <th>總價</th>
+                                <th>總金額</th>
                                 <th>訂單狀態</th>
                                 <th>下單時間</th>
                                 <th>問題回報</th>
@@ -197,26 +197,26 @@
             </b-tab>
 
             <!-- 已逾期 -->
-            <b-tab title="逾期或毀損" @@click="loadData_tab">
+            <b-tab title="已逾期" @@click="loadData_tab">
                 <div>
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>清單</th>
-                                <th>訂單序號</th>
-                                <th>設備序號</th>
-                                <th>設備名稱</th>
-                                <th>數量</th>
-                                <th>預計取貨時間</th>
-                                <th>租借天數</th>
-                                <th>總價</th>
-                                <th>訂單狀態</th>
-                                <th>下單時間</th>
-                                <th>問題回報</th>
+                                <th style="width:200px">訂單明細</th>
+                                <th style="width:200px">訂單序號</th>
+                                <th style="width:200px">設備序號</th>
+                                <th style="width:200px">設備名稱</th>
+                                <th style="width:200px">租借數量</th>
+                                <th style="width:200px">取貨時間</th>
+                                <th style="width:200px">租借天數</th>
+                                <th style="width:200px">總金額</th>
+                                <th style="width:200px">訂單狀態</th>
+                                <th style="width:200px">下單時間</th>
+                                <th style="width:200px">額外費用</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <template v-for="order in orders_5">
+                            <template v-for="order in orders_4">
                                 <tr>
                                     <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
                                     <td>{{order.orderSn}}</td>
@@ -228,7 +228,7 @@
                                     <td>{{order.unitPrice * order.day * order.quantity}}</td>
                                     <td>已逾期</td>
                                     <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題回報</b-btn></td>
+                                    <td>{{order.totalExtraFee}}<br><a v-if="order.totalExtraFee !== 0" href="/payment" style="color:red; font-size:80%;">請前往付款頁面確認是否結清<i class="bi bi-arrow-up-right-square-fill" href="Payment/PaymentResultView"></i></a></td>
                                 </tr>
                                 <tr v-if="opened.includes(order.orderId)">
                                     <td colspan="11" class="p-3 mb-2 bg-light text-dark">
@@ -251,20 +251,21 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>清單</th>
-                                <th>訂單序號</th>
-                                <th>設備序號</th>
-                                <th>設備名稱</th>
-                                <th>數量</th>
-                                <th>預計取貨時間</th>
-                                <th>租借天數</th>
-                                <th>總價</th>
-                                <th>訂單狀態</th>
-                                <th>下單時間</th>
+                                <th style="width:200px">訂單明細</th>
+                                <th style="width:200px">訂單序號</th>
+                                <th style="width:200px">設備序號</th>
+                                <th style="width:200px">設備名稱</th>
+                                <th style="width:200px">租借數量</th>
+                                <th style="width:200px">取貨時間</th>
+                                <th style="width:200px">租借天數</th>
+                                <th style="width:200px">總金額</th>
+                                <th style="width:200px">訂單狀態</th>
+                                <th style="width:200px">下單時間</th>
+                                <th style="width:200px">額外費用</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <template v-for="order in orders_4">
+                            <template v-for="order in orders_5">
                                 <tr>
                                     <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
                                     <td>{{order.orderSn}}</td>
@@ -274,8 +275,9 @@
                                     <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
                                     <td>{{order.day}}</td>
                                     <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                    <td><span v-if="order.orderDetails.length == 0">逾期未領取</span><span v-else>已結束</span></td>
+                                    <td><span v-if="order.orderDetails.length == 0">已取消</span><span v-else>已歸還</span></td>
                                     <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                    <td>{{order.totalExtraFee}}<br><a v-if="order.totalExtraFee !== 0" href="/payment" style="color:red; font-size:80%;">請前往付款頁面確認是否結清<i class="bi bi-arrow-up-right-square-fill" href="Payment/PaymentResultView"></i></a></td>
                                 </tr>
                                 <tr v-if="opened.includes(order.orderId)">
                                     <td colspan="11" class="p-3 mb-2 bg-light text-dark">
@@ -554,9 +556,9 @@
                     case 3:
                         this.orders_3 = this.orders.filter(od => od.tabName === "租借中");
                     case 4:
-                        this.orders_4 = this.orders.filter(od => od.tabName === "已結束");
+                        this.orders_4 = this.orders.filter(od => od.tabName === "已逾期");
                     case 5:
-                        this.orders_5 = this.orders.filter(od => od.tabName === "已逾期");
+                        this.orders_5 = this.orders.filter(od => od.tabName === "已結束");
                 }
             },
 
