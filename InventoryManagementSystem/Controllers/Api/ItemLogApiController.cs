@@ -45,7 +45,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     ConditionName = il.Condition.ConditionName,
                     AdminFullName = il.Admin.FullName,
                     Description = il.Description,
-                    CreateTime = il.CreateTime
+                    CreateTime = il.CreateTime.GetValueOrDefault().ToString("g")
                 })
                 .ToArrayAsync();
 
