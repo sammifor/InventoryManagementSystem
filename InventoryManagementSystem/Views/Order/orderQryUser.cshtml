@@ -10,385 +10,388 @@
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 
 <div id="app">
-    <b-card>
-        <b-tabs content-class="mt-3" fill v-model="tabIndex">
-            <!-- 待核可 -->
-            <b-tab title="待核可" active>
-                <div>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>訂單序號</th>
-                                <th>設備序號</th>
-                                <th>設備名稱</th>
-                                <th>租借數量</th>
-                                <th>取貨時間</th>
-                                <th>租借天數</th>
-                                <th>總金額</th>
-                                <th>訂單狀態</th>
-                                <th>下單時間</th>
-                                <th>取消租借</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="order in orders_0">
-                                <td>{{order.orderSn}}</td>
-                                <td>{{order.equipmentSn}}</td>
-                                <td>{{order.equipmentName}}</td>
-                                <td>{{order.quantity}}</td>
-                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                <td>{{order.day}}</td>
-                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td>處理中</td>
-                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </b-tab>
-
-            <!-- 待付款 -->
-            <b-tab title="待付款" @@click="loadData_tab">
-                <div>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>訂單序號</th>
-                                <th>設備序號</th>
-                                <th>設備名稱</th>
-                                <th>租借數量</th>
-                                <th>取貨時間</th>
-                                <th>租借天數</th>
-                                <th>總金額</th>
-                                <th>訂單狀態</th>
-                                <th>下單時間</th>
-                                <th>取消租借</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="order in orders_1">
-                                <td>{{order.orderSn}}</td>
-                                <td>{{order.equipmentSn}}</td>
-                                <td>{{order.equipmentName}}</td>
-                                <td>{{order.quantity}}</td>
-                                <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                <td>{{order.day}}</td>
-                                <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                <td>處理中</td>
-                                <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </b-tab>
-
-            <!-- 待領取 -->
-            <b-tab title="待領取" @@click="loadData_tab">
-                <div>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>訂單明細</th>
-                                <th>訂單序號</th>
-                                <th>設備序號</th>
-                                <th>設備名稱</th>
-                                <th>租借數量</th>
-                                <th>取貨時間</th>
-                                <th>租借天數</th>
-                                <th>總金額</th>
-                                <th>訂單狀態</th>
-                                <th>下單時間</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template v-for="order in orders_2">
-                                <tr>
-                                    <td><i class="bi bi-justify-left" @@click="toggle(order.orderId)" style="font-size: 20px;"></i></td>
-                                    <td>{{order.orderSn}}</td>
-                                    <td>{{order.equipmentSn}}</td>
-                                    <td>{{order.equipmentName}}</td>
-                                    <td>{{order.quantity}}</td>
-                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td>{{order.day}}</td>
-                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                    <td>待領取</td>
-                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                </tr>
-                                <tr v-if="opened.includes(order.orderId)">
-                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
-                                        <ul>
-
-                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
-
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </b-tab>
-
-            <!-- 租借中 -->
-            <b-tab title="租借中" @@click="loadData_tab">
-                <div>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>訂單明細</th>
-                                <th>訂單序號</th>
-                                <th>設備序號</th>
-                                <th>設備名稱</th>
-                                <th>租借數量</th>
-                                <th>取貨時間</th>
-                                <th>租借天數</th>
-                                <th>總金額</th>
-                                <th>訂單狀態</th>
-                                <th>下單時間</th>
-                                <th>問題反映</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template v-for="order in orders_3">
-                                <tr>
-                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
-                                    <td>{{order.orderSn}}</td>
-                                    <td>{{order.equipmentSn}}</td>
-                                    <td>{{order.equipmentName}}</td>
-                                    <td>{{order.quantity}}</td>
-                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td>{{order.day}}</td>
-                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                    <td>租借中</td>
-                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題反映</b-btn></td>
-                                </tr>
-                                <tr v-if="opened.includes(order.orderId)">
-                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
-                                        <ul>
-
-                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
-
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </b-tab>
-
-            <!-- 已逾期 -->
-            <b-tab title="已逾期" @@click="loadData_tab">
-                <div>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th style="width:200px">訂單明細</th>
-                                <th style="width:200px">訂單序號</th>
-                                <th style="width:200px">設備序號</th>
-                                <th style="width:200px">設備名稱</th>
-                                <th style="width:200px">租借數量</th>
-                                <th style="width:200px">取貨時間</th>
-                                <th style="width:175px">租借天數</th>
-                                <th style="width:175px">總金額</th>
-                                <th style="width:200px">訂單狀態</th>
-                                <th style="width:200px">下單時間</th>
-                                <th style="width:200px">額外費用</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template v-for="order in orders_4">
-                                <tr>
-                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
-                                    <td>{{order.orderSn}}</td>
-                                    <td>{{order.equipmentSn}}</td>
-                                    <td>{{order.equipmentName}}</td>
-                                    <td>{{order.quantity}}</td>
-                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td>{{order.day}}</td>
-                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                    <td>已逾期</td>
-                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td>{{order.totalExtraFee}}<br><a v-if="order.totalExtraFee !== 0" href="/payment" style="color:red; font-size:80%;">請前往付款頁面確認是否結清<i class="bi bi-arrow-up-right-square-fill" href="Payment/PaymentResultView"></i></a></td>
-                                </tr>
-                                <tr v-if="opened.includes(order.orderId)">
-                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
-                                        <ul>
-
-                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
-
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </b-tab>
-
-            <!-- 已結束 -->
-            <b-tab title="已結束" @@click="loadData_tab">
-                <div>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th style="width:200px">訂單明細</th>
-                                <th style="width:200px">訂單序號</th>
-                                <th style="width:200px">設備序號</th>
-                                <th style="width:200px">設備名稱</th>
-                                <th style="width:200px">租借數量</th>
-                                <th style="width:200px">取貨時間</th>
-                                <th style="width:175px">租借天數</th>
-                                <th style="width:175px">總金額</th>
-                                <th style="width:200px">訂單狀態</th>
-                                <th style="width:200px">下單時間</th>
-                                <th style="width:200px">額外費用</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template v-for="order in orders_5">
-                                <tr>
-                                    <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
-                                    <td>{{order.orderSn}}</td>
-                                    <td>{{order.equipmentSn}}</td>
-                                    <td>{{order.equipmentName}}</td>
-                                    <td>{{order.quantity}}</td>
-                                    <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td>{{order.day}}</td>
-                                    <td>{{order.unitPrice * order.day * order.quantity}}</td>
-                                    <td><span v-if="order.orderDetails.length == 0">已取消</span><span v-else>已歸還</span></td>
-                                    <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td>{{order.totalExtraFee}}<br><a v-if="order.totalExtraFee !== 0" href="/payment" style="color:red; font-size:80%;">請前往付款頁面確認是否結清<i class="bi bi-arrow-up-right-square-fill" href="Payment/PaymentResultView"></i></a></td>
-                                </tr>
-                                <tr v-if="opened.includes(order.orderId)">
-                                    <td colspan="11" class="p-3 mb-2 bg-light text-dark">
-                                        <ul>
-
-                                            <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
-
-                                        </ul>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </b-tab>
-        </b-tabs>
-    </b-card>
-
-    <!-- 問題反映Modal -->
-    <div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5 class="modal-title font-weight-bold text-danger" id="exampleModalLabel">問題反映</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-row">
-                        <div class="form-group col-md-4">
-                            <label class="col-form-label">訂單編號</label>
-                            <input type="text" class="form-control" :value="currentOrder.orderSn" readonly>
+    <b-overlay :show="loading" rounded="lg">
+        <div :show="!loading">
+            <b-card>
+                <b-tabs content-class="mt-3" fill v-model="tabIndex" card>
+                    <!-- 待核可 -->
+                    <b-tab :title="tab0_title" active :title-link-class="linkClass(0)">
+                        <div class="tableFixHead">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:175px">訂單序號</th>
+                                        <th style="width:175px">設備序號</th>
+                                        <th style="width:175px">設備名稱</th>
+                                        <th style="width:175px">租借數量</th>
+                                        <th style="width:200px">取貨時間</th>
+                                        <th style="width:175px">租借天數</th>
+                                        <th style="width:175px">總金額</th>
+                                        <th style="width:200px">訂單狀態</th>
+                                        <th style="width:200px">下單時間</th>
+                                        <th style="width:200px">取消租借</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="order in orders_0">
+                                        <td>{{order.orderSn}}</td>
+                                        <td>{{order.equipmentSn}}</td>
+                                        <td>{{order.equipmentName}}</td>
+                                        <td>{{order.quantity}}</td>
+                                        <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                        <td>{{order.day}}</td>
+                                        <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                        <td>處理中</td>
+                                        <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                        <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="form-group col-md-4">
-                            <label class="col-form-label">設備名稱</label>
-                            <input type="text" class="form-control" :value="currentOrder.equipmentName" readonly>
+                    </b-tab>
+
+                    <!-- 待付款 -->
+                    <b-tab :title="tab1_title" @@click="loadData_tab" :title-link-class="linkClass(1)">
+                        <div class="tableFixHead">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:175px">訂單序號</th>
+                                        <th style="width:175px">設備序號</th>
+                                        <th style="width:175px">設備名稱</th>
+                                        <th style="width:175px">租借數量</th>
+                                        <th style="width:200px">取貨時間</th>
+                                        <th style="width:175px">租借天數</th>
+                                        <th style="width:175px">總金額</th>
+                                        <th style="width:200px">訂單狀態</th>
+                                        <th style="width:200px">下單時間</th>
+                                        <th style="width:200px">取消租借</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="order in orders_1">
+                                        <td>{{order.orderSn}}</td>
+                                        <td>{{order.equipmentSn}}</td>
+                                        <td>{{order.equipmentName}}</td>
+                                        <td>{{order.quantity}}</td>
+                                        <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                        <td>{{order.day}}</td>
+                                        <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                        <td>處理中</td>
+                                        <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                        <td><b-btn @@click="cancelOrderAction(order)" data-toggle="modal" data-target="#cancelModal">取消租借</b-btn></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="form-group col-md-4">
-                            <label class="col-form-label">設備序號</label>
-                            <input type="text" class="form-control" :value="currentOrder.equipmentSn" readonly>
+                    </b-tab>
+
+                    <!-- 待領取 -->
+                    <b-tab :title="tab2_title" @@click="loadData_tab" :title-link-class="linkClass(2)">
+                        <div class="tableFixHead">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:200px">訂單明細</th>
+                                        <th style="width:175px">訂單序號</th>
+                                        <th style="width:175px">設備序號</th>
+                                        <th style="width:175px">設備名稱</th>
+                                        <th style="width:175px">租借數量</th>
+                                        <th style="width:200px">取貨時間</th>
+                                        <th style="width:175px">租借天數</th>
+                                        <th style="width:175px">總金額</th>
+                                        <th style="width:200px">訂單狀態</th>
+                                        <th style="width:200px">下單時間</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-for="order in orders_2">
+                                        <tr>
+                                            <td><i class="bi bi-justify-left" @@click="toggle(order.orderId)" style="font-size: 20px;"></i></td>
+                                            <td>{{order.orderSn}}</td>
+                                            <td>{{order.equipmentSn}}</td>
+                                            <td>{{order.equipmentName}}</td>
+                                            <td>{{order.quantity}}</td>
+                                            <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                            <td>{{order.day}}</td>
+                                            <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                            <td>待領取</td>
+                                            <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                        </tr>
+                                        <tr v-if="opened.includes(order.orderId)">
+                                            <td colspan="11" class="p-3 mb-2 bg-light text-dark">
+                                                <ul>
+
+                                                    <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
+
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </b-tab>
+
+                    <!-- 租借中 -->
+                    <b-tab :title="tab3_title" @@click="loadData_tab" :title-link-class="linkClass(3)">
+                        <div class="tableFixHead">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:200px">訂單明細</th>
+                                        <th style="width:175px">訂單序號</th>
+                                        <th style="width:175px">設備序號</th>
+                                        <th style="width:175px">設備名稱</th>
+                                        <th style="width:175px">租借數量</th>
+                                        <th style="width:200px">取貨時間</th>
+                                        <th style="width:175px">租借天數</th>
+                                        <th style="width:175px">總金額</th>
+                                        <th style="width:200px">訂單狀態</th>
+                                        <th style="width:200px">下單時間</th>
+                                        <th style="width:200px">問題反映</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-for="order in orders_3">
+                                        <tr>
+                                            <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
+                                            <td>{{order.orderSn}}</td>
+                                            <td>{{order.equipmentSn}}</td>
+                                            <td>{{order.equipmentName}}</td>
+                                            <td>{{order.quantity}}</td>
+                                            <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                            <td>{{order.day}}</td>
+                                            <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                            <td>租借中</td>
+                                            <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                            <td><b-btn @@click="reportAction(order)" data-toggle="modal" data-target="#reportModal">問題反映</b-btn></td>
+                                        </tr>
+                                        <tr v-if="opened.includes(order.orderId)">
+                                            <td colspan="11" class="p-3 mb-2 bg-light text-dark">
+                                                <ul>
+
+                                                    <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
+
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </b-tab>
+
+                    <!-- 已逾期 -->
+                    <b-tab :title="tab4_title" @@click="loadData_tab" :title-link-class="linkClass(4)">
+                        <div class="tableFixHead">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:175px">訂單明細</th>
+                                        <th style="width:175px">訂單序號</th>
+                                        <th style="width:175px">設備序號</th>
+                                        <th style="width:175px">設備名稱</th>
+                                        <th style="width:175px">租借數量</th>
+                                        <th style="width:200px">取貨時間</th>
+                                        <th style="width:175px">租借天數</th>
+                                        <th style="width:175px">總金額</th>
+                                        <th style="width:175px">訂單狀態</th>
+                                        <th style="width:200px">下單時間</th>
+                                        <th style="width:250px">額外費用</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-for="order in orders_4">
+                                        <tr>
+                                            <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
+                                            <td>{{order.orderSn}}</td>
+                                            <td>{{order.equipmentSn}}</td>
+                                            <td>{{order.equipmentName}}</td>
+                                            <td>{{order.quantity}}</td>
+                                            <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                            <td>{{order.day}}</td>
+                                            <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                            <td>已逾期</td>
+                                            <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                            <td>{{order.totalExtraFee}}<br><a v-if="order.totalExtraFee !== 0" href="/payment" style="color:red; font-size:80%;">請前往付款頁面確認是否結清<i class="bi bi-arrow-up-right-square-fill" href="Payment/PaymentResultView"></i></a></td>
+                                        </tr>
+                                        <tr v-if="opened.includes(order.orderId)">
+                                            <td colspan="11" class="p-3 mb-2 bg-light text-dark">
+                                                <ul>
+
+                                                    <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
+
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </b-tab>
+
+                    <!-- 已結束 -->
+                    <b-tab :title="tab5_title" @@click="loadData_tab" :title-link-class="linkClass(5)">
+                        <div class="tableFixHead">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:175px">訂單明細</th>
+                                        <th style="width:175px">訂單序號</th>
+                                        <th style="width:175px">設備序號</th>
+                                        <th style="width:175px">設備名稱</th>
+                                        <th style="width:175px">租借數量</th>
+                                        <th style="width:200px">取貨時間</th>
+                                        <th style="width:175px">租借天數</th>
+                                        <th style="width:175px">總金額</th>
+                                        <th style="width:175px">訂單狀態</th>
+                                        <th style="width:200px">下單時間</th>
+                                        <th style="width:250px">額外費用</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template v-for="order in orders_5">
+                                        <tr>
+                                            <td><i class="bi bi-justify-left" style="font-size: 20px;" @@click="toggle(order.orderId)"></i></td>
+                                            <td>{{order.orderSn}}</td>
+                                            <td>{{order.equipmentSn}}</td>
+                                            <td>{{order.equipmentName}}</td>
+                                            <td>{{order.quantity}}</td>
+                                            <td>{{order.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
+                                            <td>{{order.day}}</td>
+                                            <td>{{order.unitPrice * order.day * order.quantity}}</td>
+                                            <td><span v-if="order.orderDetails.length == 0">已取消</span><span v-else>已歸還</span></td>
+                                            <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                            <td>{{order.totalExtraFee}}<br><a v-if="order.totalExtraFee !== 0" href="/payment" style="color:red; font-size:80%;">請前往付款頁面確認是否結清<i class="bi bi-arrow-up-right-square-fill" href="Payment/PaymentResultView"></i></a></td>
+                                        </tr>
+                                        <tr v-if="opened.includes(order.orderId)">
+                                            <td colspan="11" class="p-3 mb-2 bg-light text-dark">
+                                                <ul>
+
+                                                    <li v-for="eachOd in order.orderDetails">物品序號: {{eachOd.itemSn}} </li>
+
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </b-tab>
+                </b-tabs>
+            </b-card>
+
+
+            <!-- 問題反映Modal -->
+            <div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title font-weight-bold text-danger" id="exampleModalLabel">問題反映</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label class="col-form-label">訂單編號</label>
+                                    <input type="text" class="form-control" :value="currentOrder.orderSn" readonly>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="col-form-label">設備名稱</label>
+                                    <input type="text" class="form-control" :value="currentOrder.equipmentName" readonly>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="col-form-label">設備序號</label>
+                                    <input type="text" class="form-control" :value="currentOrder.equipmentSn" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-2">
+                                    <label class="col-form-label">數量</label>
+                                    <input type="text" class="form-control" :value="currentOrder.quantity" readonly>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="col-form-label">物品序號</label>
+                                    <select required class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)" v-model="reportOrder.reportItemSn">
+                                        <option disabled selected>請先選擇序號</option>
+                                        <option v-for="itemSn in reportOrder.reportItemList" :value="itemSn">{{itemSn}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                <b-btn class="btn btn-primary active" :href="reportUrl" :disabled="cannotReport">填寫設備報修申請</b-btn>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-2">
-                            <label class="col-form-label">數量</label>
-                            <input type="text" class="form-control" :value="currentOrder.quantity" readonly>
+                </div>
+            </div>
+
+            <!-- 取消訂單Modal -->
+            <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title font-weight-bold text-danger" id="exampleModalLabel">取消租借</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
-                        <div class="form-group col-md-4">
-                            <label class="col-form-label">物品序號</label>
-                            <select required class="form-control" v-on:change="selectReportItem(currentOrder.orderDetails)" v-model="reportOrder.reportItemSn">
-                                <option disabled selected>請先選擇序號</option>
-                                <option v-for="itemSn in reportOrder.reportItemList" :value="itemSn">{{itemSn}}</option>
-                            </select>
+                        <div class="modal-body">
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label class="col-form-label">訂單編號</label>
+                                    <input type="text" class="form-control" :value="currentOrder.orderSn" readonly>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="col-form-label">設備名稱</label>
+                                    <input type="text" class="form-control" :value="currentOrder.equipmentName" readonly>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="col-form-label">設備序號</label>
+                                    <input type="text" class="form-control" :value="currentOrder.equipmentSn" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-2">
+                                    <label class="col-form-label">數量</label>
+                                    <input type="text" class="form-control" :value="currentOrder.quantity" readonly>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label class="col-form-label">取貨日期</label>
+                                    <input type="text" class="form-control" :value="currentOrder.estimatedPickupTime | timeString('YYYY-MM-DD')" readonly>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label class="col-form-label">租借天數</label>
+                                    <input type="text" class="form-control" :value="currentOrder.day" readonly>
+                                </div>
+
+                                <div class="form-group col-md-4">
+                                    <label class="col-form-label">總金額</label>
+                                    <input type="text" class="form-control" :value="currentOrder.day * currentOrder.unitPrice * currentOrder.quantity" readonly>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-12">
+                                    <label class="col-form-label">取消原因</label>
+                                    <input type="text" class="form-control" v-model="cancelOrder.cancelDiscription" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                <b-btn type="button" class="btn btn-primary" @@click="cancelConfirm($event)" :disabled="cannotCancel">確定</b-btn>
+                            </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <b-btn class="btn btn-primary active" :href="reportUrl" :disabled="cannotReport">填寫設備報修申請</b-btn>                    
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- 取消訂單Modal -->
-    <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5 class="modal-title font-weight-bold text-danger" id="exampleModalLabel">取消租借</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-row">
-                        <div class="form-group col-md-4">
-                            <label class="col-form-label">訂單編號</label>
-                            <input type="text" class="form-control" :value="currentOrder.orderSn" readonly>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label class="col-form-label">設備名稱</label>
-                            <input type="text" class="form-control" :value="currentOrder.equipmentName" readonly>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label class="col-form-label">設備序號</label>
-                            <input type="text" class="form-control" :value="currentOrder.equipmentSn" readonly>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-2">
-                            <label class="col-form-label">數量</label>
-                            <input type="text" class="form-control" :value="currentOrder.quantity" readonly>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label class="col-form-label">取貨日期</label>
-                            <input type="text" class="form-control" :value="currentOrder.estimatedPickupTime | timeString('YYYY-MM-DD')" readonly>
-                        </div>
-                        <div class="form-group col-md-2">
-                            <label class="col-form-label">租借天數</label>
-                            <input type="text" class="form-control" :value="currentOrder.day" readonly>
-                        </div>
-
-                        <div class="form-group col-md-4">
-                            <label class="col-form-label">總金額</label>
-                            <input type="text" class="form-control" :value="currentOrder.day * currentOrder.unitPrice * currentOrder.quantity" readonly>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-12">
-                            <label class="col-form-label">取消原因</label>
-                            <input type="text" class="form-control" v-model="cancelOrder.cancelDiscription" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <b-btn type="button" class="btn btn-primary" @@click="cancelConfirm($event)" :disabled="cannotCancel">確定</b-btn>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
+    </b-overlay>
 </div>
 
 
@@ -400,7 +403,8 @@
 
         el: '#app',
         data: {
-            tabIndex:0,
+            loading: true,
+            tabIndex: 0,
             orders: [],
             orders_0: [],
             orders_1: [],
@@ -409,7 +413,7 @@
             orders_4: [],
             orders_5: [],
             currentOrder: {
-                
+
 
             },
             cancelOrder: {
@@ -453,18 +457,48 @@
                         return response.json();
 
                     } else {
+                        this.loading = false;
                         console.log("資料擷取失敗");
+
                     }
                 }).then(response => {
 
                     this.orders = response;
-                    this.orders_0 = this.orders.filter(od => od.tabName === "待核可");
-   
-                }).catch(error => {
-                    alert("資料庫連線失敗");
-                    console.log(error);
-                })
+                   
+                    
 
+                }).then(response => { 
+
+                    this.orders.forEach(od => {
+                        switch (od.tabName) {
+                            case "待核可":
+                                this.orders_0.push(od);
+                                break;
+                            case "待付款":
+                                this.orders_1.push(od);
+                                break;
+                            case "待領取":
+                                this.orders_2.push(od);
+                                break;
+                            case "租借中":
+                                this.orders_3.push(od);
+                                break;
+                            case "已逾期":
+                                this.orders_4.push(od);
+                                break;
+                            case "已結束":
+                                this.orders_5.push(od);
+                                break;
+                        }
+                    })
+
+                    this.loading = false;
+
+                }).catch (error => {
+                        this.loading = false;
+                        alert("資料庫連線失敗");
+                        console.log(error);
+                })
 
         },
 
@@ -491,7 +525,7 @@
             },
 
             cancelConfirm: function () {
-  
+
                 let requestData = {
                     orderID: this.currentOrder.orderId,
                     description: this.cancelOrder.cancelDiscription
@@ -525,15 +559,15 @@
 
                 this.currentOrder = orderData;
                 if (this.reportOrder.reportItemList.length == 0) {
-                this.currentOrder.orderDetails.forEach(od => {
+                    this.currentOrder.orderDetails.forEach(od => {
 
-                    if (od.orderDetailStatusId == "T") {
+                        if (od.orderDetailStatusId == "T") {
 
-                        this.reportOrder.reportItemList.push(od.itemSn);
+                            this.reportOrder.reportItemList.push(od.itemSn);
 
-                    }
+                        }
 
-                })
+                    })
                 }
             },
 
@@ -551,23 +585,98 @@
                     }
 
                 }
+            },
+
+            toggle: function (orderId) {
+                let index = this.opened.indexOf(orderId)
+                if (index > -1) {
+
+                    this.opened.splice(index, 1)
+
+                } else {
+                    this.opened = []
+                    this.opened.push(orderId)
+                }
+            },
+
+            linkClass: function (currentTab) {
+
+                if (this.tabIndex == currentTab) {
+                    return ['bg-light', 'text-primary', 'fw-bold']
+                } else {
+                    return ['bg-white']
+                }
+
+
             }
+
         },
 
         computed: {
 
 
             cannotCancel() {
-                return this.cancelOrder.cancelDiscription==""
+                return this.cancelOrder.cancelDiscription == ""
 
             },
 
             cannotReport() {
 
-                return this.reportOrder.reportItemSn ==""
+                return this.reportOrder.reportItemSn == ""
+
+            },
+
+            tab0_title() {
+
+                return "待核可" + " " + "(" + this.orders_0.length.toString() + ")";
+
+            },
+
+            tab1_title() {
+
+                return "待付款" + " " + "(" + this.orders_1.length.toString() + ")";
+
+            },
+
+            tab2_title() {
+
+                return "待領取" + " " + "(" + this.orders_2.length.toString() + ")";
+
+            },
+
+            tab3_title() {
+
+                return "租借中" + " " + "(" + this.orders_3.length.toString() + ")";
+
+            },
+
+            tab4_title() {
+
+                return "已逾期" + " " + "(" + this.orders_4.length.toString() + ")";
+
+            },
+
+            tab5_title() {
+
+                return "已結清" + " " + "(" + this.orders_5.length.toString() + ")";
 
             }
         }
     })
 
-</script> 
+</script>
+
+<style>
+
+    .tableFixHead {
+        overflow: auto;
+        height: 300px;
+    }
+
+    .tableFixHead thead th {
+            position: sticky;
+            top: 0;
+            background-color: #F5F5F5;
+    }
+
+</style>

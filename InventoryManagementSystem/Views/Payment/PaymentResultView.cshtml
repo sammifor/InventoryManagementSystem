@@ -12,8 +12,6 @@
 
 
 <div id="app">
-    @*<div ><span id="loading_wrap"><img src="~/image/loading Gif.gif"></span></div>*@
-    @*<div v-if="loading==false">*@
     <b-overlay :show="loading" rounded="lg">
         <div :show="!loading">
             <b-card nobody>
@@ -133,7 +131,7 @@
                             <table class="table">
                                 <thead bgcolor="#F5F5F5">
                                     <tr>
-                                        <th style="width: 200px; text-align: center">訂單序號</th>
+                                        <th style="width:200px; text-align: center">訂單序號</th>
                                         <th style="width:200px">設備序號</th>
                                         <th style="width:200px">設備名稱</th>
                                         <th style="width:200px">租借數量</th>
@@ -614,22 +612,22 @@
 
             tab1_title() {
 
-                let tab1 = "待付款"
-                return tab1 +" "+"(" + this.unPaidOd.length.toString() + ")"
+            
+                return "待付款" +" "+"(" + this.unPaidOd.length.toString() + ")"
             },
 
             tab2_title() {
 
-                let tab2 = "額外費用"
-                return tab2 + " " +"(" + this.extraFeeOds.length.toString() + ")"
+            
+                return "額外費用" + " " +"(" + this.extraFeeOds.length.toString() + ")"
 
 
             },
 
             tab3_title() {
 
-                let tab3 = "已結清"
-                return tab3 + " " + "(" + this.finishOds.length.toString() + ")"
+                
+                return "已結清" + " " + "(" + this.finishOds.length.toString() + ")"
 
 
             },
@@ -656,21 +654,7 @@
 </script> 
 
 <style>
-    #loading_wrap {
-        width: 10px;
-        height: 10px;
-        position: absolute;
-        top: 300px;
-        left:650px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
 
-    .table-responsive {
-        max-height: 300px;
-        width: 100%;
-    }
 
     .tableFixHead {
         overflow: auto;
