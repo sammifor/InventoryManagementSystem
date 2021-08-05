@@ -68,7 +68,12 @@
 
                     }
 
-                <span class="navbar-text mx-auto"><img src="/image/account_circle_white_24dp.svg" width="25" height="25" />&ensp;@User.Identity.Name</span>
+                <span class="navbar-text mx-auto">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                    <span><img src="/image/account_circle_white_24dp.svg" width="25" height="25" />&ensp;@User.Identity.Name</span>
+                    }
+                    </span>
                     @if (User.Identity.IsAuthenticated)
                     {
                         <ul class="navbar-nav">
