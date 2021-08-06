@@ -12,181 +12,183 @@
 
 
 <div id="app">
-    <div v-if="loading"><span id="loading_wrap"><img src="~/image/loading Gif.gif"></span></div>
-    <div v-if="loading==false">
-        <b-card no-body>
-            <b-tabs v-model="tabIndex" content-class="mt-3" fill card>
-                <!-- 未付款 -->
-                <b-tab :title="tab1_title" active :title-link-class="linkClass(0)">
-                    <div class="tableFixHead">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th style="width:100px;text-align:center"><input aria-label="Checkbox" type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i></th>
-                                    <th style="width:200px">訂單序號</th>
-                                    <th style="width:200px">設備序號</th>
-                                    <th style="width:200px">設備名稱</th>
-                                    <th style="width:200px">數量</th>
-                                    <th style="width:200px">租借天數</th>
-                                    <th style="width:200px">下單時間</th>
-                                    <th style="width:200px">總金額</th>
-                                    <th style="width:200px">付款期限</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="od in unPaidOd">
-                                    <td style="text-align:center"><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od"><i class="form-icon"></i></td>
-                                    <td>{{od.orderSn}}</td>
-                                    <td>{{od.equipmentSn}}</td>
-                                    <td>{{od.equipmentName}}</td>
-                                    <td>{{od.quantity}}</td>
-                                    <td>{{od.day}}</td>
-                                    <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                    <td>{{od.unitPrice * od.day * od.quantity}}</td>
-                                    <td>{{od.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <b-btn v-if="loadPaymentBtn==false" variant="danger"
-                               @@click="confirmAmount"
-                               :disabled="noItemSelected"
-                               @*data-toggle="modal"*@
-                               @*data-target="#confirmAmountModal"*@>結帳 (總金額: {{countTotalPrice}})</b-btn>
-                        <b-btn v-else variant="danger" disabled>處理中,請稍後...</b-btn>
-                    </div>
-                </b-tab>
-
-                <!-- 額外費用 -->
-                <b-tab :title="tab2_title" @@click="loadExtraFeeOds" :title-link-class="linkClass(1)">
-                    <div class="tableFixHead">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th style="width:100px;text-align:center">結帳</th>
-                                    <th style="width:200px">訂單序號</th>
-                                    <th style="width:200px">設備序號</th>
-                                    <th style="width:200px">設備名稱</th>
-                                    <th style="width:200px">租借數量</th>
-                                    <th style="width:200px">下單時間</th>
-                                    <th style="width:200px">額外費用</th>
-                                    <th style="width:200px">繳費明細</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <template v-for="od in extraFeeOds">
-                                    <tr :class="paymentDetail.includes(od)? 'active_row':''">
-                                        <td align="center"><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od.paymentId" @@click="selectExtraFeeOd(od.paymentId)"><i class="form-icon"></i></td>
+    <b-overlay :show="loading" rounded="lg">
+        <div :show="!loading">
+            <b-card nobody>
+                <b-tabs v-model="tabIndex" content-class="mt-3" fill card>
+                    <!-- 未付款 -->
+                    <b-tab :title="tab1_title" active :title-link-class="linkClass(0)">
+                        <div class="tableFixHead">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:100px;text-align:center"><input aria-label="Checkbox" type="checkbox" v-model="selectAll" @@click="selectAllAction($event)"><i class="form-icon"></i></th>
+                                        <th style="width:200px">訂單序號</th>
+                                        <th style="width:200px">設備序號</th>
+                                        <th style="width:200px">設備名稱</th>
+                                        <th style="width:200px">數量</th>
+                                        <th style="width:200px">租借天數</th>
+                                        <th style="width:200px">下單時間</th>
+                                        <th style="width:200px">總金額</th>
+                                        <th style="width:200px">付款期限</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="od in unPaidOd">
+                                        <td style="text-align:center"><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od"><i class="form-icon"></i></td>
                                         <td>{{od.orderSn}}</td>
                                         <td>{{od.equipmentSn}}</td>
                                         <td>{{od.equipmentName}}</td>
                                         <td>{{od.quantity}}</td>
+                                        <td>{{od.day}}</td>
                                         <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                        <td>{{od.totalExtraFee}}</td>
-                                        <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od)" style="font-size: 20px;"></i></td>
+                                        <td>{{od.unitPrice * od.day * od.quantity}}</td>
+                                        <td>{{od.estimatedPickupTime | timeString('YYYY-MM-DD')}}</td>
                                     </tr>
-                                    <tr v-if="paymentDetail.includes(od)" bgcolor="#F5F5F5">
-                                        <td colspan="8" class="p-3 mb-2 text-dark">
-                                            <div class="card">
-                                                <table width="100%" align="center">
-                                                    <tr>
-                                                        <td style="font-weight:bold;">費用名稱</td>
-                                                        <td style="font-weight:bold;">費用金額</td>
-                                                        <td style="font-weight:bold;">費用明細</td>
-                                                        <td style="font-weight:bold;">繳費日期</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>租金</td>
-                                                        <td>{{od.price}}</td>
-                                                        <td>--</td>
-                                                        <td>{{od.rentalFee_payTime| timeString('YYYY-MM-DD')}}</td>
-                                                    </tr>
-                                                    <template v-for="extraFee in od.extraFees">
-                                                        <tr v-if="extraFee.fee !==0">
-                                                            <td>罰金</td>
-                                                            <td>{{extraFee.fee}}</td>
-                                                            <td>{{extraFee.itemSn}}{{extraFee.description}}</td>
-                                                            <td>尚未繳納</td>
-                                                        </tr>
-                                                    </template>
-                                                </table>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                        <b-btn v-if="loadPaymentBtn==false" variant="danger"
-                               @@click="confirmAmount"
-                               :disabled="noItemSelected"
-                               @*data-toggle="modal"*@
-                               @*data-target="#confirmAmountModal"*@>結帳 (總金額: {{countExtraFeePrice}})</b-btn><b-btn v-else variant="danger" disabled>處理中,請稍後...</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
-                        
+                                </tbody>
+                            </table>
+                            <b-btn v-if="loadPaymentBtn==false" variant="danger"
+                                   @@click="confirmAmount"
+                                   :disabled="noItemSelected"
+                                   @*data-toggle="modal"*@
+                                   @*data-target="#confirmAmountModal"*@>結帳 (總金額: {{countTotalPrice}})</b-btn>
+                            <b-btn v-else variant="danger" disabled>處理中,請稍後...</b-btn>
+                        </div>
+                    </b-tab>
 
-                    </div>
-                </b-tab>
-
-                <!-- 已結清 -->
-                <b-tab :title="tab3_title" @@click="loadfinishOds" :title-link-class="linkClass(2)">
-                    <div class="tableFixHead">
-                        <table class="table">
-                            <thead bgcolor="#F5F5F5">
-                                <tr>
-                                    <th style="width: 200px; text-align: center" >訂單序號</th>
-                                    <th style="width:200px">設備序號</th>
-                                    <th style="width:200px">設備名稱</th>
-                                    <th style="width:200px">租借數量</th>
-                                    <th style="width:200px">下單時間</th>
-                                    <th style="width:200px">總金額</th>
-                                    <th style="width:200px">繳費明細</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <template v-for="od in finishOds">
-                                    <tr :class="paymentDetail.includes(od)? 'active_row':''">
-                                        <td align="center">{{od.orderSn}}</td>
-                                        <td>{{od.equipmentSn}}</td>
-                                        <td>{{od.equipmentName}}</td>
-                                        <td>{{od.quantity}}</td>
-                                        <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                        <td>{{od.totalExtraFee + od.price}}</td>
-                                        <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od)" style="font-size: 20px;"></i></td>
+                    <!-- 額外費用 -->
+                    <b-tab :title="tab2_title" @@click="loadExtraFeeOds" :title-link-class="linkClass(1)">
+                        <div class="tableFixHead">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:100px;text-align:center">結帳</th>
+                                        <th style="width:200px">訂單序號</th>
+                                        <th style="width:200px">設備序號</th>
+                                        <th style="width:200px">設備名稱</th>
+                                        <th style="width:200px">租借數量</th>
+                                        <th style="width:200px">下單時間</th>
+                                        <th style="width:200px">額外費用</th>
+                                        <th style="width:200px">繳費明細</th>
                                     </tr>
-                                    <tr v-if="paymentDetail.includes(od)" bgcolor="#F5F5F5">
-                                        <td colspan="7" class="p-3 mb-2 text-dark">
-                                            <div class="card">
-                                                <table width="100%" align="center">
-                                                    <tr>
-                                                        <td style="font-weight:bold;">費用名稱</td>
-                                                        <td style="font-weight:bold;">費用金額</td>
-                                                        <td style="font-weight:bold;">費用明細</td>
-                                                        <td style="font-weight:bold;">繳費日期</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>租金</td>
-                                                        <td>{{od.price}}</td>
-                                                        <td>--</td>
-                                                        <td>{{od.rentalFee_payTime| timeString('YYYY-MM-DD')}}</td>
-                                                    </tr>
-                                                    <template v-for="extraFee in od.extraFees">
-                                                        <tr v-if="extraFee.fee !==0">
-                                                            <td>罰金</td>
-                                                            <td>{{extraFee.fee}}</td>
-                                                            <td>物品序號:{{extraFee.itemSn}}({{extraFee.description}})</td>
-                                                            <td>{{od.extraFee_payTime| timeString('YYYY-MM-DD')}}</td>
+                                </thead>
+                                <tbody>
+                                    <template v-for="od in extraFeeOds">
+                                        <tr :class="paymentDetail.includes(od)? 'active_row':''">
+                                            <td align="center"><input aria-label="Checkbox" type="checkbox" v-model="selected" :value="od.paymentId" @@click="selectExtraFeeOd(od.paymentId)"><i class="form-icon"></i></td>
+                                            <td>{{od.orderSn}}</td>
+                                            <td>{{od.equipmentSn}}</td>
+                                            <td>{{od.equipmentName}}</td>
+                                            <td>{{od.quantity}}</td>
+                                            <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                            <td>{{od.totalExtraFee}}</td>
+                                            <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od)" style="font-size: 20px;"></i></td>
+                                        </tr>
+                                        <tr v-if="paymentDetail.includes(od)" bgcolor="#F5F5F5">
+                                            <td colspan="8" class="p-3 mb-2 text-dark">
+                                                <div class="card">
+                                                    <table width="100%" align="center">
+                                                        <tr>
+                                                            <td style="font-weight:bold;">費用名稱</td>
+                                                            <td style="font-weight:bold;">費用金額</td>
+                                                            <td style="font-weight:bold;">費用明細</td>
+                                                            <td style="font-weight:bold;">繳費日期</td>
                                                         </tr>
-                                                    </template>
-                                                </table>
-                                            </div>
-                                        </td>
+                                                        <tr>
+                                                            <td>租金</td>
+                                                            <td>{{od.price}}</td>
+                                                            <td>--</td>
+                                                            <td>{{od.rentalFee_payTime| timeString('YYYY-MM-DD')}}</td>
+                                                        </tr>
+                                                        <template v-for="extraFee in od.extraFees">
+                                                            <tr v-if="extraFee.fee !==0">
+                                                                <td>罰金</td>
+                                                                <td>{{extraFee.fee}}</td>
+                                                                <td>{{extraFee.itemSn}}{{extraFee.description}}</td>
+                                                                <td>尚未繳納</td>
+                                                            </tr>
+                                                        </template>
+                                                    </table>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            <b-btn v-if="loadPaymentBtn==false" variant="danger"
+                                   @@click="confirmAmount"
+                                   :disabled="noItemSelected"
+                                   @*data-toggle="modal"*@
+                                   @*data-target="#confirmAmountModal"*@>結帳 (總金額: {{countExtraFeePrice}})</b-btn><b-btn v-else variant="danger" disabled>處理中,請稍後...</b-btn><span v-if="notify==true"><br><a style="color:red">  **因為同一批租借,額外金額必須一起付費</a></span>
+
+
+                        </div>
+                    </b-tab>
+
+                    <!-- 已結清 -->
+                    <b-tab :title="tab3_title" @@click="loadfinishOds" :title-link-class="linkClass(2)">
+                        <div class="tableFixHead">
+                            <table class="table">
+                                <thead bgcolor="#F5F5F5">
+                                    <tr>
+                                        <th style="width:200px; text-align: center">訂單序號</th>
+                                        <th style="width:200px">設備序號</th>
+                                        <th style="width:200px">設備名稱</th>
+                                        <th style="width:200px">租借數量</th>
+                                        <th style="width:200px">下單時間</th>
+                                        <th style="width:200px">總金額</th>
+                                        <th style="width:200px">繳費明細</th>
                                     </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </b-tab>
-            </b-tabs>
-        </b-card>
-    </div>
+                                </thead>
+                                <tbody>
+                                    <template v-for="od in finishOds">
+                                        <tr :class="paymentDetail.includes(od)? 'active_row':''">
+                                            <td align="center">{{od.orderSn}}</td>
+                                            <td>{{od.equipmentSn}}</td>
+                                            <td>{{od.equipmentName}}</td>
+                                            <td>{{od.quantity}}</td>
+                                            <td>{{od.orderTime | timeString('YYYY-MM-DD')}}</td>
+                                            <td>{{od.totalExtraFee + od.price}}</td>
+                                            <td><i class="bi bi-justify-left" @@click="paymentDetailCheck(od)" style="font-size: 20px;"></i></td>
+                                        </tr>
+                                        <tr v-if="paymentDetail.includes(od)" bgcolor="#F5F5F5">
+                                            <td colspan="7" class="p-3 mb-2 text-dark">
+                                                <div class="card">
+                                                    <table width="100%" align="center">
+                                                        <tr>
+                                                            <td style="font-weight:bold;">費用名稱</td>
+                                                            <td style="font-weight:bold;">費用金額</td>
+                                                            <td style="font-weight:bold;">費用明細</td>
+                                                            <td style="font-weight:bold;">繳費日期</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>租金</td>
+                                                            <td>{{od.price}}</td>
+                                                            <td>--</td>
+                                                            <td>{{od.rentalFee_payTime| timeString('YYYY-MM-DD')}}</td>
+                                                        </tr>
+                                                        <template v-for="extraFee in od.extraFees">
+                                                            <tr v-if="extraFee.fee !==0">
+                                                                <td>罰金</td>
+                                                                <td>{{extraFee.fee}}</td>
+                                                                <td>物品序號:{{extraFee.itemSn}}({{extraFee.description}})</td>
+                                                                <td>{{od.extraFee_payTime| timeString('YYYY-MM-DD')}}</td>
+                                                            </tr>
+                                                        </template>
+                                                    </table>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </b-tab>
+                </b-tabs>
+
+            </b-card>
+        </div>
+    </b-overlay>
 
     <!--確認金額Modal-->
     <div class="modal fade" id="confirmAmountModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -610,28 +612,34 @@
 
             tab1_title() {
 
-                let tab1 = "待付款"
-                return tab1 +" "+"(" + this.unPaidOd.length.toString() + ")"
+            
+                return "待付款" +" "+"(" + this.unPaidOd.length.toString() + ")"
             },
 
             tab2_title() {
 
-                let tab2 = "額外費用"
-                return tab2 + " " +"(" + this.extraFeeOds.length.toString() + ")"
+            
+                return "額外費用" + " " +"(" + this.extraFeeOds.length.toString() + ")"
 
 
             },
 
             tab3_title() {
 
-                let tab3 = "已結清"
-                return tab3 + " " + "(" + this.finishOds.length.toString() + ")"
+                
+                return "已結清" + " " + "(" + this.finishOds.length.toString() + ")"
 
 
             },
 
             rows() {
                 return this.finishOds.length
+            },
+
+            cardHide() {
+
+                return this. loading ? 'true' : null
+
             }
 
             
@@ -646,21 +654,7 @@
 </script> 
 
 <style>
-    #loading_wrap {
-        width: 10px;
-        height: 10px;
-        position: absolute;
-        top: 300px;
-        left:650px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
 
-    .table-responsive {
-        max-height: 300px;
-        width: 100%;
-    }
 
     .tableFixHead {
         overflow: auto;
