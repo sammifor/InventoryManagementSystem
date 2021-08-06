@@ -53,6 +53,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             var result = await _dbContext.Equipment
                 .Where(e => e.EquipmentId == id)
+                .Where(e => !e.Deleted)
                 .Select(e => new EquipResultModel
                 {
                     EquipmentId = e.EquipmentId,
@@ -88,6 +89,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             var results = await _dbContext.Equipment
                 .Where(e => e.EquipmentName == name)
+                .Where(e => !e.Deleted)
                 .Select(e => new EquipResultModel
                 {
                     EquipmentId = e.EquipmentId,
@@ -118,6 +120,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             var results = await _dbContext.Equipment
                 .Where(e => e.EquipmentCategoryId == id)
+                .Where(e => !e.Deleted)
                 .Select(e => new EquipResultModel
                 {
                     EquipmentId = e.EquipmentId,
@@ -187,14 +190,28 @@ namespace InventoryManagementSystem.Controllers.Api
         [Route("{id}")]
         [Authorize(Roles = "admin")]
         // TODO 應使用 ViewModel 防止 overposting
-        public async Task<IActionResult> EditEquip(Guid id, Equipment equip)
+        public async Task<IActionResult> EditEquip(Guid id, EditEquipModel model)
         {
-            if (equip.EquipmentId != id)
+            if (model.EquipmentId != id)
             {
                 return BadRequest();
             }
 
-            _dbContext.Entry(equip).State = EntityState.Modified;
+            Equipment equip = await _dbContext.Equipment
+                .Where(e => !e.Deleted)
+                .Where(e => e.EquipmentId == model.EquipmentId)
+                .FirstOrDefaultAsync();
+
+            if(equip == null)
+                return NotFound();
+
+
+            equip.EquipmentCategoryId = model.EquipmentCategoryId;
+            equip.EquipmentSn = model.EquipmentSn;
+            equip.EquipmentName = model.EquipmentName;
+            equip.Brand = model.Brand;
+            equip.Model = model.Model;
+            equip.Description = model.Description;
 
             try
             {
@@ -204,7 +221,7 @@ namespace InventoryManagementSystem.Controllers.Api
             {
                 return Conflict();
             }
-            return NoContent();
+            return Ok();
         }
 
         /*
@@ -221,6 +238,7 @@ namespace InventoryManagementSystem.Controllers.Api
             // 查出所有待刪的 equip
             var equipPieces = await _dbContext.Equipment
                 .Where(e => ids.Contains(e.EquipmentId))
+                .Where(e => !e.Deleted)
                 .ToArrayAsync();
             Console.WriteLine($"可刪除 {equipPieces.Length} 筆資料");
 
@@ -231,9 +249,10 @@ namespace InventoryManagementSystem.Controllers.Api
             }
 
 
-            // 判斷這些 equip 底下有沒有任何 item
+            // 判斷這些 equip 底下有沒有任何 item 未刪
             bool hasItems = await _dbContext.Items
-                .AnyAsync(i => ids.Contains(i.EquipmentId));
+                .Where(i => ids.Contains(i.EquipmentId))
+                .AnyAsync(i => i.ConditionId == "D");
 
             if (hasItems)
             {
@@ -241,7 +260,12 @@ namespace InventoryManagementSystem.Controllers.Api
                 return BadRequest(0);
             }
 
-            _dbContext.Equipment.RemoveRange(equipPieces);
+            //_dbContext.Equipment.RemoveRange(equipPieces);
+            foreach(Equipment equipment in equipPieces)
+            {
+                equipment.Deleted = true;
+                equipment.EquipmentSn = null;
+            }
             int rowsAffected = 0;
             try
             {
@@ -262,20 +286,23 @@ namespace InventoryManagementSystem.Controllers.Api
         [Authorize]
         public IActionResult EquipmentAll()
         {
-            var result = _dbContext.Equipment.Where(e => e.EquipmentName != null).Select(e => new {
+            var result = _dbContext.Equipment
+                .Where(e => e.EquipmentName != null)
+                .Where(e => !e.Deleted)
+                .Select(e => new {
 
-                EquipmentId = e.EquipmentId,
-                EquipmentCategoryId = e.EquipmentCategoryId,
-                EquipmentSn = e.EquipmentSn,
-                EquipmentName = e.EquipmentName,
-                Brand = e.Brand,
-                Model = e.Model,
-                UnitPrice = e.UnitPrice,
-                Description = e.Description,
-                QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
-                QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
-                QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
-            }).ToList();
+                    EquipmentId = e.EquipmentId,
+                    EquipmentCategoryId = e.EquipmentCategoryId,
+                    EquipmentSn = e.EquipmentSn,
+                    EquipmentName = e.EquipmentName,
+                    Brand = e.Brand,
+                    Model = e.Model,
+                    UnitPrice = e.UnitPrice,
+                    Description = e.Description,
+                    QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
+                    QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
+                    QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
+                }).ToList();
             return Ok(result);
         }
 
@@ -290,8 +317,11 @@ namespace InventoryManagementSystem.Controllers.Api
         [Authorize]
         public async Task<EquipResultModel[]> GetEquipByCateOrName(Guid categoryId, string name = null)
         {
-            var results = _dbContext.Equipment.Where(e => e.EquipmentCategoryId == categoryId);
-            if (!string.IsNullOrEmpty(name))
+            var results = _dbContext.Equipment
+                .Where(e => e.EquipmentCategoryId == categoryId)
+                .Where(e => !e.Deleted);
+
+            if (!string.IsNullOrWhiteSpace(name))
             {
                 results = results.Where(e => e.EquipmentName == name);
             }

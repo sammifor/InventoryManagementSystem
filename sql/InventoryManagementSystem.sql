@@ -134,7 +134,10 @@ CREATE TABLE [Equipment](
 
         [UnitPrice] DECIMAL NOT NULL,
 
-        [Description] NVARCHAR(100)
+        [Description] NVARCHAR(100),
+
+        [Deleted] BIT NOT NULL
+                CONSTRAINT [DF_Equipment_Deleted] DEFAULT (0)
 );
 
 CREATE UNIQUE NONCLUSTERED INDEX [UQ_Equipment_EquipmentSN]

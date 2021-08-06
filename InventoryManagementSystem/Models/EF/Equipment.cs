@@ -21,6 +21,7 @@ namespace InventoryManagementSystem.Models.EF
         public string Model { get; set; }
         public decimal UnitPrice { get; set; }
         public string Description { get; set; }
+        public bool Deleted { get; set; }
 
         public virtual EquipCategory EquipmentCategory { get; set; }
         public virtual ICollection<Item> Items { get; set; }
