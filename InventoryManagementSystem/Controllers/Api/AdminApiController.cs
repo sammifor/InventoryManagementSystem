@@ -38,15 +38,13 @@ namespace InventoryManagementSystem.Controllers.Api
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetAdmin(Guid? id)
         {
-            IQueryable<Admin> qryAdmins = null;
+            IQueryable<Admin> qryAdmins = _dbContext.Admins;
             if(id != null)
-                qryAdmins = _dbContext.Admins
+                qryAdmins = qryAdmins
                     .Where(a => a.AdminId == id);
-            else
-                qryAdmins = _dbContext.Admins
-                    .Select(a => a);
 
             AdminResultModel[] admins = await qryAdmins
+                .Where(a => a.Deleted == false)
                 .Select(a => new AdminResultModel
                 {
                     AdminId = a.AdminId,
@@ -124,7 +122,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             Admin admin = await _dbContext.Admins.FindAsync(id);
 
-            if(admin == null)
+            if(admin == null || admin.Deleted)
             {
                 return NotFound();
             }
@@ -159,7 +157,39 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok();
         }
 
+        /* DELETE
+         * 
+         * api/admin/{adminID}
+         * 
+         */
+        // 刪除 admin
+        [HttpDelete("admin/{id}")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> DeleteAdmin(Guid id)
+        {
+            Admin admin = await _dbContext.Admins.FindAsync(id);
 
+            if(admin == null || admin.Deleted)
+                return NotFound();
 
+            byte[] zeros = new byte[64];
+
+            // 清空帳密
+            admin.Deleted = true;
+            admin.Username = string.Empty;
+            admin.HashedPassword = zeros;
+            admin.Salt = zeros;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
+            return Ok();
+        }
     }
 }
