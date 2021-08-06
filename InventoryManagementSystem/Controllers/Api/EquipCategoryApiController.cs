@@ -32,6 +32,7 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> GetCates()
         {
             var categories = await _dbContext.EquipCategories
+                .Where(c => !c.Deleted)
                 .Select(c => new EquipCatesRresultModel()
                 {
                     EquipCategoryId = c.EquipCategoryId,
@@ -44,6 +45,7 @@ namespace InventoryManagementSystem.Controllers.Api
         /*
          * EquipCategoryApi/InsertCate
          */
+        // 新增種類
         [HttpPost]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> InsertCate(
@@ -74,5 +76,46 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok(category.EquipCategoryId);
         }
 
+        /*
+         * EquipcategoryApi/DeleteCate
+         */
+        // 刪除種類
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> DeleteCate(Guid id)
+        {
+            #region 找不到此分類，不能刪
+            EquipCategory category = await _dbContext.EquipCategories
+                .Where(c => !c.Deleted)
+                .Where(c => c.EquipCategoryId == id)
+                .FirstOrDefaultAsync();
+
+            if(category == null)
+                return NotFound();
+            #endregion
+
+            #region 此分類仍有 equip 未刪，不能刪
+            bool equipExists = await _dbContext.Equipment
+                .Where(e => e.EquipmentCategoryId == category.EquipCategoryId)
+                .AnyAsync(e => !e.Deleted);
+
+            if(equipExists)
+                return BadRequest();
+            #endregion
+
+            category.Deleted = true;
+            category.CategoryName = null;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch
+            {
+                return Conflict();
+            }
+
+            return Ok();
+        }
     }
 }
