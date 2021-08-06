@@ -32,6 +32,11 @@ namespace InventoryManagementSystem.Controllers
         [HttpPost("adminlogin")]
         public async Task<IActionResult> Authenticate(string username, string password)
         {
+            if(string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            {
+                return View("Login");
+            }
+
             Admin admin = await _dbContext.Admins
                 .Where(a => a.Username == username)
                 .FirstOrDefaultAsync();
