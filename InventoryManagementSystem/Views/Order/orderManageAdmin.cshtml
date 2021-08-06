@@ -6,9 +6,10 @@
 <script src="//unpkg.com/vue@latest/dist/vue.min.js"></script>
 <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
 <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
-<div id="app">
-    <!--提醒-->
-    <div>
+<div id="app">   
+    <b-overlay :show="show" rounded="sm">
+        <!--#region 提醒-->
+        <!--<div>
         <b-button variant="warning" class="font-weight-bolder">
             <img src="/images/timer_black_24dp.svg" />
             待審核訂單 <b-badge variant="light" class="text-dark">{{getLengthofPending()}}</b-badge>
@@ -31,891 +32,866 @@
         </b-button>
         <b-button variant="info" class="font-weight-bolder">
             <img src="/images/pending_actions_black_24dp.svg" />
-            未結案之報修 <b-badge variant="light" class="text-dark">{{getLengthofOpenReport()}}</b-badge>
+            未結案之問題反映 <b-badge variant="light" class="text-dark">{{getLengthofOpenReport()}}</b-badge>
         </b-button>
 
-    </div>
-
-    </br>
-    <b-tabs active-nav-item-class="font-weight-bold" v-model="tabIndex"
-            active-tab-class="font-weight-bold text-dark" content-class="mt-3" fill>
-        <!--ALL ORDERS-->
-        <b-tab title="所有訂單" :title-link-class="linkClass(0)" active v-on:click="GetAllOrders">
-            <b-navbar-nav class="ml-auto">
-                <template>
-                    <div>
-                        </br>
-                        <div>
-                            <b-form inline class="d-flex justify-content-between">
+    </div>-->
+        <!--#endregion-->
+        <b-card no-body>
+            <b-tabs active-nav-item-class="font-weight-bold" v-model="tabIndex" card
+                    active-tab-class="font-weight-bold text-dark" content-class="mt-3" fill>
+                <!--#region ALL ORDERS-->
+                <b-tab title="所有訂單" :title-link-class="linkClass(0)" active @@click="GetAllOrders">
+                    <b-navbar-nav class="ml-auto">
+                        <template>
+                            <div>
+                                <b-pagination v-model="currentPage" class="text-right"
+                                              :total-rows="rows"
+                                              :per-page="perPage" align="right"
+                                              aria-controls="my-table"></b-pagination>
                                 <div>
-                                    排序:
-                                    <b>{{ sortDesc ? '倒序' : '正序' }}</b>
+
+                                    <div>
+                                        排序:
+                                        <b>{{ sortDesc ? '倒序' : '正序' }}</b>
+                                    </div>
+
                                 </div>
-                                <div>
-                                    <b-pagination v-model="currentPage"
-                                                  :total-rows="rows"
-                                                  :per-page="perPage" align="right"
-                                                  aria-controls="my-table"></b-pagination>
-                                </div>
-                            </b-form>
-                        </div>
 
-                        <b-table id="my-table"
-                                 :per-page="perPage"
-                                 :current-page="currentPage"
-                                 :items="items"
-                                 :fields="fields"
-                                 :sort-by.sync="sortBy"
-                                 :sort-desc.sync="sortDesc"
-                                 sort-icon-left
-                                 responsive="sm" striped>
+                                <b-table id="my-table"
+                                         :per-page="perPage"
+                                         :current-page="currentPage"
+                                         :items="items"
+                                         :fields="fields"
+                                         :sort-by.sync="sortBy"
+                                         :sort-desc.sync="sortDesc"
+                                         sort-icon-left
+                                         responsive="sm" striped>
 
-                            <template #cell(show_details)="row">
-                                <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
-                                    {{ row.detailsShowing ? '隱藏' : '顯示'}}
-                                </b-button>
+                                    <template #cell(show_details)="row">
+                                        <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
+                                            {{ row.detailsShowing ? '隱藏' : '顯示'}}
+                                        </b-button>
 
-                                <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @@change -->
-                                @*<b-form-checkbox v-model="row.detailsShowing" @@change="row.toggleDetails">
-                    Details via check
-                </b-form-checkbox>*@
-                            </template>
+                                        <!-- As `row.showDetails` is one-way, we call the toggleDetails function on @@change -->
+                                        @*<b-form-checkbox v-model="row.detailsShowing" @@change="row.toggleDetails">
+                                            Details via check
+                                        </b-form-checkbox>*@
+                                    </template>
 
-                            <template #row-details="row">
-                                <b-card>
-                                    <b-row>
-                                        <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品序號</b></b-col>
-                                        <b-col><b>物品描述</b></b-col>
-                                        <b-col><b>物品狀態</b></b-col>
-                                    </b-row>
-                                    <hr />
-                                    <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailSn }}</b-col>
-                                        <b-col>{{ item.itemSn }}</b-col>
-                                        <b-col>{{ item.itemDescription }}</b-col>
-                                        <b-col>{{ item.orderDetailStatus }}</b-col>
-                                    </b-row>
+                                    <template #row-details="row">
+                                        <b-card>
+                                            <b-row>
+                                                <b-col><b>訂單明細編號</b></b-col>
+                                                <b-col><b>物品序號</b></b-col>
+                                                <b-col><b>物品描述</b></b-col>
+                                                <b-col><b>物品狀態</b></b-col>
+                                            </b-row>
+                                            <hr />
+                                            <b-row v-for="item in row.item.orderDetails">
+                                                <b-col>{{ item.orderDetailSn }}</b-col>
+                                                <b-col>{{ item.itemSn }}</b-col>
+                                                <b-col>{{ item.itemDescription }}</b-col>
+                                                <b-col>{{ item.orderDetailStatus }}</b-col>
+                                            </b-row>
 
-                                    <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
-                                </b-card>
-                            </template>
-                        </b-table>
-                        <div>
-                            <b-pagination v-model="currentPage"
-                                          :total-rows="rows"
-                                          :per-page="perPage" align="right"
-                                          aria-controls="my-table"></b-pagination>
-                        </div>
-                        <p></br></p>
-                        <p></br></p>
-                    </div>
-                </template>
-        </b-tab>
-        </br>
-
-        <!--PENDING ORDERS-->
-        <b-tab title="待核可" :title-link-class="linkClass(1)" v-on:click="GetPendingOrders">
-            <b-navbar-nav class="ml-auto">
-                <template>
-                    <div>
-                        <div>
-                            <b-form inline class="d-flex justify-content-between">
-                                <div>
-                                    排序:
-                                    <b>{{ sortDesc ? '倒序' : '正序' }}</b>
-                                </div>
+                                            <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
+                                        </b-card>
+                                    </template>
+                                </b-table>
                                 <div>
                                     <b-pagination v-model="currentPage"
                                                   :total-rows="rows"
                                                   :per-page="perPage" align="right"
                                                   aria-controls="my-table"></b-pagination>
                                 </div>
-                            </b-form>
-                        </div>
+                                <p></br></p>
+                            </div>
+                        </template>
+                </b-tab>
 
-                        <b-table id="my-table"
-                                 :per-page="perPage"
-                                 :current-page="currentPage"
-                                 :items="items"
-                                 :fields="fields"
-                                 responsive="sm"
-                                 :sort-by.sync="sortBy"
-                                 :sort-desc.sync="sortDesc"
-                                 sort-icon-left>
-                            <template #cell(btnItem)="data">
-                                <b-icon-ui-checks @@click="showDataAndModal(data.item)"
-                                                  size="sm" class="mr-2">
-                                </b-icon-ui-checks>
-                                <b-icon-x-circle-fill @@click="showDenialModal(data.item.orderId)"
-                                                      size="sm" class="mr-2">
-                                </b-icon-x-circle-fill>
-                            </template>
-                        </b-table>
-                        <div>
-                            <b-pagination v-model="currentPage"
-                                          :total-rows="rows"
-                                          :per-page="perPage" align="right"
-                                          aria-controls="my-table"></b-pagination>
-                        </div>
-                        <p></br></p>
-                        <p></br></p>
-                    </div>
-                </template>
-                
-        </b-tab>
-
-        <!-- 分配 item modal -->
-        <div>
-            <b-modal id="distribute-item-modal"
-                     @@ok="confirmDistribution"
-                     @@cancel="resetDistributionData"
-                     @@close="resetDistributionData"
-                     ok-title="確認"
-                     :ok-disabled="distributionInvalid"
-                     cancel-title="返回">
-                <template #modal-title>
-                    請選擇要分配的物品
-                </template>
-                <form>
-                    <p>應要分配 {{itemsToBeDistributed.quantity}} 個</p>
-                    <p>還需分配 {{itemsToBeDistributed.quantity - distributionData.itemIDs.length}} 個</p>
-                    <div v-for="item in itemsToBeDistributed.items">
-                        <input :id="item.itemId"
-                               type="checkbox"
-                               :value="item.itemId"
-                               @@change="selectDistributedItems(item.itemId, $event)" />
-                        <label :for="item.itemId">{{item.itemSn}}</label>
-                    </div>
-                </form>
-            </b-modal>
-
-            <!-- 分配 item 失敗 modal -->
-            <b-modal id="distribute-failed"
-                     ok-only
-                     @@ok="distributeFailed"
-                     ok-title="返回"
-                     ok-variant="secondary">
-                分配失敗
-            </b-modal>
-
-            <!-- 分配 item 成功 modal -->
-            <b-modal id="distribute-success"
-                     ok-only
-                     @@ok="resetDistributionData(); distributionSuccess()"
-                     ok-title="完成">
-                分配成功
-            </b-modal>
-        </div>
-
-        <!-- 拒絕 order modal -->
-        <div>
-            <b-modal id="deny-modal"
-                     @@ok="confirmDenial"
-                     ok-title="確認"
-                     cancel-title="返回">
-                <template #modal-title>
-                    <p class="font-weight-bold text-danger">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M13 17.5a1 1 0 11-2 0 1 1 0 012 0zm-.25-8.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5z"></path><path fill-rule="evenodd" d="M9.836 3.244c.963-1.665 3.365-1.665 4.328 0l8.967 15.504c.963 1.667-.24 3.752-2.165 3.752H3.034c-1.926 0-3.128-2.085-2.165-3.752L9.836 3.244zm3.03.751a1 1 0 00-1.732 0L2.168 19.499A1 1 0 003.034 21h17.932a1 1 0 00.866-1.5L12.866 3.994z"></path></svg> 確認拒絕
-                    </p>
-                </template>
-                <div>
-                    <p>確認拒絕該筆訂單?</p>
-                </div>
-            </b-modal>
-            <!-- 拒絕失敗 modal -->
-            <b-modal id="deny-failed"
-                     ok-only
-                     ok-title="返回"
-                     ok-variant="secondary">
-                拒絕失敗
-            </b-modal>
-
-            <!-- 拒絕成功 modal -->
-            <b-modal id="deny-success"
-                     ok-only
-                     @@ok="deniedSuccessfully()"
-                     ok-title="完成">
-                拒絕成功
-            </b-modal>
-        </div>
-
-        <!--OUTSTANDING ORDERS-->
-        <b-tab title="待付款" :title-link-class="linkClass(2)" v-on:click="GetOutstandingOrders">
-            <b-navbar-nav class="ml-auto">
-                <template>
-                    <div>
-                        <div>
-                            <b-form inline class="d-flex justify-content-between">
-                                <div>
-                                    排序:
-                                    <b>{{ sortDesc ? '倒序' : '正序' }}</b>
-                                </div>
-                                <div>
-                                    <b-pagination v-model="currentPage"
-                                                  :total-rows="rows"
-                                                  :per-page="perPage" align="right"
-                                                  aria-controls="my-table"></b-pagination>
-                                </div>
-                            </b-form>
-                        </div>
-
-                        <b-table id="my-table"
-                                 :per-page="perPage"
-                                 :current-page="currentPage"
-                                 :items="items"
-                                 :fields="fields"
-                                 :sort-by.sync="sortBy"
-                                 :sort-desc.sync="sortDesc"
-                                 sort-icon-left
-                                 responsive="sm" striped>
-
-                            <template #cell(show_details)="row">
-                                <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
-                                    {{ row.detailsShowing ? '隱藏' : '顯示'}}
-                                </b-button>
-                            </template>
-
-                            <template #row-details="row">
-                                <b-card>
-                                    <b-row>
-                                        <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品序號</b></b-col>
-                                        <b-col><b>物品描述</b></b-col>
-                                        <b-col><b>物品狀態</b></b-col>
-                                    </b-row>
-                                    <hr />
-                                    <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailSn }}</b-col>
-                                        <b-col>{{ item.itemSn }}</b-col>
-                                        <b-col>{{ item.itemDescription }}</b-col>
-                                        <b-col>{{ item.orderDetailStatus }}</b-col>
-                                    </b-row>
-                                    <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
-                                </b-card>
-                            </template>
-                        </b-table>
-                        <div>
-                            <b-pagination v-model="currentPage"
-                                          :total-rows="rows"
-                                          :per-page="perPage" align="right"
-                                          aria-controls="my-table"></b-pagination>
-                        </div>
-                        <p></br></p>
-                        <p></br></p>
-                    </div>
-                </template>
-                
-        </b-tab>
-
-
-        <!--PICKUP ORDERS-->
-        <b-tab title="待領取" :title-link-class="linkClass(3)" v-on:click="PickUpOrders">
-            <b-navbar-nav class="ml-auto">
-                <template>
-                    <div>
-                        <div>
-                            <b-form inline class="d-flex justify-content-between">
-                                <div>
-                                    排序:
-                                    <b>{{ sortDesc ? '倒序' : '正序' }}</b>
-                                </div>
-                                <div>
-                                    <b-pagination v-model="currentPage"
-                                                  :total-rows="rows"
-                                                  :per-page="perPage" align="right"
-                                                  aria-controls="my-table"></b-pagination>
-                                </div>
-                            </b-form>
-                        </div>
-                        <div>
-                            <b-table id="my-table"
-                                     :per-page="perPage"
-                                     :current-page="currentPage"
-                                     :items="items" :fields="fields" :sort-by.sync="sortBy"
-                                     :sort-desc.sync="sortDesc"
-                                     sort-icon-left striped responsive="sm">
-                                <template #cell(show_details)="row">
-                                    <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
-                                        {{ row.detailsShowing ? '隱藏' : '顯示'}}
-                                    </b-button>
-                                </template>
-
-                                <template #row-details="row">
-                                    <b-card>
-                                        <b-row>
-                                            <b-col><b>訂單明細編號</b></b-col>
-                                            <b-col><b>物品序號</b></b-col>
-                                            <b-col><b>物品描述</b></b-col>
-                                            <b-col><b>物品狀態</b></b-col>
-                                            <b-col><b>領取</b></b-col>
-                                        </b-row>
-                                        <hr />
-                                        <b-row v-for="item in row.item.orderDetails">
-                                            <b-col>{{ item.orderDetailSn }}</b-col>
-                                            <b-col>{{ item.itemSn }}</b-col>
-                                            <b-col>{{ item.itemDescription }}</b-col>
-                                            <b-col>{{ item.orderDetailStatus }}</b-col>
-                                            <b-col>
-                                                <b-icon-bag-check v-if="item.orderDetailStatus !='已領取' && checkPickupDate(row)" size="sm" @@click="showPickupModal(item)"></b-icon-bag-check>
-                                            </b-col>
-                                        </b-row>
-                                        <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
-                                    </b-card>
-                                </template>
-                            </b-table>
+                <!--#endregion-->
+                <!--#region PENDING ORDERS(Distribute Modal)-->
+                <b-tab :title-link-class="linkClass(1)" @@click="GetPendingOrders">
+                    <template #title>
+                        待核可
+                        <b-badge v-if="getLengthofPending() !==0" pill variant="danger" class="text-white">{{getLengthofPending()}}</b-badge>
+                    </template>
+                    <b-navbar-nav class="ml-auto">
+                        <template>
                             <div>
                                 <b-pagination v-model="currentPage"
                                               :total-rows="rows"
                                               :per-page="perPage" align="right"
                                               aria-controls="my-table"></b-pagination>
+                                <div>
+                                    排序:
+                                    <b>{{ sortDesc ? '倒序' : '正序' }}</b>
+                                </div>
+
+
+                                <b-table id="my-table"
+                                         :per-page="perPage"
+                                         :current-page="currentPage"
+                                         :items="items"
+                                         :fields="fields"
+                                         responsive="sm"
+                                         :sort-by.sync="sortBy"
+                                         :sort-desc.sync="sortDesc"
+                                         sort-icon-left>
+                                    <template #cell(btnItem)="data">
+                                        <b-icon-ui-checks @@click="showDataAndModal(data.item)"
+                                                          size="sm" class="mr-2">
+                                        </b-icon-ui-checks>
+                                        <b-icon-x-circle-fill @@click="showDenialModal(data.item.orderId)"
+                                                              size="sm" class="mr-2">
+                                        </b-icon-x-circle-fill>
+                                    </template>
+                                </b-table>
+                                <div>
+                                    <b-pagination v-model="currentPage"
+                                                  :total-rows="rows"
+                                                  :per-page="perPage" align="right"
+                                                  aria-controls="my-table"></b-pagination>
+                                </div>
+                                <p></br></p>
                             </div>
-                            <p></br></p>
-                            <p></br></p>
-                        </div>
-                    </div>
-                </template>
-                
-        </b-tab>
+                        </template>
+                </b-tab>
 
-        <div>
-            <b-modal id="pickup-modal"
-                     @@ok="confirmPickup"
-                     ok-title="確認"
-                     cancel-title="返回">
-                <template #modal-title>
-                    <p class="font-weight-bold">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 確認領取物品
-                    </p>
-                </template>
+                <!--#region 分配 item modal -->
                 <div>
-                    <label :for="pickupData.description">請輸入領取檢查備註:</label>
-                    <b-form-input :id="pickupData.description"
-                                  type="text"
-                                  :value="pickupData.description"
-                                  v-model="pickupData.description"></b-form-input>
+                    <b-modal id="distribute-item-modal"
+                             @@ok="confirmDistribution"
+                             @@cancel="resetDistributionData"
+                             @@close="resetDistributionData"
+                             ok-title="確認"
+                             :ok-disabled="distributionInvalid"
+                             cancel-title="返回">
+                        <template #modal-title>
+                            請選擇要分配的物品
+                        </template>
+                        <form>
+                            <p>應要分配 {{itemsToBeDistributed.quantity}} 個</p>
+                            <p>還需分配 {{itemsToBeDistributed.quantity - distributionData.itemIDs.length}} 個</p>
+                            <div v-for="item in itemsToBeDistributed.items">
+                                <input :id="item.itemId"
+                                       type="checkbox"
+                                       :value="item.itemId"
+                                       @@change="selectDistributedItems(item.itemId, $event)" />
+                                <label :for="item.itemId">{{item.itemSn}}</label>
+                            </div>
+                        </form>
+                    </b-modal>
+
+                    <!-- 分配 item 失敗 modal -->
+                    <b-modal id="distribute-failed"
+                             ok-only
+                             @@ok="distributeFailed"
+                             ok-title="返回"
+                             ok-variant="secondary">
+                        分配失敗
+                    </b-modal>
+
+                    <!-- 分配 item 成功 modal -->
+                    <b-modal id="distribute-success"
+                             ok-only
+                             @@ok="resetDistributionData(); distributionSuccess()"
+                             ok-title="完成">
+                        分配成功
+                    </b-modal>
                 </div>
-            </b-modal>
-            <!-- 領取失敗 modal -->
-            <b-modal id="pickup-failed"
-                     ok-only
-                     ok-title="返回"
-                     ok-variant="secondary">
-                領取失敗
-            </b-modal>
-
-            <!--領取成功 modal -->
-            <b-modal id="pickup-success"
-                     ok-only
-                     @@ok="pickupedSuccessfully()"
-                     ok-title="完成">
-                領取成功
-            </b-modal>
-        </div>
-
-        <!--ONGOING ORDERS-->
-        <b-tab title="租借中" :title-link-class="linkClass(4)" v-on:click="OnGoingOrders">
-            <b-navbar-nav class="ml-auto">
-                @*<b-nav-form>
-                    <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
-                    <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
-                </b-nav-form>
-                <hr />*@
-                <template>
-                    <div>
+                <!--#endregion-->
+                <!--#region 拒絕 order modal -->
+                <div>
+                    <b-modal id="deny-modal"
+                             @@ok="confirmDenial"
+                             ok-title="確認"
+                             cancel-title="返回">
+                        <template #modal-title>
+                            <p class="font-weight-bold text-danger">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M13 17.5a1 1 0 11-2 0 1 1 0 012 0zm-.25-8.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5z"></path><path fill-rule="evenodd" d="M9.836 3.244c.963-1.665 3.365-1.665 4.328 0l8.967 15.504c.963 1.667-.24 3.752-2.165 3.752H3.034c-1.926 0-3.128-2.085-2.165-3.752L9.836 3.244zm3.03.751a1 1 0 00-1.732 0L2.168 19.499A1 1 0 003.034 21h17.932a1 1 0 00.866-1.5L12.866 3.994z"></path></svg> 確認拒絕
+                            </p>
+                        </template>
                         <div>
-                            <b-form inline class="d-flex justify-content-between">
+                            <p>確認拒絕該筆訂單?</p>
+                        </div>
+                    </b-modal>
+                    <!-- 拒絕失敗 modal -->
+                    <b-modal id="deny-failed"
+                             ok-only
+                             ok-title="返回"
+                             ok-variant="secondary">
+                        拒絕失敗
+                    </b-modal>
+
+                    <!-- 拒絕成功 modal -->
+                    <b-modal id="deny-success"
+                             ok-only
+                             @@ok="deniedSuccessfully()"
+                             ok-title="完成">
+                        拒絕成功
+                    </b-modal>
+                </div>
+                <!--#endregion-->
+                <!--#endregion-->
+                <!--#region OUTSTANDING ORDERS-->
+                <b-tab :title-link-class="linkClass(2)" @@click="GetOutstandingOrders">
+                    <template #title>
+                        待付款
+                        <b-badge v-if="getLengthofNotPaid() !==0" pill variant="success" class="text-white">{{getLengthofNotPaid()}}</b-badge>
+                    </template>
+                    <b-navbar-nav class="ml-auto">
+                        <template>
+                            <div>
+                                <b-pagination v-model="currentPage"
+                                              :total-rows="rows"
+                                              :per-page="perPage" align="right"
+                                              aria-controls="my-table"></b-pagination>
+
                                 <div>
                                     排序:
                                     <b>{{ sortDesc ? '倒序' : '正序' }}</b>
                                 </div>
+
+                                <b-table id="my-table"
+                                         :per-page="perPage"
+                                         :current-page="currentPage"
+                                         :items="items"
+                                         :fields="fields"
+                                         :sort-by.sync="sortBy"
+                                         :sort-desc.sync="sortDesc"
+                                         sort-icon-left
+                                         responsive="sm" striped>
+
+                                    <template #cell(show_details)="row">
+                                        <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
+                                            {{ row.detailsShowing ? '隱藏' : '顯示'}}
+                                        </b-button>
+                                    </template>
+
+                                    <template #row-details="row">
+                                        <b-card>
+                                            <b-row>
+                                                <b-col><b>訂單明細編號</b></b-col>
+                                                <b-col><b>物品序號</b></b-col>
+                                                <b-col><b>物品描述</b></b-col>
+                                                <b-col><b>物品狀態</b></b-col>
+                                            </b-row>
+                                            <hr />
+                                            <b-row v-for="item in row.item.orderDetails">
+                                                <b-col>{{ item.orderDetailSn }}</b-col>
+                                                <b-col>{{ item.itemSn }}</b-col>
+                                                <b-col>{{ item.itemDescription }}</b-col>
+                                                <b-col>{{ item.orderDetailStatus }}</b-col>
+                                            </b-row>
+                                            <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
+                                        </b-card>
+                                    </template>
+                                </b-table>
                                 <div>
                                     <b-pagination v-model="currentPage"
                                                   :total-rows="rows"
                                                   :per-page="perPage" align="right"
                                                   aria-controls="my-table"></b-pagination>
                                 </div>
-                            </b-form>
-                        </div>
+                                <p></br></p>
+                            </div>
+                        </template>
+                </b-tab>
+                <!--#endregion-->
+                <!--#region PICKUP ORDERS(Pickup Modal)-->
+                <b-tab :title-link-class="linkClass(3)" @@click="PickUpOrders">
+                    <template #title>
+                        待領取
+                        <b-badge v-if="getLengthofPickup() !==0" pill variant="success" class="text-white">{{getLengthofPickup()}}</b-badge>
+                    </template>
+                    <b-navbar-nav class="ml-auto">
+                        <template>
+                            <div>
+                                <b-pagination v-model="currentPage"
+                                              :total-rows="rows"
+                                              :per-page="perPage" align="right"
+                                              aria-controls="my-table"></b-pagination>
 
-                        <b-table id="my-table"
-                                 :per-page="perPage"
-                                 :current-page="currentPage"
-                                 :items="items" :fields="fields" :sort-by.sync="sortBy"
-                                 :sort-desc.sync="sortDesc"
-                                 sort-icon-left striped responsive="sm">
-                            <template #cell(hasReports)="report">
-                                <b-icon-app-indicator v-if="report.item.openReportCount != 0"></b-icon-app-indicator>
-                                <b-icon-app v-if="report.item.openReportCount == 0"></b-icon-app>
-                            </template>
-                            <template #cell(show_details)="row">
-                                <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
-                                    {{ row.detailsShowing ? '隱藏' : '顯示'}}
-                                </b-button>
-                            </template>
-
-                            <template #row-details="row">
-                                <b-card>
-                                    <b-row>
-                                        <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品序號</b></b-col>
-                                        <b-col><b>物品描述</b></b-col>
-                                        <b-col><b>物品狀態</b></b-col>
-                                        <b-col><b>歸還/遺失</b></b-col>
-                                        <b-col><b>問題反映</b></b-col>
-                                    </b-row>
-                                    <hr />
-                                    <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailSn }}</b-col>
-                                        <b-col>{{ item.itemSn }}</b-col>
-                                        <b-col>{{ item.itemDescription }}</b-col>
-                                        <b-col>{{ item.orderDetailStatus }}</b-col>
-                                        <b-col>
-                                            <span v-if="item.orderDetailStatus !='已歸還'">
-                                                <b-icon-box size="sm" @@click="showReturnModal(item)"></b-icon-box>
-                                                /
-                                                <b-icon-question-circle size="sm" @@click="showLostModal(item)"></b-icon-question-circle>
-                                            </span>
-                                        </b-col>
-                                        <b-col>
-                                            <b-button v-if="item.openReportCounts != 0" size="sm" @@click="showReportModal(item)">查看</b-button>
-                                        </b-col>
-                                    </b-row>
-                                    <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
-                                </b-card>
-                            </template>
-                        </b-table>
-                        <div>
-                            <b-pagination v-model="currentPage"
-                                          :total-rows="rows"
-                                          :per-page="perPage" align="right"
-                                          aria-controls="my-table"></b-pagination>
-                        </div>
-                        <p></br></p>
-                        <p></br></p>
-                    </div>
-                </template>
-        </b-tab>
-
-        <div>
-            <!--Return-modal-->
-            <b-modal id="return-modal"
-                     @@ok="confirmReturn"
-                     ok-title="確認"
-                     cancel-title="返回">
-                <template #modal-title>
-                    <p class="font-weight-bold">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 確認歸還物品
-                    </p>
-                </template>
-                <div>
-                    <label>請確認是否損壞:</label>
-                    <b-form-checkbox id="returnData.functionsNormally"
-                                     v-model="returnData.functionsNormally"
-                                     value=true>
-                        無損
-                    </b-form-checkbox>
-                    <b-form-checkbox id="returnData.functionsNormally"
-                                     v-model="returnData.functionsNormally"
-                                     value=false>
-                        損壞
-                    </b-form-checkbox>
-                    
-                    <label :for="returnData.description">請輸入歸還檢查備註:</label>
-                    <b-form-input :id="returnData.description"
-                                  type="text"
-                                  :value="returnData.description"
-                                  v-model="returnData.description"></b-form-input>
-                </div>
-            </b-modal>
-            <!-- 歸還失敗 modal -->
-            <b-modal id="return-failed"
-                     ok-only
-                     ok-title="返回"
-                     ok-variant="secondary">
-                歸還失敗
-            </b-modal>
-
-            <!--歸還成功 modal -->
-            <b-modal id="return-success"
-                     ok-only
-                     @@ok="returnedSuccessfully()"
-                     ok-title="完成">
-                歸還成功
-            </b-modal>
-        </div>
-
-        <div>
-            <!--Lost-modal-->
-            <b-modal id="lost-modal"
-                     @@ok="confirmLost"
-                     ok-title="確認"
-                     cancel-title="返回">
-                <template #modal-title>
-                    <p class="font-weight-bold">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 登記遺失物品
-                    </p>
-                </template>
-                <div>
-                    <label :for="lostData.description">請輸入遺失備註:</label>
-                    <b-form-input :id="lostData.description"
-                                  type="text"
-                                  :value="lostData.description"
-                                  v-model="lostData.description"></b-form-input>
-                </div>
-            </b-modal>
-            <!-- 遺失登記失敗 modal -->
-            <b-modal id="lost-failed"
-                     ok-only
-                     ok-title="返回"
-                     ok-variant="secondary">
-                遺失登記失敗
-            </b-modal>
-
-            <!--遺失登記成功 modal -->
-            <b-modal id="lost-success"
-                     ok-only
-                     @@ok="lostSuccessfully()"
-                     ok-title="完成">
-                遺失登記成功
-            </b-modal>
-        </div>
-
-
-        <!--OVERDUE ORDERS-->
-        <b-tab title="已逾期" :title-link-class="linkClass(5)" v-on:click="OverDueOrders">
-            <b-navbar-nav class="ml-auto">
-                @*<b-nav-form>
-                    <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
-                    <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
-                </b-nav-form>
-                <hr />*@
-                <template>
-                    <div>
-                        <div>
-                            <b-form inline class="d-flex justify-content-between">
                                 <div>
                                     排序:
                                     <b>{{ sortDesc ? '倒序' : '正序' }}</b>
                                 </div>
+                                <div>
+                                    <b-table id="my-table"
+                                             :per-page="perPage"
+                                             :current-page="currentPage"
+                                             :items="items" :fields="fields" :sort-by.sync="sortBy"
+                                             :sort-desc.sync="sortDesc"
+                                             sort-icon-left striped responsive="sm">
+                                        <template #cell(show_details)="row">
+                                            <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
+                                                {{ row.detailsShowing ? '隱藏' : '顯示'}}
+                                            </b-button>
+                                        </template>
+
+                                        <template #row-details="row">
+                                            <b-card>
+                                                <b-row>
+                                                    <b-col><b>訂單明細編號</b></b-col>
+                                                    <b-col><b>物品序號</b></b-col>
+                                                    <b-col><b>物品描述</b></b-col>
+                                                    <b-col><b>物品狀態</b></b-col>
+                                                    <b-col><b>領取</b></b-col>
+                                                </b-row>
+                                                <hr />
+                                                <b-row v-for="item in row.item.orderDetails">
+                                                    <b-col>{{ item.orderDetailSn }}</b-col>
+                                                    <b-col>{{ item.itemSn }}</b-col>
+                                                    <b-col>{{ item.itemDescription }}</b-col>
+                                                    <b-col>{{ item.orderDetailStatus }}</b-col>
+                                                    <b-col>
+                                                        <b-icon-bag-check v-if="item.orderDetailStatus !='已領取' && checkPickupDate(row)" size="sm" @@click="showPickupModal(item)"></b-icon-bag-check>
+                                                    </b-col>
+                                                </b-row>
+                                                <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
+                                            </b-card>
+                                        </template>
+                                    </b-table>
+                                    <div>
+                                        <b-pagination v-model="currentPage"
+                                                      :total-rows="rows"
+                                                      :per-page="perPage" align="right"
+                                                      aria-controls="my-table"></b-pagination>
+                                    </div>
+                                    <p></br></p>
+                                </div>
+                            </div>
+                        </template>
+                </b-tab>
+                <!--#region pickup modal-->
+                <div>
+                    <b-modal id="pickup-modal"
+                             @@ok="confirmPickup"
+                             ok-title="確認"
+                             cancel-title="返回">
+                        <template #modal-title>
+                            <p class="font-weight-bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 確認領取物品
+                            </p>
+                        </template>
+                        <div>
+                            <label :for="pickupData.description">請輸入領取檢查備註:</label>
+                            <b-form-input :id="pickupData.description"
+                                          type="text"
+                                          :value="pickupData.description"
+                                          v-model="pickupData.description"></b-form-input>
+                        </div>
+                    </b-modal>
+                    <!-- 領取失敗 modal -->
+                    <b-modal id="pickup-failed"
+                             ok-only
+                             ok-title="返回"
+                             ok-variant="secondary">
+                        領取失敗
+                    </b-modal>
+
+                    <!--領取成功 modal -->
+                    <b-modal id="pickup-success"
+                             ok-only
+                             @@ok="pickupedSuccessfully()"
+                             ok-title="完成">
+                        領取成功
+                    </b-modal>
+                </div>
+                <!--#endregion-->
+                <!--#endregion-->
+                <!--#region ONGOING ORDERS(Return&Lost Modal)-->
+                <b-tab :title-link-class="linkClass(4)" @@click="OnGoingOrders">
+                    <template #title>
+                        租借中
+                        <b-badge v-if="getLengthofRenting() !==0" pill variant="success" class="text-white">{{getLengthofRenting()}}</b-badge>
+                    </template>
+                    <b-navbar-nav class="ml-auto">
+                        <template>
+                            <div>
+                                <b-pagination v-model="currentPage"
+                                              :total-rows="rows"
+                                              :per-page="perPage" align="right"
+                                              aria-controls="my-table"></b-pagination>
+
+                                <div>
+                                    排序:
+                                    <b>{{ sortDesc ? '倒序' : '正序' }}</b>
+                                </div>
+
+
+                                <b-table id="my-table"
+                                         :per-page="perPage"
+                                         :current-page="currentPage"
+                                         :items="items" :fields="fields" :sort-by.sync="sortBy"
+                                         :sort-desc.sync="sortDesc"
+                                         sort-icon-left striped responsive="sm">
+                                    <template #cell(hasReports)="report">
+                                        <b-icon-app-indicator v-if="report.item.openReportCount != 0"></b-icon-app-indicator>
+                                        <b-icon-app v-if="report.item.openReportCount == 0"></b-icon-app>
+                                    </template>
+                                    <template #cell(show_details)="row">
+                                        <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
+                                            {{ row.detailsShowing ? '隱藏' : '顯示'}}
+                                        </b-button>
+                                    </template>
+
+                                    <template #row-details="row">
+                                        <b-card>
+                                            <b-row>
+                                                <b-col><b>訂單明細編號</b></b-col>
+                                                <b-col><b>物品序號</b></b-col>
+                                                <b-col><b>物品描述</b></b-col>
+                                                <b-col><b>物品狀態</b></b-col>
+                                                <b-col><b>歸還/遺失</b></b-col>
+                                                <b-col><b>問題反映</b></b-col>
+                                            </b-row>
+                                            <hr />
+                                            <b-row v-for="item in row.item.orderDetails">
+                                                <b-col>{{ item.orderDetailSn }}</b-col>
+                                                <b-col>{{ item.itemSn }}</b-col>
+                                                <b-col>{{ item.itemDescription }}</b-col>
+                                                <b-col>{{ item.orderDetailStatus }}</b-col>
+                                                <b-col>
+                                                    <span v-if="item.orderDetailStatus !='已歸還'">
+                                                        <b-icon-box size="sm" @@click="showReturnModal(item)"></b-icon-box>
+                                                        /
+                                                        <b-icon-question-circle size="sm" @@click="showLostModal(item)"></b-icon-question-circle>
+                                                    </span>
+                                                </b-col>
+                                                <b-col>
+                                                    <b-button v-if="item.openReportCounts != 0" size="sm" @@click="showReportModal(item)">查看</b-button>
+                                                </b-col>
+                                            </b-row>
+                                            <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
+                                        </b-card>
+                                    </template>
+                                </b-table>
                                 <div>
                                     <b-pagination v-model="currentPage"
                                                   :total-rows="rows"
                                                   :per-page="perPage" align="right"
                                                   aria-controls="my-table"></b-pagination>
                                 </div>
-                            </b-form>
-                        </div>
+                                <p></br></p>
+                            </div>
+                        </template>
+                </b-tab>
 
-                        <b-table id="my-table"
-                                 :per-page="perPage"
-                                 :current-page="currentPage"
-                                 :items="items" :fields="fields" :sort-by.sync="sortBy"
-                                 :sort-desc.sync="sortDesc"
-                                 sort-icon-left striped responsive="sm">
-                            <template #cell(hasReports)="report">
-                                <b-icon-app-indicator v-if="report.item.openReportCount != 0"></b-icon-app-indicator>
-                                <b-icon-app v-if="report.item.openReportCount == 0"></b-icon-app>
-                            </template>
-                            <template #cell(show_details)="row">
-                                <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
-                                    {{ row.detailsShowing ? '隱藏' : '顯示'}}
-                                </b-button>
-                            </template>
-
-                            <template #row-details="row">
-                                <b-card>
-                                    <b-row>
-                                        <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品序號</b></b-col>
-                                        <b-col><b>物品描述</b></b-col>
-                                        <b-col><b>物品狀態</b></b-col>
-                                        <b-col><b>歸還/遺失</b></b-col>
-                                        <b-col><b>罰金</b></b-col>
-                                        <b-col><b>問題反映</b></b-col>
-                                    </b-row>
-                                    <hr />
-                                    <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailSn }}</b-col>
-                                        <b-col>{{ item.itemSn }}</b-col>
-                                        <b-col>{{ item.itemDescription }}</b-col>
-                                        <b-col>{{ item.orderDetailStatus }}</b-col>
-                                        <b-col>
-                                            <span v-if="item.orderDetailStatus !='已歸還'">
-                                                <b-icon-box size="sm" @@click="showReturnModal(item)"></b-icon-box>
-                                                /
-                                                <b-icon-question-circle size="sm" @@click="showLostModal(item)"></b-icon-question-circle>
-                                            </span>
-                                        </b-col>
-                                        <b-col><b-icon-cash-stack @@click="showExtraFeeModal(item)"></b-icon-cash-stack></b-col>
-                                        <b-col>
-                                            <b-button size="sm" @@click="showReportModal(item)" v-if="item.openReportCounts != 0">查看</b-button>
-                                        </b-col>
-                                    </b-row>
-                                    <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
-                                </b-card>
-                            </template>
-                        </b-table>
-                        <div>
-                            <b-pagination v-model="currentPage"
-                                          :total-rows="rows"
-                                          :per-page="perPage" align="right"
-                                          aria-controls="my-table"></b-pagination>
-                        </div>
-                        <p></br></p>
-                        <p></br></p>
-                    </div>
-                </template>
-                
-        </b-tab>
-
-        <!--罰金modal-->
-        <div>
-            <b-modal id="extraFee-modal"
-                     @@ok="confirmExtraFee"
-                     ok-title="確認"
-                     cancel-title="返回"
-                     :ok-disabled="checkInputValid">
-                <template #modal-title>
-                    <p class="font-weight-bold">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 輸入罰款明細
-                    </p>
-                </template>
+                <!--#region Return-modal-->
                 <div>
-                    <label :for="extraFeeData.fee">請輸入罰款金額:</label>
-                    <b-input-group prepend="$">
-                        <b-form-input :id="extraFeeData.fee"
-                                      type="number"
-                                      :state="nameState"
-                                      aria-describedby="input-live-help input-live-feedback"
-                                      placeholder="請輸入金額"
-                                      trim
-                                      v-model="extraFeeData.fee"></b-form-input>
-                    </b-input-group>
-                    <b-form-invalid-feedback id="input-live-feedback">
-                        請輸入確切金額
-                    </b-form-invalid-feedback>
-
-                </div>
-                <div>
-                    <label :for="extraFeeData.description">請輸入罰款備註:</label>
-                    <b-form-input :id="extraFeeData.description"
-                                  type="text"
-                                  
-                                  v-model="extraFeeData.description"></b-form-input>
-                </div>
-            </b-modal>
-            <!--輸入罰金失敗 modal-->
-            <b-modal id="ExtraFee-failed"
-                     ok-only
-                     ok-title="返回"
-                     ok-variant="secondary">
-                輸入罰金失敗
-            </b-modal>
-
-            <!--輸入罰金成功 modal-->
-            <b-modal id="ExtraFee-success"
-                     ok-only
-                     @@ok="extraFeeSuccess()"
-                     ok-title="完成">
-                輸入罰金成功
-            </b-modal>
-        </div>
-
-
-        <!--CLOSED ORDERS-->
-        <b-tab title="已結束" :title-link-class="linkClass(6)" v-on:click="ClosedOrders">
-            <b-navbar-nav class="ml-auto">
-                <template>
-                    <div>
+                    <!--Return-modal-->
+                    <b-modal id="return-modal"
+                             @@ok="confirmReturn"
+                             ok-title="確認"
+                             cancel-title="返回">
+                        <template #modal-title>
+                            <p class="font-weight-bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 確認歸還物品
+                            </p>
+                        </template>
                         <div>
-                            <b-form inline class="d-flex justify-content-between">
+                            <label>請確認是否損壞:</label>
+                            <b-form-checkbox id="returnData.functionsNormally"
+                                             v-model="returnData.functionsNormally"
+                                             value=true>
+                                無損
+                            </b-form-checkbox>
+                            <b-form-checkbox id="returnData.functionsNormally"
+                                             v-model="returnData.functionsNormally"
+                                             value=false>
+                                損壞
+                            </b-form-checkbox>
+
+                            <label :for="returnData.description">請輸入歸還檢查備註:</label>
+                            <b-form-input :id="returnData.description"
+                                          type="text"
+                                          :value="returnData.description"
+                                          v-model="returnData.description"></b-form-input>
+                        </div>
+                    </b-modal>
+                    <!-- 歸還失敗 modal -->
+                    <b-modal id="return-failed"
+                             ok-only
+                             ok-title="返回"
+                             ok-variant="secondary">
+                        歸還失敗
+                    </b-modal>
+
+                    <!--歸還成功 modal -->
+                    <b-modal id="return-success"
+                             ok-only
+                             @@ok="returnedSuccessfully()"
+                             ok-title="完成">
+                        歸還成功
+                    </b-modal>
+                </div>
+                <!--#endregion-->
+                <!--#region Lost-modal-->
+                <div>
+                    <!--Lost-modal-->
+                    <b-modal id="lost-modal"
+                             @@ok="confirmLost"
+                             ok-title="確認"
+                             cancel-title="返回">
+                        <template #modal-title>
+                            <p class="font-weight-bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 登記遺失物品
+                            </p>
+                        </template>
+                        <div>
+                            <label :for="lostData.description">請輸入遺失備註:</label>
+                            <b-form-input :id="lostData.description"
+                                          type="text"
+                                          :value="lostData.description"
+                                          v-model="lostData.description"></b-form-input>
+                        </div>
+                    </b-modal>
+                    <!-- 遺失登記失敗 modal -->
+                    <b-modal id="lost-failed"
+                             ok-only
+                             ok-title="返回"
+                             ok-variant="secondary">
+                        遺失登記失敗
+                    </b-modal>
+
+                    <!--遺失登記成功 modal -->
+                    <b-modal id="lost-success"
+                             ok-only
+                             @@ok="lostSuccessfully()"
+                             ok-title="完成">
+                        遺失登記成功
+                    </b-modal>
+                </div>
+                <!--#endregion-->
+                <!--#endregion-->
+                <!--#region OVERDUE ORDERS(ExtraFee Modal)-->
+                <b-tab :title-link-class="linkClass(5)" @@click="OverDueOrders">
+                    <template #title>
+                        已逾期
+                        <b-badge v-if="getLengthofOverdue() !==0" pill variant="danger" class="text-white">{{getLengthofOverdue()}}</b-badge>
+                    </template>
+                    <b-navbar-nav class="ml-auto">
+                        @*<b-nav-form>
+                            <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
+                            <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
+                        </b-nav-form>
+                        <hr />*@
+                        <template>
+                            <div>
+                                <b-pagination v-model="currentPage"
+                                              :total-rows="rows"
+                                              :per-page="perPage" align="right"
+                                              aria-controls="my-table"></b-pagination>
+
                                 <div>
                                     排序:
                                     <b>{{ sortDesc ? '倒序' : '正序' }}</b>
                                 </div>
+
+
+                                <b-table id="my-table"
+                                         :per-page="perPage"
+                                         :current-page="currentPage"
+                                         :items="items" :fields="fields" :sort-by.sync="sortBy"
+                                         :sort-desc.sync="sortDesc"
+                                         sort-icon-left striped responsive="sm">
+                                    <template #cell(hasReports)="report">
+                                        <b-icon-app-indicator v-if="report.item.openReportCount != 0"></b-icon-app-indicator>
+                                        <b-icon-app v-if="report.item.openReportCount == 0"></b-icon-app>
+                                    </template>
+                                    <template #cell(show_details)="row">
+                                        <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
+                                            {{ row.detailsShowing ? '隱藏' : '顯示'}}
+                                        </b-button>
+                                    </template>
+
+                                    <template #row-details="row">
+                                        <b-card>
+                                            <b-row>
+                                                <b-col><b>訂單明細編號</b></b-col>
+                                                <b-col><b>物品序號</b></b-col>
+                                                <b-col><b>物品描述</b></b-col>
+                                                <b-col><b>物品狀態</b></b-col>
+                                                <b-col><b>歸還/遺失</b></b-col>
+                                                <b-col><b>罰金</b></b-col>
+                                                <b-col><b>問題反映</b></b-col>
+                                            </b-row>
+                                            <hr />
+                                            <b-row v-for="item in row.item.orderDetails">
+                                                <b-col>{{ item.orderDetailSn }}</b-col>
+                                                <b-col>{{ item.itemSn }}</b-col>
+                                                <b-col>{{ item.itemDescription }}</b-col>
+                                                <b-col>{{ item.orderDetailStatus }}</b-col>
+                                                <b-col>
+                                                    <span v-if="item.orderDetailStatus !='已歸還'">
+                                                        <b-icon-box size="sm" @@click="showReturnModal(item)"></b-icon-box>
+                                                        /
+                                                        <b-icon-question-circle size="sm" @@click="showLostModal(item)"></b-icon-question-circle>
+                                                    </span>
+                                                </b-col>
+                                                <b-col><b-icon-cash-stack @@click="showExtraFeeModal(item)"></b-icon-cash-stack></b-col>
+                                                <b-col>
+                                                    <b-button size="sm" @@click="showReportModal(item)" v-if="item.openReportCounts != 0">查看</b-button>
+                                                </b-col>
+                                            </b-row>
+                                            <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
+                                        </b-card>
+                                    </template>
+                                </b-table>
                                 <div>
                                     <b-pagination v-model="currentPage"
                                                   :total-rows="rows"
                                                   :per-page="perPage" align="right"
                                                   aria-controls="my-table"></b-pagination>
                                 </div>
-                            </b-form>
-                        </div>
+                                <p></br></p>
+                            </div>
+                        </template>
 
-                        <b-table id="my-table"
-                                 :per-page="perPage"
-                                 :current-page="currentPage"
-                                 :items="items" :fields="fields" :sort-by.sync="sortBy"
-                                 :sort-desc.sync="sortDesc"
-                                 sort-icon-left striped responsive="sm">
-                            <template #cell(hasReports)="report">
-                                <b-icon-app-indicator v-if="report.item.openReportCount != 0"></b-icon-app-indicator>
-                                <b-icon-app v-if="report.item.openReportCount == 0"></b-icon-app>
-                            </template>
-                            <template #cell(show_details)="row">
-                                <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
-                                    {{ row.detailsShowing ? '隱藏' : '顯示'}}
-                                </b-button>
-                            </template>
-
-                            <template #row-details="row">
-                                <b-card>
-                                    <b-row>
-                                        <b-col><b>訂單明細編號</b></b-col>
-                                        <b-col><b>物品序號</b></b-col>
-                                        <b-col><b>物品描述</b></b-col>
-                                        <b-col><b>物品狀態</b></b-col>
-                                        <b-col><b>罰金</b></b-col>
-                                        <b-col><b>問題反映</b></b-col>
-                                    </b-row>
-                                    <hr />
-                                    <b-row v-for="item in row.item.orderDetails">
-                                        <b-col>{{ item.orderDetailSn }}</b-col>
-                                        <b-col>{{ item.itemSn }}</b-col>
-                                        <b-col>{{ item.itemDescription }}</b-col>
-                                        <b-col>{{ item.orderDetailStatus }}</b-col>
-                                        <b-col><b-icon-cash-stack @@click="showExtraFeeModal(item)"></b-icon-cash-stack></b-col>
-                                        <b-col><b-button v-if="item.openReportCounts != 0" size="sm" @@click="showReportModal(item)">查看</b-button></b-col>
-                                    </b-row>
-
-                                    <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
-                                </b-card>
-                            </template>
-                        </b-table>
+                </b-tab>
+                <!--#region 罰金modal-->
+                <div>
+                    <b-modal id="extraFee-modal"
+                             @@ok="confirmExtraFee"
+                             ok-title="確認"
+                             cancel-title="返回"
+                             :ok-disabled="checkInputValid">
+                        <template #modal-title>
+                            <p class="font-weight-bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 輸入罰款明細
+                            </p>
+                        </template>
                         <div>
-                            <b-pagination v-model="currentPage"
-                                          :total-rows="rows"
-                                          :per-page="perPage" align="right"
-                                          aria-controls="my-table"></b-pagination>
+                            <label :for="extraFeeData.fee">請輸入罰款金額:</label>
+                            <b-input-group prepend="$">
+                                <b-form-input :id="extraFeeData.fee"
+                                              type="number"
+                                              :state="nameState"
+                                              aria-describedby="input-live-help input-live-feedback"
+                                              placeholder="請輸入金額"
+                                              trim
+                                              v-model="extraFeeData.fee"></b-form-input>
+                            </b-input-group>
+                            <b-form-invalid-feedback id="input-live-feedback">
+                                請輸入確切金額
+                            </b-form-invalid-feedback>
+
                         </div>
-                        <p></br></p>
-                        <p></br></p>
-                    </div>
-                </template>
-                
-        </b-tab>
-
-        <!--問題查詢modal-->
-        <div>
-            <b-modal id="reportInfoClosed-modal"
-                     hide-footer scrollable>
-                <template #modal-title>
-                    <p class="font-weight-bold">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 查看問題反映
-                    </p>
-                </template>
-                <b-table-simple hover caption-top stacked>
-                    <b-thead head-variant="dark">
-                        <b-tr>
-                            <b-th>報修編號</b-th>
-                            <b-th>報修時間</b-th>
-                            <b-th>使用者報修描述</b-th>
-                            <b-th>管理員報修描述</b-th>
-                            <b-th>結案時間</b-th>
-                            <b-th></b-th>
-                        </b-tr>
-                    </b-thead>
-                    <b-tbody>
-                        <b-tr v-for="details in reportDetail">
-                            <b-td stacked-heading="報修編號">{{details.reportSn}}</b-td>
-                            <b-td stacked-heading="報修時間">{{details.reportTime}}</b-td>
-                            <b-td stacked-heading="使用者報修描述">{{details.description}}</b-td>
-                            <b-td stacked-heading="結案時間">{{details.closeTime}}</b-td>
-                            <b-td stacked-heading="管理員報修描述">
-                                {{details.note}}
-                                @*<b-form-input :value="details.note"
-                                v-if="details.closeTime == null"
-                                :disabled="checkInputValid(details)" />*@
-                            </b-td>
-                            <b-td>
-                                <b-button v-if="details.closeTime == null" @@click="showReportClosedModalForView(details)" variant="primary">結案</b-button>
-                            </b-td>
-                        </b-tr>
-                    </b-tbody>
-                </b-table-simple>
-
-            </b-modal>
-        </div>
-
-        <!--REPORTED ORDERS-->
-        <b-tab title="報修訂單" :title-link-class="linkClass(7)" v-on:click="GetAllReports()">
-            <b-navbar-nav class="ml-auto">
-                <template>
-                    <div>
                         <div>
-                            <b-form inline class="d-flex justify-content-between">
+                            <label :for="extraFeeData.description">請輸入罰款備註:</label>
+                            <b-form-input :id="extraFeeData.description"
+                                          type="text"
+                                          v-model="extraFeeData.description"></b-form-input>
+                        </div>
+                    </b-modal>
+                    <!--輸入罰金失敗 modal-->
+                    <b-modal id="ExtraFee-failed"
+                             ok-only
+                             ok-title="返回"
+                             ok-variant="secondary">
+                        輸入罰金失敗
+                    </b-modal>
+
+                    <!--輸入罰金成功 modal-->
+                    <b-modal id="ExtraFee-success"
+                             ok-only
+                             @@ok="extraFeeSuccess()"
+                             ok-title="完成">
+                        輸入罰金成功
+                    </b-modal>
+                </div>
+                <!--#endregion-->
+                <!--#endregion-->
+                <!--#region CLOSED ORDERS(ReportDetails Modal)-->
+                <b-tab title="已結束" :title-link-class="linkClass(6)" v-on:click="ClosedOrders">
+                    <b-navbar-nav class="ml-auto">
+                        <template>
+                            <div>
+                                <b-pagination v-model="currentPage"
+                                              :total-rows="rows"
+                                              :per-page="perPage" align="right"
+                                              aria-controls="my-table"></b-pagination>
                                 <div>
                                     排序:
                                     <b>{{ sortDesc ? '倒序' : '正序' }}</b>
                                 </div>
+
+                                <b-table id="my-table"
+                                         :per-page="perPage"
+                                         :current-page="currentPage"
+                                         :items="items" :fields="fields" :sort-by.sync="sortBy"
+                                         :sort-desc.sync="sortDesc"
+                                         sort-icon-left striped responsive="sm">
+                                    <template #cell(hasReports)="report">
+                                        <b-icon-app-indicator v-if="report.item.openReportCount != 0"></b-icon-app-indicator>
+                                        <b-icon-app v-if="report.item.openReportCount == 0"></b-icon-app>
+                                    </template>
+                                    <template #cell(show_details)="row">
+                                        <b-button size="sm" @@click="row.toggleDetails" class="mr-2">
+                                            {{ row.detailsShowing ? '隱藏' : '顯示'}}
+                                        </b-button>
+                                    </template>
+
+                                    <template #row-details="row">
+                                        <b-card>
+                                            <b-row>
+                                                <b-col><b>訂單明細編號</b></b-col>
+                                                <b-col><b>物品序號</b></b-col>
+                                                <b-col><b>物品描述</b></b-col>
+                                                <b-col><b>物品狀態</b></b-col>
+                                                <b-col><b>罰金</b></b-col>
+                                                <b-col><b>問題反映</b></b-col>
+                                            </b-row>
+                                            <hr />
+                                            <b-row v-for="item in row.item.orderDetails">
+                                                <b-col>{{ item.orderDetailSn }}</b-col>
+                                                <b-col>{{ item.itemSn }}</b-col>
+                                                <b-col>{{ item.itemDescription }}</b-col>
+                                                <b-col>{{ item.orderDetailStatus }}</b-col>
+                                                <b-col><b-icon-cash-stack @@click="showExtraFeeModal(item)"></b-icon-cash-stack></b-col>
+                                                <b-col><b-button v-if="item.openReportCounts != 0" size="sm" @@click="showReportModal(item)">查看</b-button></b-col>
+                                            </b-row>
+
+                                            <b-button size="sm" @@click="row.toggleDetails">隱藏</b-button>
+                                        </b-card>
+                                    </template>
+                                </b-table>
                                 <div>
                                     <b-pagination v-model="currentPage"
                                                   :total-rows="rows"
                                                   :per-page="perPage" align="right"
                                                   aria-controls="my-table"></b-pagination>
                                 </div>
-                            </b-form>
-                        </div>
+                                <p></br></p>
+                            </div>
+                        </template>
 
-                        <b-table id="my-table"
-                                 :per-page="perPage"
-                                 :current-page="currentPage"
-                                 :items="items" :fields="fields" :sort-by.sync="sortBy"
-                                 :sort-desc.sync="sortDesc"
-                                 sort-icon-left striped responsive="sm">
-                            <template #cell(closeItem)="report">
-                                <b-icon-card-checklist v-if="report.item.closeTime == null" size="sm" @@click="showReportClosedModal(report)"></b-icon-card-checklist>
-                            </template>
-                        </b-table>
-                        <div>
-                            <b-pagination v-model="currentPage"
-                                          :total-rows="rows"
-                                          :per-page="perPage" align="right"
-                                          aria-controls="my-table"></b-pagination>
-                        </div>
-                        <p></br></p>
-                        <p></br></p>
-                    </div>
-                </template>
-                
-        </b-tab>
+                </b-tab>
 
-        <!--結案modal-->
-        <div>
-            <b-modal id="reportClosed-modal"
-                     @@ok="confirmClosed"
-                     ok-title="結案"
-                     cancel-title="返回">
-                <template #modal-title>
-                    <p class="font-weight-bold">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 物品報修結案
-                    </p>
-                </template>
+                <!--#region 問題查詢modal-->
                 <div>
-                    <label :for="closeData.note">請輸入結案備註:</label>
-                    <b-form-input :id="closeData.note"
-                                  type="text"
-                                  
-                                  v-model="closeData.note"></b-form-input>
-                </div>
-            </b-modal>
-            <!--結案失敗 modal-->
-            <b-modal id="close-failed"
-                     ok-only
-                     ok-title="返回"
-                     ok-variant="secondary">
-                結案失敗
-            </b-modal>
+                    <b-modal id="reportInfoClosed-modal"
+                             hide-footer scrollable>
+                        <template #modal-title>
+                            <p class="font-weight-bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 查看問題反映
+                            </p>
+                        </template>
+                        <b-table-simple hover caption-top stacked>
+                            <b-thead head-variant="dark">
+                                <b-tr>
+                                    <b-th>問題反映編號</b-th>
+                                    <b-th>產生時間</b-th>
+                                    <b-th>使用者描述</b-th>
+                                    <b-th>管理員描述</b-th>
+                                    <b-th>結案時間</b-th>
+                                    <b-th></b-th>
+                                </b-tr>
+                            </b-thead>
+                            <b-tbody>
+                                <b-tr v-for="details in reportDetail">
+                                    <b-td stacked-heading="問題反映編號">{{details.reportSn}}</b-td>
+                                    <b-td stacked-heading="產生時間">{{details.reportTime}}</b-td>
+                                    <b-td stacked-heading="使用者描述">{{details.description}}</b-td>
+                                    <b-td stacked-heading="結案時間">{{details.closeTime}}</b-td>
+                                    <b-td stacked-heading="管理員描述">
+                                        {{details.note}}
+                                        @*<b-form-input :value="details.note"
+                                        v-if="details.closeTime == null"
+                                        :disabled="checkInputValid(details)" />*@
+                                    </b-td>
+                                    <b-td>
+                                        <b-button block v-if="details.closeTime == null" @@click="showReportClosedModalForView(details)" variant="primary">結案</b-button>
+                                    </b-td>
+                                </b-tr>
+                            </b-tbody>
+                        </b-table-simple>
 
-            <!--結案成功 modal-->
-            <b-modal id="close-success"
-                     ok-only
-                     @@ok="closedSuccessfully()"
-                     ok-title="完成">
-                結案成功
-            </b-modal>
-        </div>
+                    </b-modal>
+                </div>
+                <!--#endregion-->
+                <!--#endregion-->
+                <!--#region REPORTED ORDERS(CloseReport Modal)-->
+                <b-tab :title-link-class="linkClass(7)" @@click="GetAllReports()">
+                    <template #title>
+                        問題反映
+                        <b-badge v-if="getLengthofOpenReport() !==0" pill variant="danger" class="text-white">{{getLengthofOpenReport()}}</b-badge>
+                    </template>
+                    <b-navbar-nav class="ml-auto">
+                        <template>
+                            <div>
+                                <b-pagination v-model="currentPage"
+                                              :total-rows="rows"
+                                              :per-page="perPage" align="right"
+                                              aria-controls="my-table"></b-pagination>
+                                <div>
+                                    排序:
+                                    <b>{{ sortDesc ? '倒序' : '正序' }}</b>
+                                </div>
+
+                                <b-table id="my-table"
+                                         :per-page="perPage"
+                                         :current-page="currentPage"
+                                         :items="items" :fields="fields" :sort-by.sync="sortBy"
+                                         :sort-desc.sync="sortDesc"
+                                         sort-icon-left striped responsive="sm">
+                                    <template #cell(closeItem)="report">
+                                        <b-icon-card-checklist v-if="report.item.closeTime == null" size="sm" @@click="showReportClosedModal(report)"></b-icon-card-checklist>
+                                    </template>
+                                </b-table>
+                                <div>
+                                    <b-pagination v-model="currentPage"
+                                                  :total-rows="rows"
+                                                  :per-page="perPage" align="right"
+                                                  aria-controls="my-table"></b-pagination>
+                                </div>
+                                <p></br></p>
+                            </div>
+                        </template>
+
+                </b-tab>
+
+                <!--#region 結案modal-->
+                <div>
+                    <b-modal id="reportClosed-modal"
+                             @@ok="confirmClosed"
+                             ok-title="結案"
+                             cancel-title="返回">
+                        <template #modal-title>
+                            <p class="font-weight-bold">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg> 物品問題反映結案
+                            </p>
+                        </template>
+                        <div>
+                            <label :for="closeData.note">請輸入結案備註:</label>
+                            <b-form-input :id="closeData.note"
+                                          type="text"
+                                          v-model="closeData.note"></b-form-input>
+                        </div>
+                    </b-modal>
+                    <!--結案失敗 modal-->
+                    <b-modal id="close-failed"
+                             ok-only
+                             ok-title="返回"
+                             ok-variant="secondary">
+                        結案失敗
+                    </b-modal>
+
+                    <!--結案成功 modal-->
+                    <b-modal id="close-success"
+                             ok-only
+                             @@ok="closedSuccessfully()"
+                             ok-title="完成">
+                        結案成功
+                    </b-modal>
+                </div>
+                <!--#endregion-->
+                <!--#endregion-->
+        </b-card>
+    </b-overlay>
 </div>
 
 
@@ -932,6 +908,7 @@
             .then(response => {
                 this.orders = response;
 
+
                 // 計算訂單總金額、處理日期格式
                 for (let i = 0; i < this.orders.length; i++) {
                     this.orders[i].totalPrice =
@@ -946,11 +923,12 @@
                     detailedTime = new Date(this.orders[i].orderTime);
                     date = `${detailedTime.getFullYear()}-${detailedTime.getMonth() + 1}-${detailedTime.getDate()}`;
                     this.orders[i].orderTime = date;
-                    
+
                     detailedTime = new Date(this.orders[i].expireTime);
                     date = `${detailedTime.getFullYear()}-${detailedTime.getMonth() + 1}-${detailedTime.getDate()}`;
                     this.orders[i].expireTime = date;
                 }
+                this.show = false;
             })
     }
 
@@ -984,9 +962,10 @@
 
     let app = new Vue({
         el: '#app',
-        
+
         data() {
             return {
+                show: true,
                 sortBy: 'orderSn',
                 sortDesc: false,
                 perPage: 10,
@@ -1008,7 +987,7 @@
                 items: [],
                 orders: [], // 存一開始拿到的所有訂單
                 eid: [],
-                reportLength:'',
+                reportLength: '',
                 itemsToBeDistributed: {
                     quantity: 0,
                     items: []
@@ -1044,7 +1023,7 @@
                 reportDetail: []
             }
         },
-        
+
         created: function () {
             fetchOrders.call(this).then(() => this.items = this.orders);
             GetReports.call(this).then(() => this.reportLength = this.Allreports.filter(o => o.closeTime == null));
@@ -1058,6 +1037,7 @@
                     return ['bg-light', 'text-dark']
                 }
             },
+            //#region 訂單
             // 所有訂單
             GetAllOrders: function () {
                 this.fields = [
@@ -1174,21 +1154,23 @@
                     { key: 'show_details', label: '明細', }];
                 this.items = this.orders.filter(o => o.tabName === "已逾期");
             },
-            //報修訂單
-            GetAllReports: function (){
+            //問題反映訂單
+            GetAllReports: function () {
                 this.items = this.Allreports;
                 this.sortBy = 'reportSn';
                 this.fields = [
-                    { key: 'reportSn', label: '報修編號', sortable: true },
+                    { key: 'reportSn', label: '問題反映編號', sortable: true },
                     { key: 'orderSn', label: '訂單編號', sortable: true },
                     { key: 'orderDetailIdSn', label: '訂單明細編號', sortable: true },
                     { key: 'itemSn', label: '物品編號', sortable: true },
-                    { key: 'description', label: '報修描述(使用者)', sortable: true },
-                    { key: 'note', label: '報修描述(管理員)', sortable: true },
-                    { key: 'reportTime', label: '報修時間', sortable: true },
+                    { key: 'description', label: '使用者描述', sortable: true },
+                    { key: 'note', label: '管理員描述', sortable: true },
+                    { key: 'reportTime', label: '產生時間', sortable: true },
                     { key: 'closeTime', label: '結案日期', sortable: true },
-                    { key: 'closeItem', label: '結案' }];                  
+                    { key: 'closeItem', label: '結案' }];
             },
+            //#endregion
+            //#region 提醒數量
             getLengthofPending() {
                 var pendingLength = this.orders.filter(o => o.tabName === "待核可");
                 return pendingLength.length;
@@ -1213,7 +1195,8 @@
                 var OpenReportLength = this.Allreports.filter(o => o.closeTime == null);
                 return OpenReportLength.length;
             },
-            // 分配 Item 開始
+            //#endregion
+            //#region 分配 Item 開始
             async showDataAndModal(data) {
                 let response = await fetch("/itemapi/getavailableitemsbyequipid/" + data.equipmentId, {
                     method: "GET"
@@ -1254,6 +1237,7 @@
                 arr.push(id);
             },
             async confirmDistribution() {
+                this.show = true;
                 this.distributionData.reply = true;
                 let response = await fetch("/orderapi/respondorder", {
                     method: "POST",
@@ -1265,11 +1249,13 @@
 
                 if (!response.ok) {
                     console.log("核可失敗");
+                    this.show = false;
                     this.$bvModal.show("distribute-failed");
                     return;
                 }
 
                 console.log("核可成功");
+                this.show = false;
                 this.$bvModal.show("distribute-success");
             },
             resetDistributionData() {
@@ -1291,13 +1277,15 @@
                 fetchOrders.call(this)
                     .then(() => this.GetPendingOrders.call(this));
             },
-            // ↑分配 item 結束
+            //#endregion
+            //#region 拒絕
             showDenialModal(data) {
                 this.distributionData.orderId = data;
                 console.log(data);
                 this.$bvModal.show("deny-modal");
             },
             async confirmDenial() {
+                this.show = true;
                 let response = await fetch("/orderapi/respondorder", {
                     method: "POST",
                     headers: {
@@ -1308,17 +1296,21 @@
 
                 if (!response.ok) {
                     console.log("拒絕失敗");
+                    this.show = false;
                     this.$bvModal.show("deny-failed");
                     return;
                 }
 
                 console.log("拒絕成功");
+                this.show = false;
                 this.$bvModal.show("deny-success");
             },
             deniedSuccessfully() {
                 fetchOrders.call(this)
                     .then(() => this.GetPendingOrders.call(this));
             },
+            //#endregion
+            //#region 領取
             showPickupModal(data) {
                 this.pickupData.orderDetailId = data.orderDetailId;
                 /*this.pickupData.description = data.itemDescription;*/
@@ -1326,6 +1318,7 @@
                 this.$bvModal.show("pickup-modal");
             },
             async confirmPickup() {
+                this.show = true;
                 let response = await fetch("/OrderDetailApi/PickupItemsCheck/", {
                     method: "POST",
                     headers: {
@@ -1336,12 +1329,14 @@
 
                 if (!response.ok) {
                     console.log("領取失敗");
+                    this.show = false;
                     this.$bvModal.show("pickup-failed");
                     this.pickupData.description = '';
                     return;
                 }
 
                 console.log("領取成功");
+                this.show = false;
                 this.$bvModal.show("pickup-success");
                 this.pickupData.description = '';
             },
@@ -1349,12 +1344,15 @@
                 fetchOrders.call(this)
                     .then(() => this.PickUpOrders.call(this));
             },
+            //#endregion
+            //#region 歸還
             showReturnModal(data) {
                 this.returnData.orderDetailId = data.orderDetailId;
                 console.log(data);
                 this.$bvModal.show("return-modal");
             },
             async confirmReturn() {
+                this.show = true;
                 let response = await fetch("/OrderDetailApi/ReturnItemsCheck/", {
                     method: "POST",
                     headers: {
@@ -1365,12 +1363,14 @@
 
                 if (!response.ok) {
                     console.log("歸還失敗");
+                    this.show = false;
                     this.$bvModal.show("return-failed");
                     this.returnData.description = '';
                     return;
                 }
 
                 console.log("歸還成功");
+                this.show = false;
                 this.$bvModal.show("return-success");
                 this.returnData.description = '';
             },
@@ -1389,12 +1389,15 @@
                 }
 
             },
+            //#endregion
+            //#region 遺失
             showLostModal(data) {
                 this.lostData.orderDetailId = data.orderDetailId;
                 console.log(data);
                 this.$bvModal.show("lost-modal");
             },
             async confirmLost() {
+                this.show = true;
                 let response = await fetch("/OrderDetailApi/ItemLostCheck/", {
                     method: "POST",
                     headers: {
@@ -1405,12 +1408,14 @@
 
                 if (!response.ok) {
                     console.log("登記遺失失敗");
+                    this.show = false;
                     this.$bvModal.show("lost-failed");
                     this.lostData.description = '';
                     return;
                 }
 
                 console.log("登記遺失成功");
+                this.show = false;
                 this.$bvModal.show("lost-success");
                 this.lostData.description = '';
             },
@@ -1429,6 +1434,7 @@
                 }
 
             },
+            //#endregion
             checkPickupDate(row) {
                 let pickupdate = new Date(row.item.estimatedPickupTime);
                 console.log(row);
@@ -1441,14 +1447,9 @@
                 }
                 return true;
             },
+            //#region 查看問題
             async showReportModal(data) {
-                
-                
-                //console.log(data);
-                //let selectId = data.orderDetailId;
-                //console.log(selectId);
-                //this.reportDetail = this.Allreports.filter(o => o.orderDetailId == data.orderDetailId);
-                //console.log(this.reportDetail);
+                this.show = true;
                 return await fetch("/ReportApi/GetReports/" + data.orderDetailId, { method: "GET" })
                     .then(response => {
                         if (response.ok) {
@@ -1457,24 +1458,44 @@
                     })
                     .then(response => {
                         this.reportDetail = response;
-                        
-                        console.log(this.closeData);
-                        console.log(this.reportDetail);
+                        for (let i = 0; i < this.reportDetail.length; i++) {
+                            //console.log(this.reportDetail[i].closeTime);
+
+                            let detailedTime = new Date(this.reportDetail[i].reportTime);
+                            let date = `${detailedTime.getFullYear()}-${detailedTime.getMonth() + 1}-${detailedTime.getDate()}`;
+                            let time = `${detailedTime.getHours()}:${detailedTime.getMinutes()}`;
+                            this.reportDetail[i].reportTime = date + ' ' + time;
+
+                            let reportCloseTime = this.reportDetail[i].closeTime;
+                            if (reportCloseTime != null && reportCloseTime != '') {
+                                detailedTime = new Date(this.reportDetail[i].closeTime);
+                                date = `${detailedTime.getFullYear()}-${detailedTime.getMonth() + 1}-${detailedTime.getDate()}`;
+                                time = `${detailedTime.getHours()}:${detailedTime.getMinutes()}`
+                                this.reportDetail[i].closeTime = date + ' ' + time;
+                            }
+                        }
+                        //console.log(this.closeData);
+                        //console.log(this.reportDetail);
+                        this.show = false;
                         this.$bvModal.show("reportInfoClosed-modal");
                     });
-                
+
             },
+            //#endregion
+            //#region 結案
+            //問題反映訂單點擊結案
             showReportClosedModal(data) {
-                
-                    this.closeData.reportId = data.item.reportId;
-                    console.log(data.item.reportId);
-                    console.log(data.item.note);
-                    this.closeData.note = data.item.note;
-                    console.log(data);
-                    
-                          
+
+                this.closeData.reportId = data.item.reportId;
+                console.log(data.item.reportId);
+                console.log(data.item.note);
+                this.closeData.note = data.item.note;
+                console.log(data);
+
+
                 this.$bvModal.show("reportClosed-modal");
             },
+            //問題查看Modal點擊結案
             showReportClosedModalForView(data) {
 
                 this.closeData.reportId = data.reportId;
@@ -1487,9 +1508,8 @@
                 this.$bvModal.show("reportClosed-modal");
             },
             async confirmClosed() {
-                //console.log(data);
-                //this.closeData.reportId = data.reportId;
-                
+                this.show = true;
+
                 let response = await fetch("/ReportApi/CloseReport/", {
                     method: "POST",
                     headers: {
@@ -1499,13 +1519,15 @@
                 }).catch(e => console.log(e));
 
                 if (!response.ok) {
-                    console.log("結案報修失敗");
+                    console.log("問題反映結案失敗");
+                    this.show = false;
                     this.$bvModal.show("close-failed");
                     this.closeData.note = '';
                     return;
                 }
 
-                console.log("結案報修成功");
+                console.log("問題反映結案成功");
+                this.show = false;
                 this.$bvModal.show("close-success");
                 this.$bvModal.hide("reportInfoClosed-modal");
                 console.log(this.closeData.note);
@@ -1516,32 +1538,32 @@
                     fetchOrders.call(this)
                         .then(() =>
                             this.OverDueOrders.call(this)
-                    ).then(() =>
-                        GetReports.call(this)
+                        ).then(() =>
+                            GetReports.call(this)
                         );
                 } else if (this.items.length > 0 && this.items[0].tabName === "租借中") {
                     fetchOrders.call(this)
                         .then(() =>
                             this.OnGoingOrders.call(this)
-                    ).then(() =>
-                        GetReports.call(this)
-                    );
+                        ).then(() =>
+                            GetReports.call(this)
+                        );
                 } else if (this.items.length > 0 && this.items[0].tabName === "已結束") {
                     fetchOrders.call(this)
                         .then(() =>
                             this.ClosedOrders.call(this)
-                            ).then(() =>
-                                GetReports.call(this)
-                            );
+                        ).then(() =>
+                            GetReports.call(this)
+                        );
                 }
-                else if (this.items.length > 0 && this.items[0].tabName === "報修訂單") {
+                else if (this.items.length > 0 && this.items[0].tabName === "問題反映") {
                     GetReports.call(this)
                         .then(() => {
                             this.GetAllReports.call(this);
                         });
 
                 }
-                
+
             },
             showReportClosedDetailModal(data) {
                 this.closeData.reportId = data.reportId;
@@ -1549,6 +1571,8 @@
                 console.log(data);
                 this.$bvModal.show("reportClosedDetail-modal");
             },
+            //#endregion
+            //#region 罰金
             showExtraFeeModal(data) {
                 this.extraFeeData.orderDetailId = data.orderDetailId;
                 console.log(data);
@@ -1556,9 +1580,8 @@
             },
             async confirmExtraFee(data) {
                 console.log(data);
-                //this.extraFeeData.fee = data.fee;
-                //this.extraFeeData.description = data.description;
                 console.log(this.extraFeeData);
+                this.show = true;
                 let response = await fetch("/api/extrafee/", {
                     method: "POST",
                     headers: {
@@ -1569,6 +1592,7 @@
 
                 if (!response.ok) {
                     console.log("輸入罰金失敗");
+                    this.show = false;
                     this.$bvModal.show("ExtraFee-failed");
                     this.extraFeeData.fee = '';
                     this.returnData.description = '';
@@ -1577,6 +1601,7 @@
                 }
 
                 console.log("輸入罰金成功");
+                this.show = false;
                 this.$bvModal.show("ExtraFee-success");
                 this.extraFeeData.fee = '';
                 this.extraFeeData.description = '';
@@ -1593,14 +1618,14 @@
                             console.log(this);
                             console.log(this.OverDueOrders);
                             this.OverDueOrders.call(this);
-                            
+
                         }
                         );
 
                 }
 
             }
-            
+            //#endregion
         },
         computed: {
             distributionInvalid() {
