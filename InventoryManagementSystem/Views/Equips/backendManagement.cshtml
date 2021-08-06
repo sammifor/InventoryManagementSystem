@@ -51,7 +51,7 @@
             <thead>
                 <tr>
                     <th>
-                            <input aria-label="Checkbox" type="checkbox" v-model="deletAll" @@click="deletAllSelect($event)"><i class="form-icon"></i>
+                        <input aria-label="Checkbox" type="checkbox" v-model="deletAll" @@click="deletAllSelect($event)"><i class="form-icon"></i>
                     </th>
                     <th scope="col">設備種類</th>
                     <th scope="col">設備名稱</th>
@@ -63,12 +63,12 @@
             <tbody>
                 <tr v-for="item in items">
                     <td>
-                       <input aria-label="Checkbox" type="checkbox" v-model="deletItems" :value="item.itemId"><i class="form-icon"></i>
+                        <input aria-label="Checkbox" type="checkbox" v-model="deletItems" :value="item.itemId"><i class="form-icon"></i>
                     </td>
                     <td>{{selectCateName}}</td>
                     @*<td><select class="btn btn-light dropdown-toggle" v-if="updateItem.includes(item.itemId)" v-on:change="changeEquip($event)">
-        <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}},{{ename.equipmentSn}}</option>
-        </select><span v-else>{{item.equipmentName}},{{item.equipmentSn}}</span></td>*@
+                        <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}},{{ename.equipmentSn}}</option>
+                        </select><span v-else>{{item.equipmentName}},{{item.equipmentSn}}</span></td>*@
                     <td>{{item.equipmentName}}-{{item.equipmentSn}}</td>
                     <td><input v-if="updateItem.includes(item.itemId)" v-model="item.itemSn" class="form-control" size="1" /><span v-else>{{item.itemSn}}</span></td>
                     <td><input v-if="updateItem.includes(item.itemId)" v-model="item.description" class="form-control" size="1" /><span v-else>{{item.description}}</span></td>
@@ -86,6 +86,10 @@
         </table>
         <buttion v-if="deletItems.length>1" type="button" class="btn btn-danger" @@click="deletAllAction($event)">一次刪除</buttion>
     </div>
+    <br />
+    <br />
+    <br />
+    <br />
 
     <!-- addNewCateModal -->
     <div class="modal fade" id="addNewCate" @*tabindex="-1"*@ role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
