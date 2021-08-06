@@ -50,6 +50,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Select(a => new AdminResultModel
                 {
                     AdminId = a.AdminId,
+                    AdminSn = a.AdminSn,
                     RoleId = a.RoleId,
                     RoleName = a.Role.RoleName,
                     Username = a.Username,
@@ -157,6 +158,8 @@ namespace InventoryManagementSystem.Controllers.Api
 
             return Ok();
         }
+
+
 
     }
 }
