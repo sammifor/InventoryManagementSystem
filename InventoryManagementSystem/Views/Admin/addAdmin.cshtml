@@ -1,64 +1,101 @@
 ﻿<style>
-    table {
+    form {
         margin: 0 auto;
-        height: 400px;
         width: 400px;
     }
 
     .title {
+        margin: 0 auto;
         text-align: center;
         font-size: 30px;
         background: #ececec;
     }
 
-    table th {
-        font-size: 20px;
-        height: 60px;
-    }
-
     .button {
+        margin: 0 auto;
         text-align: center;
     }
 </style>
 
 <div id="app">
-    <table class="border">
-        <tr>
-            <th colspan="2" class="title">新增管理員</th>
-        </tr>
-        <tr>
-            <th>角色ID：</th>
-            <td>
-                <select size="1" v-model="addRoleId">
-                    <option disabled selected>請選擇權限</option>
-                    <option v-for="role in roles" :value="role.roleId">{{role.roleName}}</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <th>使用者名稱：</th>
-            <td>
-                <input type="text" v-model="addUserName" />
-            </td>
-        </tr>
-        <tr>
-            <th>密碼：</th>
-            <td>
-                <input type="text" v-model="addPassword" />
-            </td>
-        </tr>
-        <tr>
-            <th>全名：</th>
-            <td>
-                <input type="text" v-model="addFullName" />
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" class="button">
-                <button type="button" class="btn btn-primary" v-on:click="addNewAdmin">新增</button>
-            </td>
-        </tr>
-    </table>
+    <form>
+        <div class="form-group title">
+            <label>新增管理員</label>
+        </div>
+
+        <div class="form-group">
+            <label class="col-form-label">角色：</label>
+            <select size="1"
+                    class="form-control"
+                    v-model.trim="addRoleId"
+                    required>
+                <option disabled selected>請選擇權限</option>
+                <option v-for="role in roles"
+                        :value="role.roleId">
+                    {{role.roleName}}
+                </option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="username" class="col-form-label">使用者名稱：</label>
+            <input type="text"
+                   id="username"
+                   class="form-control"
+                   v-bind:class="{'is-invalid': usernameValid }"
+                   @@input="username"
+                   v-model.trim="addUserName"
+                   required />
+            <div class="invalid-feedback">
+                {{usernameError}}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="password" class="col-form-label">密碼：</label>
+            <input type="password"
+                   id="password"
+                   class="form-control"
+                   v-bind:class="{'is-invalid': passwordValid }"
+                   @@input="password"
+                   v-model.trim="addPassword"
+                   required />
+            <div class="invalid-feedback">
+                {{passwordError}}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="passwordCheck" class="col-form-label">密碼確認：</label>
+            <input type="password"
+                   id="passwordCheck"
+                   class="form-control"
+                   v-bind:class="{'is-invalid': passwordCheckValid }"
+                   @@input="passwordCheck" />
+            <div class="invalid-feedback">
+                {{passwordCheckError}}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="fullName" class="col-form-label">全名：</label>
+            <input type="text"
+                   id="fullName"
+                   class="form-control"
+                   v-bind:class="{'is-invalid': fullNameValid }"
+                   @@input="fullName"
+                   v-model.trim="addFullName"
+                   required />
+            <div class="invalid-feedback">
+                {{fullNameError}}
+            </div>
+        </div>
+
+        <div class="button">
+            <button type="button" class="btn btn-primary" v-on:click="addNewAdmin" :disabled="btnOk">新增</button>
+            <button type="button" class="btn btn-danger" onclick="window.location.href='/Admin/adminManage'">返回</button>
+        </div>
+    </form>
 </div>
 
 <script>
@@ -69,10 +106,18 @@
             addRoleId: '',
             addUserName: '',
             addPassword: '',
-            addFullName: ''
+            addFullName: '',
+            usernameValid: false,
+            usernameError: '',
+            passwordValid: false,
+            passwordError: '',
+            passwordCheckValid: false,
+            passwordCheckError: '',
+            fullNameValid: false,
+            fullNameError: ''
         },
 
-        beforeCreate: function () {
+        created: function () {
             fetch('/api/role', { method: 'GET' })
                 .then(response => {
                     return response.json();
@@ -114,7 +159,58 @@
                     })
             },
 
+            //使用者名稱必填
+            username: function (data) {
+                if (data.target.value.length == 0) {
+                    this.usernameValid = true;
+                    this.usernameError = '未填寫使用者名稱';
+                } else {
+                    this.usernameValid = false;
+                }
+            },
+
+            //密碼必填
+            password: function (data) {
+                if (data.target.value.length == 0) {
+                    this.passwordValid = true;
+                    this.passwordError = '未填寫密碼';
+                } else if (data.target.value.length > 6) {
+                    this.passwordValid = true;
+                    this.passwordError = '請勿超過6個字';
+                } else {
+                    this.passwordValid = false;
+                }
+            },
+
+            //密碼確認
+            passwordCheck: function (data) {
+                if (data.target.value != this.addPassword) {
+                    this.passwordCheckValid = true;
+                    this.passwordCheckError = '與密碼不一致';
+                } else {
+                    this.passwordCheckValid = false;
+                }
+            },
+
+            //全名必填
+            fullName: function (data) {
+                if (data.target.value.length == 0) {
+                    this.fullNameValid = true;
+                    this.fullNameError = '未填寫全名';
+                } else {
+                    this.fullNameValid = false;
+                }
+            }
+
         },
+
+        computed: {
+            //資料都正確按鈕才能送出
+            btnOk: function () {
+                return (this.usernameValid || this.passwordValid || this.passwordCheckValid || this.fullNameValid);
+            }
+
+        }
 
     })
 </script>
