@@ -44,7 +44,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     .Where(a => a.AdminId == id);
 
             AdminResultModel[] admins = await qryAdmins
-                .Where(a => a.Deleted == false)
+                .Where(a => !a.Deleted)
                 .Select(a => new AdminResultModel
                 {
                     AdminId = a.AdminId,
