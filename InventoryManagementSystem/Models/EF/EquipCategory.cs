@@ -14,6 +14,7 @@ namespace InventoryManagementSystem.Models.EF
 
         public Guid EquipCategoryId { get; set; }
         public string CategoryName { get; set; }
+        public bool Deleted { get; set; }
 
         public virtual ICollection<Equipment> Equipment { get; set; }
     }

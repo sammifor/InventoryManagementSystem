@@ -110,7 +110,10 @@ CREATE TABLE [EquipCategory](
         [EquipCategoryID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_EquipCategory] PRIMARY KEY NONCLUSTERED,
 
-        [CategoryName] NVARCHAR(50)
+        [CategoryName] NVARCHAR(50),
+
+        [Deleted] BIT NOT NULL
+                CONSTRAINT [DF_EquipCategory_Deleted] DEFAULT (0)
 );
 
 CREATE UNIQUE NONCLUSTERED INDEX [UQ_EquipCategory_CategoryName]
