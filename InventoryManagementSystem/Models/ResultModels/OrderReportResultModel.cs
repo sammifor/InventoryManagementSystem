@@ -15,10 +15,17 @@ namespace InventoryManagementSystem.Models.ResultModels
         public String Username { get; set; }
         public Guid EquipmentId { get; set; }
         public String EquipmentSn { get; set; }
+        public String Brand { get; set; }
+        public String Model { get; set; }
         public String EquipmentName { get; set; }
         public int Quantity { get; set; }
         public DateTime EstimatedPickupTime { get; set; }
         public String OrderStatusId { get; set; }
         public OrderDetailResultModel[] OrderDetails { get; set; }
+
+        public decimal TotalRentalFee { get; set; }
+
+        public decimal TotalExtraFee { get; set; }
+
     }
 }

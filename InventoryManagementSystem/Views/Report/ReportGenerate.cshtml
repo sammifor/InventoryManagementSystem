@@ -1,5 +1,235 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿<link type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+<link type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+<script src="https://unpkg.com/vue"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+
+
+<div id="app">
+    <b-overlay :show="loading" rounded="lg">
+        <div :show="!loading">
+            <b-card header-tag="header">
+
+                <template #header>
+                    <h6 class="mb-0" style="font-size:18px; font-weight:bold;">租借紀錄報表</h6>
+                </template>
+
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label>選擇年分</label>
+                        <select class="btn btn-light dropdown-toggle" v-model="selectedYear" required>
+                            <option disabled selected>請選擇</option>
+                            <option :value="'2021-'">2021</option>
+                            <option disabled>2022</option>
+                            <option disabled>2023</option>
+                            <option disabled>2024</option>
+                            <option disabled>2025</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>起始月份</label>
+                        <select class="btn btn-light dropdown-toggle" v-model="beginMonth" required>
+                            <option disabled selected>請選擇</option>
+                            <option v-for="month in select_month_start" :value="month.data">{{month.month}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label>結束月份</label>
+                        <select class="btn btn-light dropdown-toggle" v-model="endMonth" required>
+                            <option disabled selected>請選擇</option>
+                            <option v-for="month in select_month_end" :value="month.data">{{month.month}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <b-btn @@click="orderReportQuery">查詢</b-btn>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <b-input v-model="filter" placeholder="Filter table.."></b-input>
+                    </div>
+                    <div>
+                        <b-table id="my-table"
+                                 :items="items_order"
+                                 :fields="fields_order"
+                                 :sort-by.sync="sortBy"
+                                 :sort-desc.sync="sortDesc"
+                                 sort-icon-left
+                                 responsive="sm" striped
+                                 :filter="filter">
+
+                            <template #cell(show_details)="row">
+                                <i class="bi bi-justify-left" style="font-size: 20px;" @@click="showOdModal(row.item)"></i>
+                            </template>
+
+
+                    </div>
+                    <div>
+                        <b-modal id="orderDetailModal"
+                                 hide-footer scrollable>
+                            <template #modal-title>
+                                <p class="font-weight-bold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill-rule="evenodd" d="M5.962 2.513a.75.75 0 01-.475.949l-.816.272a.25.25 0 00-.171.237V21.25c0 .138.112.25.25.25h14.5a.25.25 0 00.25-.25V3.97a.25.25 0 00-.17-.236l-.817-.272a.75.75 0 01.474-1.424l.816.273A1.75 1.75 0 0121 3.97v17.28A1.75 1.75 0 0119.25 23H4.75A1.75 1.75 0 013 21.25V3.97a1.75 1.75 0 011.197-1.66l.816-.272a.75.75 0 01.949.475z"></path><path fill-rule="evenodd" d="M7 1.75C7 .784 7.784 0 8.75 0h6.5C16.216 0 17 .784 17 1.75v1.5A1.75 1.75 0 0115.25 5h-6.5A1.75 1.75 0 017 3.25v-1.5zm1.75-.25a.25.25 0 00-.25.25v1.5c0 .138.112.25.25.25h6.5a.25.25 0 00.25-.25v-1.5a.25.25 0 00-.25-.25h-6.5z"></path></svg>訂單明細
+                                </p>
+                            </template>
+                            <b-table-simple hover caption-top stacked>
+                                <b-thead head-variant="dark">
+                                    <b-tr>
+                                        <b-th class="text-left">物品序號</b-th>
+                                        <b-th class="text-left">例外狀況</b-th>
+                                        <b-th class="text-left">額外收費</b-th>
+                                    </b-tr>
+                                </b-thead>
+                                <b-tbody>
+                                    <b-tr v-for="item in modalShow">
+                                        <b-td stacked-heading="物品序號">{{item.itemSn}}</b-td>
+                                        <b-td stacked-heading="例外狀況">{{item.itemStatus}}</b-td>
+                                        <b-td stacked-heading="額外收費">{{item.fee}}</b-td>
+                                    </b-tr>
+                                </b-tbody>
+                            </b-table-simple>
+
+                        </b-modal>
+                    </div>
+</b-card>
+        </div>
+    </b-overlay>
+</div>
+ 
+
+<script>
+    Vue.filter('timeString', function (value, myFormat) {
+                    return moment(value).format(myFormat || 'YYYY-MM-DD, HH:mm:ss');
+                });
+    var app = new Vue({
+
+        el: '#app',
+        data: {
+                filter: '',
+                sortBy: 'orderSn',
+                sortDesc: false,
+                tabIndex: 0,
+                loading: false,
+                selectedYear: '',
+                beginMonth: '',
+                endMonth: '',
+                modalShow: [],
+                fields_order: [
+                    { key: 'orderSn', label: '訂單編號', sortable: true },
+                    { key: 'username', label: '使用者', sortable: true },
+                    { key: 'equipmentSn', label: '設備編號', sortable: true },
+                    { key: 'equipmentName', label: '設備名稱', sortable: true },
+                    { key: 'quantity', label: '租借數量', sortable: true },
+                    { key: 'estimatedPickupTime', label: '租借時間', sortable: true, formatter:value=>value.substring(0,10)},
+                    { key: 'totalRentalFee', label: '租借費用', sortable: true },
+                    { key: 'totalExtraFee', label: '額外費用', sortable: true },
+                    { key: 'show_details', label: '訂單明細' }
+                ],
+                items_order: [],
+                select_month_start: [
+                    { month: "1月", data: "01-01T00:00:00.00" },
+                    { month: "2月", data: "02-01T00:00:00.00" },
+                    { month: "3月", data: "03-01T00:00:00.00" },
+                    { month: "4月", data: "04-01T00:00:00.00" },
+                    { month: "5月", data: "05-01T00:00:00.00" },
+                    { month: "6月", data: "06-01T00:00:00.00" },
+                    { month: "7月", data: "07-01T00:00:00.00" },
+                    { month: "8月", data: "08-01T00:00:00.00" },
+                    { month: "9月", data: "09-01T00:00:00.00" },
+                    { month: "10月", data: "10-01T00:00:00.00" },
+                    { month: "11月", data: "11-01T00:00:00.00" },
+                    { month: "12月", data: "12-01T00:00:00.00" }
+                ],
+                select_month_end: [
+                    { month: "1月", data: "01-31T00:00:00.00" },
+                    { month: "2月", data: "02-28T00:00:00.00" },
+                    { month: "3月", data: "03-31T00:00:00.00" },
+                    { month: "4月", data: "04-30T00:00:00.00" },
+                    { month: "5月", data: "05-31T00:00:00.00" },
+                    { month: "6月", data: "06-30T00:00:00.00" },
+                    { month: "7月", data: "07-31T00:00:00.00" },
+                    { month: "8月", data: "08-31T00:00:00.00" },
+                    { month: "9月", data: "09-30T00:00:00.00" },
+                    { month: "10月", data: "10-31T00:00:00.00" },
+                    { month: "11月", data: "11-30T00:00:00.00" },
+                    { month: "12月", data: "12-31T00:00:00.00" }
+                ],
+
+            
+            
+
+        },
+
+        methods: {
+                 orderReportQuery: function () {
+
+                            let startTime = this.selectedYear + this.beginMonth;
+                            let endTime = this.selectedYear + this.endMonth;
+                            console.log(startTime);
+                            console.log(endTime);
+
+                            let url = '/ReportGenerateApi/GetOrderReport/' + startTime + "/" + endTime;
+                            let request = {
+                                method: "GET"
+                            };
+                            fetch(url, request)
+                                .then(response => {
+                                    if (response.ok) {
+                                        console.log("資料庫連線成功");
+                                        return response.json();
+
+                                    } else {
+
+                                        console.log("資料擷取失敗");
+
+                                    }
+                                }).then(response => {
+                                    this.items_order = response;
+
+
+                                }).catch(error => {
+
+                                    alert("資料庫連線失敗");
+                                    console.log(error);
+                                })
+                  },
+
+                showOdModal: function (order) {
+
+                    
+                    console.log(order);
+                    this.modalShow = order.orderDetails.map(x => x)
+                    console.log(this.modalShow);
+                    this.$bvModal.show("orderDetailModal");
+                }
+
+                  
+
+        }
+    })
+
+
+</script>
+
+<style>
+
+
+    .tableFixHead {
+        overflow: auto;
+        height: 350px;
+    }
+
+        .tableFixHead thead th {
+            position: sticky;
+            top: 0;
+            background-color: #F5F5F5;
+        }
+
+    .active_row {
+        background-color: #F5F5F5
+    }
+</style>

@@ -53,9 +53,11 @@ namespace InventoryManagementSystem.Controllers.Api
                 EquipmentId = o.EquipmentId,
                 EquipmentSn = o.Equipment.EquipmentSn,
                 EquipmentName = o.Equipment.EquipmentName,
+                Brand = o.Equipment.Brand,
+                Model = o.Equipment.Model,
                 Quantity = o.Quantity,
                 EstimatedPickupTime = o.EstimatedPickupTime,
-                OrderStatusId=o.OrderStatusId,
+                OrderStatusId = o.OrderStatusId,
                 OrderDetails = o.OrderDetails.Select(od => new OrderDetailResultModel
                 {
                     ItemId = od.ItemId,
@@ -63,9 +65,22 @@ namespace InventoryManagementSystem.Controllers.Api
                     ItemStatus = od.ItemLogs
                         .OrderByDescending(il => il.CreateTime)
                         .Select(il => il.Condition.ConditionName)
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+                    Fee=od.ExtraFees
+                        .Select(f => f.Fee)
+                        .ToArray()
+                        .Sum()
+
                 })
-                .ToArray()
+                .ToArray(),
+
+                TotalRentalFee = o.Equipment.UnitPrice * o.Quantity * o.Day,
+
+                TotalExtraFee = o.OrderDetails
+                            .SelectMany(od => od.ExtraFees)
+                            .Select(f => f.Fee)
+                            .ToArray()
+                            .Sum()
             })
             .Where(o => o.OrderTime >= StartDate && o.OrderTime <= EndDate)
             .Where(o => o.OrderStatusId == "E")
