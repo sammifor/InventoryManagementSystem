@@ -371,6 +371,10 @@
 
                 },
                 btnQry: function () {
+                    
+                    if (this.categoryId == null || this.categoryId == '' ) {
+                        alert("請選擇設備種類!!!");
+                    }
                     this.show = true;
                     let url = '/EquipApi/GetEquipByCateOrName/' + this.categoryId + '/' + this.selectVal;
                     let request = {
