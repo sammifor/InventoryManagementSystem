@@ -4,12 +4,22 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>InventoryManagementSystem</title>
+    <title></title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
 
+    <style>
+        .footer-container {
+            display: grid;
+        }
 
+            .footer-container p {
+                justify-self: center;
+                margin: 0;
+                line-height: 2rem;
+            }
+    </style>
 
 
 </head>
@@ -18,7 +28,7 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3 justify-content-around">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/image/rentc.png" width="30" height="30" />  InventoryManagementSystem
+                    <img src="~/image/rentc.png" width="30" height="30" />  Tibame Rental Service
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -122,14 +132,14 @@
 
     <footer class="footer text-muted bg-dark responsive">
         <div class="container">
-            <div class="row">
-                <div class="col-6 text-center">
-                    &copy; 2021 - InventoryManagementSystem 
-                </div>
+            <div class="footer-container">
+                <p>
+                    &copy; 2021 - InventoryManagementSystem
+                </p>
 
-                @*<div class="col-6 text-center">
+                <p>
                     Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
-                </div>*@
+                </p>
             </div>
         </div>
     </footer>
