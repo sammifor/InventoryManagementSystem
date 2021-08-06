@@ -154,8 +154,13 @@ namespace InventoryManagementSystem.Controllers.Api
                 return NotFound("找不到此問題反映");
             }
 
+            string adminIdString = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
+            Guid adminId = Guid.Parse(adminIdString);
+
             report.CloseTime = DateTime.Now;
             report.Note = model.Note;
+            report.AdminId = adminId;
 
             try
             {

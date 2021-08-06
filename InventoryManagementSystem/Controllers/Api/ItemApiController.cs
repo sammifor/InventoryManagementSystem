@@ -185,6 +185,7 @@ namespace InventoryManagementSystem.Controllers.Api
             foreach(Item item in items)
             {
                 item.ConditionId = "D";
+                item.ItemSn = null;
 
                 // 新增刪除紀綠
                 ItemLog log = new ItemLog

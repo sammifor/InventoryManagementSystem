@@ -36,7 +36,10 @@ CREATE TABLE [Admin](
         [FullName] NVARCHAR(50) NOT NULL,
 
         [CreateTime] DATETIME
-                CONSTRAINT [DF_Admin_CreateTime] DEFAULT GETDATE()
+                CONSTRAINT [DF_Admin_CreateTime] DEFAULT GETDATE(),
+
+        [Deleted] BIT NOT NULL
+                CONSTRAINT [DF_Admin_Deleted] DEFAULT (0)
 );
 
 CREATE UNIQUE NONCLUSTERED INDEX [UQ_Admin_Username]
@@ -107,7 +110,10 @@ CREATE TABLE [EquipCategory](
         [EquipCategoryID] UNIQUEIDENTIFIER NOT NULL
                 CONSTRAINT [PK_EquipCategory] PRIMARY KEY NONCLUSTERED,
 
-        [CategoryName] NVARCHAR(50)
+        [CategoryName] NVARCHAR(50),
+
+        [Deleted] BIT NOT NULL
+                CONSTRAINT [DF_EquipCategory_Deleted] DEFAULT (0)
 );
 
 CREATE UNIQUE NONCLUSTERED INDEX [UQ_EquipCategory_CategoryName]
@@ -131,7 +137,10 @@ CREATE TABLE [Equipment](
 
         [UnitPrice] DECIMAL NOT NULL,
 
-        [Description] NVARCHAR(100)
+        [Description] NVARCHAR(100),
+
+        [Deleted] BIT NOT NULL
+                CONSTRAINT [DF_Equipment_Deleted] DEFAULT (0)
 );
 
 CREATE UNIQUE NONCLUSTERED INDEX [UQ_Equipment_EquipmentSN]

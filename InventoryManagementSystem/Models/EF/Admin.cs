@@ -22,6 +22,7 @@ namespace InventoryManagementSystem.Models.EF
         public byte[] Salt { get; set; }
         public string FullName { get; set; }
         public DateTime? CreateTime { get; set; }
+        public bool Deleted { get; set; }
 
         public virtual Role Role { get; set; }
         public virtual ICollection<ItemLog> ItemLogs { get; set; }
