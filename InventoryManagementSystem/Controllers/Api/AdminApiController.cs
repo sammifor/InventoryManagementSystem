@@ -176,7 +176,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             // 清空帳密
             admin.Deleted = true;
-            admin.Username = string.Empty;
+            admin.Username = null;
             admin.HashedPassword = zeros;
             admin.Salt = zeros;
 
