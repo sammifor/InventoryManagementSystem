@@ -8,19 +8,25 @@
     <div class="col-xl-6 col-11">
         <section class="card">
             <h1 class="card-header h3 text-center">使用者登入</h1>
-            <form method="post" class="card-body">
+            <div class="card-body">
+                @if(ViewData["LoginFailed"] != null)
+                {
+                    <p class="alert alert-danger text-center">帳號或密碼錯誤</p>
+                }
+                <form method="post">
                     <div class="form-group">
                         <label for="username">帳號</label>
-                        <input class="form-control" name="username" id="username" type="text" />
+                        <input class="form-control" name="username" id="username" type="text" required/>
                     </div>
                     <div class="form-group">
                         <label for="password">密碼</label>
-                        <input class="form-control" name="password" id="password" type="password" />
+                        <input class="form-control" name="password" id="password" type="password" required/>
                     </div>
                     <div class="form-group text-center">
                         <button class="btn btn-primary btn-block" type="submit">登入</button>
                     </div>
-            </form>
+                </form>
+            </div>
             <div class="card-footer text-center">
                 <p>沒有帳號嗎？您可以<a asp-controller="User" asp-action="SignUp">註冊一個新帳號</a></p>
                 <p><a asp-controller="User" asp-action="ForgetPassword">忘記密碼了嗎？</a></p>
