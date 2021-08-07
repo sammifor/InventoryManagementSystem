@@ -13,13 +13,9 @@
 
 <div id="app">
     <b-overlay :show="loading" rounded="lg">
+        <h1 style="font-size:30px;font-weight:bold">&ensp;租借紀錄報表</h1>
         <div :show="!loading">
             <b-card header-tag="header">
-
-                <template #header>
-                    <h6 class="mb-0" style="font-size:18px; font-weight:bold;">租借紀錄報表</h6>
-                </template>
-
                 <div class="row">
                     <div class="form-group col-md-3">
                         <label>選擇年分</label>
@@ -49,9 +45,10 @@
                     <div class="form-group col-md-3">
                         <b-btn @@click="orderReportQuery">查詢</b-btn>
                     </div>
-                    <div class="form-group col-md-3">
-                        <b-input v-model="filter" placeholder="Filter table.."></b-input>
-                    </div>
+                    @*<div class="form-group col-md-3">
+            <b-input v-model="filter" placeholder="Filter table.."></b-input>
+        </div>*@
+
                     <div>
                         <b-table id="my-table"
                                  :items="items_order"
@@ -95,9 +92,14 @@
 
                         </b-modal>
                     </div>
-</b-card>
+                </div>
+            </b-card>
+            <br />
+            <br />
+            <br />
+            <br />
         </div>
-    </b-overlay>
+    </b-overlay>   
 </div>
  
 
