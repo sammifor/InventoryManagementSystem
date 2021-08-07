@@ -269,7 +269,6 @@
             filterDuplicateElement: function (arr) {
 
                 let newarr = arr.filter((element, index, self) => {
-
                     return self.indexOf(element) == index
                 })
                 return newarr
@@ -278,23 +277,15 @@
             filterOrderFunction: function () {
 
                 this.orders_filtered = this.orders;
-
                 if (this.selectUser != null) {
-
                     this.orders_filtered = this.orders_filtered.filter(od => od.username == this.selectUser);
                 }
-
                 if (this.selectEquipmentName != null) {
-
                     this.orders_filtered = this.orders_filtered.filter(od => od.equipmentName == this.selectEquipmentName);
-
                 }
-
                 if (this.selectExtraFee != null) {
-
                     this.orders_filtered = this.orders_filtered.filter(od => od.totalExtraFee == this.selectExtraFee);
-
-                }
+s                }
             }
         }
     })
