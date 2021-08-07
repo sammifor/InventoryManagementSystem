@@ -44,7 +44,9 @@ namespace InventoryManagementSystem.Controllers.Api
                     Description = i.Description,
 
                     EquipmentSn = i.Equipment.EquipmentSn,
-                    EquipmentName = i.Equipment.EquipmentName
+                    EquipmentName = i.Equipment.EquipmentName,
+                    CategoryName=i.Equipment.EquipmentCategory.CategoryName
+
                 })
                 .ToArrayAsync();
 

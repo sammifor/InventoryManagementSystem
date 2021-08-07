@@ -133,7 +133,9 @@ namespace InventoryManagementSystem.Controllers.Api
                     Description = e.Description,
                     QuantityUsable = e.Items.Count(i => i.ConditionId == "I" || i.ConditionId == "O" || i.ConditionId == "P"),
                     QuantityInStock = e.Items.Count(i => i.ConditionId == "I"),
-                    QuantityReserved = e.Items.Count(i => i.ConditionId == "P")
+                    QuantityReserved = e.Items.Count(i => i.ConditionId == "P"),
+                    CategoryName=e.EquipmentCategory.CategoryName
+
                 })
                 .ToArrayAsync();
             return Ok(results);
