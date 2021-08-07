@@ -8,7 +8,7 @@ namespace InventoryManagementSystem.Models.ViewModels
     public class EditEquipModel
     {
         public Guid EquipmentId { get; set; }
-        //public Guid EquipmentCategoryId { get; set; }
+        public Guid EquipmentCategoryId { get; set; }
         public string EquipmentSn { get; set; }
         public string EquipmentName { get; set; }
         public string Brand { get; set; }

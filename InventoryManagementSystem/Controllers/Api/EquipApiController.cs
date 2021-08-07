@@ -206,7 +206,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 return NotFound();
 
 
-            //equip.EquipmentCategoryId = model.EquipmentCategoryId;
+            equip.EquipmentCategoryId = model.EquipmentCategoryId;
             equip.EquipmentSn = model.EquipmentSn;
             equip.EquipmentName = model.EquipmentName;
             equip.Brand = model.Brand;
