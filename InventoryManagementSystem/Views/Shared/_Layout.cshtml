@@ -34,11 +34,17 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <span class="navbar-collapse collapse">
+                <div class="navbar-collapse collapse">
                     @if (User.Identity.IsAuthenticated)
                     {
 
                         <ul class="navbar-nav">
+                            @if (User.IsInRole("admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Chart" asp-action="Charts">儀表板</a>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Equips" asp-action="EquipQry">設備</a>
                             </li>
@@ -66,23 +72,23 @@
                             }
 
                             @*<li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        訂單管理
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" asp-controller="Order" asp-action="OrderQry">訂單管理</a>
-                    </div>
-                </li>*@
+                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        訂單管理
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                        <a class="dropdown-item" asp-controller="Order" asp-action="OrderQry">訂單管理</a>
+                                    </div>
+                                </li>*@
                         </ul>
 
 
                     }
 
-                <span class="navbar-text mx-auto">
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                    <span><img src="/image/account_circle_white_24dp.svg" width="25" height="25" />&ensp;@User.Identity.Name</span>
-                    }
+                    <span class="navbar-text mx-auto">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <span><img src="/image/account_circle_white_24dp.svg" width="25" height="25" />&ensp;@User.Identity.Name</span>
+                        }
                     </span>
                     @if (User.Identity.IsAuthenticated)
                     {
@@ -120,7 +126,7 @@
                             </li>
                         </ul>
                     }
-                </span>
+                </div>
             </div>
         </nav>
     </header>
@@ -134,7 +140,7 @@
         <div class="container">
             <div class="footer-container">
                 <p>
-                    &copy; 2021 - InventoryManagementSystem 
+                    &copy; 2021 - InventoryManagementSystem
                 </p>
 
                 <p>

@@ -1167,6 +1167,7 @@
                     { key: 'note', label: '管理員描述', sortable: true },
                     { key: 'reportTime', label: '產生時間', sortable: true },
                     { key: 'closeTime', label: '結案日期', sortable: true },
+                    { key: 'adminUsername', label: '結案者', sortable: true },
                     { key: 'closeItem', label: '結案' }];
             },
             //#endregion
@@ -1534,21 +1535,21 @@
                 this.closeData.note = '';
             },
             closedSuccessfully() {
-                if (this.items.length > 0 && this.items[0].tabName === "已逾期") {
+                if (this.items.length >= 0 && this.items[0].tabName === "已逾期") {
                     fetchOrders.call(this)
                         .then(() =>
                             this.OverDueOrders.call(this)
                         ).then(() =>
                             GetReports.call(this)
                         );
-                } else if (this.items.length > 0 && this.items[0].tabName === "租借中") {
+                } else if (this.items.length >= 0 && this.items[0].tabName === "租借中") {
                     fetchOrders.call(this)
                         .then(() =>
                             this.OnGoingOrders.call(this)
                         ).then(() =>
                             GetReports.call(this)
                         );
-                } else if (this.items.length > 0 && this.items[0].tabName === "已結束") {
+                } else if (this.items.length >= 0 && this.items[0].tabName === "已結束") {
                     fetchOrders.call(this)
                         .then(() =>
                             this.ClosedOrders.call(this)
@@ -1556,7 +1557,7 @@
                             GetReports.call(this)
                         );
                 }
-                else if (this.items.length > 0 && this.items[0].tabName === "問題反映") {
+                else if (this.Allreports.length >= 0 ) {
                     GetReports.call(this)
                         .then(() => {
                             this.GetAllReports.call(this);
