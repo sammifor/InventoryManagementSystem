@@ -8,7 +8,7 @@ namespace InventoryManagementSystem.Controllers
 {
     public class ChartController : Controller
     {
-        [HttpGet("/dashboard")]
+        [HttpGet("dashboard")]
         public IActionResult Charts()
         {
             return View();
