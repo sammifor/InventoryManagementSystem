@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace InventoryManagementSystem.Controllers
 {
-    public class ChartController : Controller
+    public class DashboardController : Controller
     {
         [HttpGet("dashboard")]
-        public IActionResult Charts()
+        public IActionResult Dashboard()
         {
             return View();
         }
