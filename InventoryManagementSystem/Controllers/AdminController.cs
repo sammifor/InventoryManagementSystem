@@ -32,6 +32,9 @@ namespace InventoryManagementSystem.Controllers
         [HttpPost("adminlogin")]
         public async Task<IActionResult> Authenticate(string username, string password)
         {
+            // 登入成功會 redirect，如果失敗就會調用 Login View，要顯示錯誤訊息
+            ViewData["LoginFailed"] = true;
+
             if(string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
                 return View("Login");

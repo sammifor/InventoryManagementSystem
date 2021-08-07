@@ -296,7 +296,7 @@
 
             addNewCate: function () {
                 console.log("按下按鈕");
-                let url = "https://localhost:5001/EquipCategoryApi/InsertCate?Name=" + this.addNewCateName;
+                let url = "https://imms.azurewebsites.net/EquipCategoryApi/InsertCate?Name=" + this.addNewCateName;
                 let request = {
                     method: "POST"
                 };
@@ -306,7 +306,6 @@
                         if (r.ok) {
                             alert("新增成功");
                             location.reload(true);
-
                         }
                         else {
                             alert("資料有誤");

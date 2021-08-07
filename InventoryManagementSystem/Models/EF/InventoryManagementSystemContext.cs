@@ -85,6 +85,8 @@ namespace InventoryManagementSystem.Models.EF
                     .HasDefaultValueSql("(getdate())")
                     .HasComment("新增時間");
 
+                entity.Property(e => e.Deleted).HasComment("管理員是否被刪除");
+
                 entity.Property(e => e.FullName)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -211,6 +213,8 @@ namespace InventoryManagementSystem.Models.EF
                 entity.Property(e => e.Brand)
                     .HasMaxLength(50)
                     .HasComment("品牌名稱");
+
+                entity.Property(e => e.Deleted).HasComment("設備是否被刪除");
 
                 entity.Property(e => e.Description)
                     .HasMaxLength(100)
