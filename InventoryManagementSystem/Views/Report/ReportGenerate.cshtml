@@ -12,8 +12,9 @@
 
 
 <div id="app">
+    <br/>
     <b-overlay :show="loading" rounded="lg">
-        <h1 style="font-size:30px;font-weight:bold">&ensp;租借紀錄報表</h1>
+        <h1 style="font-size: 30px; font-weight: bold;">&ensp;租借紀錄報表</h1>
         <div :show="!loading">
             <b-card header-tag="header">
                 <div class="row">
@@ -46,8 +47,8 @@
                         <b-btn @@click="orderReportQuery">查詢</b-btn>
                     </div>
                     @*<div class="form-group col-md-3">
-            <b-input v-model="filter" placeholder="Filter table.."></b-input>
-        </div>*@
+                            <b-input v-model="filter" placeholder="Filter table.."></b-input>
+                        </div>*@
 
                     <div>
                         <b-table id="my-table"
@@ -99,7 +100,7 @@
             <br />
             <br />
         </div>
-    </b-overlay>   
+    </b-overlay>
 </div>
  
 
@@ -119,6 +120,8 @@
                 selectedYear: '',
                 beginMonth: '',
                 endMonth: '',
+                startTime: "",
+                endTime:"",
                 modalShow: [],
                 fields_order: [
                     { key: 'orderSn', label: '訂單編號', sortable: true },
@@ -161,55 +164,63 @@
                     { month: "12月", data: "12-31T00:00:00.00" }
                 ],
 
-            
-            
-
         },
 
         methods: {
-                 orderReportQuery: function () {
+            orderReportQuery: function () {
 
-                            let startTime = this.selectedYear + this.beginMonth;
-                            let endTime = this.selectedYear + this.endMonth;
-                            console.log(startTime);
-                            console.log(endTime);
+                
+                this.loading = true;
+                this.startTime = this.selectedYear + this.beginMonth;
+                this.endTime = this.selectedYear + this.endMonth;
 
-                            let url = '/ReportGenerateApi/GetOrderReport/' + startTime + "/" + endTime;
-                            let request = {
-                                method: "GET"
-                            };
-                            fetch(url, request)
-                                .then(response => {
-                                    if (response.ok) {
-                                        console.log("資料庫連線成功");
-                                        return response.json();
-
-                                    } else {
-
-                                        console.log("資料擷取失敗");
-
-                                    }
-                                }).then(response => {
-                                    this.items_order = response;
-
-
-                                }).catch(error => {
-
-                                    alert("資料庫連線失敗");
-                                    console.log(error);
-                                })
-                  },
-
-                showOdModal: function (order) {
-
-                    
-                    console.log(order);
-                    this.modalShow = order.orderDetails.map(x => x)
-                    console.log(this.modalShow);
-                    this.$bvModal.show("orderDetailModal");
+                if (this.startTime > this.endTime) {
+                    alert("請選取有效時間");
                 }
 
-                  
+                let url = '/ReportGenerateApi/GetOrderReport/' + this.startTime + "/" + this.endTime;
+                let request = {
+                    method: "GET"
+                };
+                fetch(url, request)
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("資料庫連線成功");
+                            return response.json();
+
+                        } else {
+
+                            this.loading = false;
+                            alert("資料擷取失敗");
+
+                        }
+                    }).then(response => {
+                        
+                        
+                        this.items_order = response;
+                        this.loading = false;
+                        if (this.items_order.length == 0) {
+
+                            alert("查無資料");
+                        }
+                        
+
+
+                    }).catch(error => {
+                        this.loading = false;
+                        alert("資料庫連線失敗");
+                        console.log(error);
+                    })
+            },
+
+            showOdModal: function (order) {
+
+
+                console.log(order);
+                this.modalShow = order.orderDetails.map(x => x)
+                console.log(this.modalShow);
+                this.$bvModal.show("orderDetailModal");
+            }
 
         }
     })
