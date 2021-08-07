@@ -71,7 +71,8 @@ namespace InventoryManagementSystem.Controllers.Api
                 Description = r.Description,
                 Note = r.Note,
                 ReportTime = r.ReportTime,
-                CloseTime = r.CloseTime
+                CloseTime = r.CloseTime,
+                AdminUsername = r.Admin.Username
             })
                 .ToArrayAsync();
 

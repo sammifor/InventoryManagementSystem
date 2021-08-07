@@ -1,0 +1,545 @@
+﻿<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+
+<div class="container row">
+
+    <div class="card">
+        <div class="card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M0 13C0 6.373 5.373 1 12 1s12 5.373 12 12v8.657a.75.75 0 01-1.5 0V13c0-5.799-4.701-10.5-10.5-10.5S1.5 7.201 1.5 13v8.657a.75.75 0 01-1.5 0V13z"></path><path d="M8 19.75a.75.75 0 01.75-.75h6.5a.75.75 0 010 1.5h-6.5a.75.75 0 01-.75-.75z"></path><path fill-rule="evenodd" d="M5.25 9.5a1.75 1.75 0 00-1.75 1.75v3.5c0 .966.784 1.75 1.75 1.75h13.5a1.75 1.75 0 001.75-1.75v-3.5a1.75 1.75 0 00-1.75-1.75H5.25zm.22 1.47a.75.75 0 011.06 0L9 13.44l2.47-2.47a.75.75 0 011.06 0L15 13.44l2.47-2.47a.75.75 0 111.06 1.06l-3 3a.75.75 0 01-1.06 0L12 12.56l-2.47 2.47a.75.75 0 01-1.06 0l-3-3a.75.75 0 010-1.06z"></path></svg>&ensp;儀表板
+        </div>
+        <div>
+            <ul class="list-group list-group-flush flex-column align-items-stretch">
+
+                <li class="list-group-item group-item-action"><a class="nav-link" href="#item-2">租借金額</a></li>
+                <li class="list-group-item group-item-action"><a class="nav-link" href="#item-3">租借種類</a></li>
+                <li class="list-group-item group-item-action"><a class="nav-link" href="#item-4">設備損壞</a></li>
+                <li class="list-group-item group-item-action"><a class="nav-link" href="#item-5">問題反映</a></li>
+                <li class="list-group-item group-item-action"><a class="nav-link" href="#item-1">設備狀態</a></li>
+                <li class="list-group-item group-item-action"><a class="nav-link" href="/Report/ReportGenerate/">詳細報表</a></li>
+            </ul>
+        </div>
+
+    </div>
+    <div class="card col-10">
+
+        <div class="row" id="item-2">
+            <div class="col-sm">
+                <canvas id="chartOrder"></canvas>
+            </div>
+
+            <div class="col-sm">
+                <canvas id="chartOrderTop5"></canvas>
+            </div>
+        </div>
+        <hr />
+        <div class="row" id="item-3">
+            <div class="col-sm">
+                <canvas id="chart"></canvas>
+            </div>
+
+            <div class="col-sm">
+                <canvas id="chartTop5"></canvas>
+            </div>
+        </div>
+        <hr />
+        <div class="row" id="item-4">
+            <div class="col-sm">
+                <canvas id="chartBroken"></canvas>
+            </div>
+            <div class="col-sm">
+                <canvas id="chartBrokenTop5"></canvas>
+            </div>
+
+        </div>
+        <hr />
+        <div class="row" id="item-5">
+            <div class="col-sm">
+                <canvas id="chartReport"></canvas>
+            </div>
+
+            <div class="col-sm">
+                <canvas id="chartReportTop5"></canvas>
+            </div>
+        </div>
+        <hr />
+        <div class="row" id="item-1">
+            <div class="col-sm">
+                <canvas id="chartStatus"></canvas>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+@*dark palette
+    "#e2924a", "#6e8f5f", "#8e83a6", "#618bac", "#5676af"*@
+
+<script>
+    //#region 設備種類狀態排行
+    charItStatus();
+
+    async function charItStatus() {
+        const data = await getDataStatus("I");
+        const dataO = await getDataStatus("O");
+        const dataP = await getDataStatus("P");
+
+        const myChart = document.getElementById("chartStatus").getContext("2d");
+        const myChart1 = new Chart(myChart, {
+            type: 'bar',
+            data: {
+                labels: data.xs,
+                datasets: [
+                    {
+                        label: '在庫中',
+                        data: data.ys,
+                        backgroundColor: ["	#4e88b8", " #4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8"]
+                    },
+                    {
+                        label: '租借中',
+                        data: dataO.ys,
+                        backgroundColor: ["#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468"]
+                    },
+                    {
+                        label: '待領取',
+                        data: dataP.ys,
+                        backgroundColor: ["#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555"]
+                    }
+
+
+                ]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: '設備種類狀態數量'
+                },
+
+                responsive: true,
+                scales: {
+                    xAxes: [{
+                        stacked: true,
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }]
+                },
+                legend: {
+                    display: true,
+                },
+                maintainAspectRatio: true
+            }
+        });
+    }
+
+    async function getDataStatus(status) {
+        const validInputs = ["I", "O", "P"];
+        if (!validInputs.includes(status))
+            return;
+        const xs = [];
+        const ys = [];
+        const response = await fetch(`/ChartApi/EquipmentCategoryStatus/${status}`);
+
+        const data = await response.json();
+        data.forEach(x => {
+            const name = x.chartEquipCate;
+            xs.push(name);
+            const amt = x.chartEquipCateAmt;
+            console.log(name, amt);
+            ys.push(amt);
+        })
+        return { xs, ys };
+    }
+
+
+//#endregion
+
+    //#region 租借種類訂單金額分布
+    charItOrder();
+
+    async function charItOrder() {
+        const data = await getDataOrder();
+
+        const myChart = document.getElementById("chartOrder").getContext("2d");
+        const myChart1 = new Chart(myChart, {
+            type: 'pie',
+            data: {
+                labels: data.xs,
+                datasets: [{
+                    label: '種類訂單金額分布',
+                    data: data.ys,
+                    backgroundColor: ["#f19354", "#e8c739", "#7fc6bf", "#5e77cb", "#e8b76b", "#a52a1c", "#004f4f", "#eada41", "#c14c37"]
+                }
+
+
+                ]
+            }
+            ,
+            options: {
+                responsive: true,
+                title: {
+                    text: "種類訂單金額分布",
+                    display: true
+                }
+            }
+        });
+    }
+
+    async function getDataOrder() {
+        const xs = [];
+        const ys = [];
+        const response = await fetch('/ChartApi/EquipmentCategoryOrders/');
+        const data = await response.json();
+        data.forEach(x => {
+            const name = x.chartEquipCate;
+            xs.push(name);
+            const amt = x.chartEquipCateAmt;
+            console.log(name, amt);
+            ys.push(amt);
+        })
+        return { xs, ys };
+    }
+
+
+
+    //#endregion
+    //#region 租借種類訂單金額排行
+    charItOrderTop5();
+
+    async function charItOrderTop5() {
+        const data = await getDataOrderTop5();
+
+        const myChart = document.getElementById("chartOrderTop5").getContext("2d");
+        const myChart1 = new Chart(myChart, {
+            type: 'bar',
+            data: {
+                labels: data.xs,
+                datasets: [{
+                    label: '金額',
+                    data: data.ys,
+                    backgroundColor: ["	#67bacb", "	#67bacb", "	#67bacb", "	#67bacb", "	#67bacb"]
+                }
+
+
+                ]
+            }
+            ,
+            options: {
+                responsive: true,
+                title: {
+                    text: "種類訂單金額排行",
+                    display: true
+                }
+            }
+        });
+    }
+
+    async function getDataOrderTop5() {
+        const xs = [];
+        const ys = [];
+        const response = await fetch('/ChartApi/EquipmentCategoryOrdersTop5/');
+        const data = await response.json();
+        data.forEach(x => {
+            const name = x.chartEquipCate;
+            xs.push(name);
+            const amt = x.chartEquipCateAmt;
+            console.log(name, amt);
+            ys.push(amt);
+        })
+        return { xs, ys };
+    }
+
+
+
+    //#endregion
+
+    //#region 租借種類排行
+    charIt();
+
+    async function charIt() {
+        const data = await getData();
+        const myChart = document.getElementById("chart").getContext("2d");
+        const myChart1 = new Chart(myChart, {
+            type: 'doughnut',
+            data: {
+                labels: data.xs,
+                datasets: [{
+                    label: '租借種類數量分布',
+                    data: data.ys,
+                    backgroundColor: ["#f19354", "#e8c739", "#7fc6bf", "#5e77cb", "#e8b76b", "#a52a1c", "#004f4f", "#eada41", "#c14c37"]
+                }]
+            }
+            ,
+            options: {
+                responsive: true,
+                title: {
+                    text: "租借種類數量分布",
+                    display: true
+                }
+            }
+        });
+    }
+
+    async function getData() {
+        const xs = [];
+        const ys = [];
+        const response = await fetch('/ChartApi/EquipmentCategoryPiechart/');
+        const data = await response.json();
+        data.forEach(x => {
+            const name = x.chartEquipCate;
+            xs.push(name);
+            const amt = x.chartEquipCateAmt;
+            console.log(name, amt);
+            ys.push(amt);
+        })
+        return { xs, ys };
+
+
+    }
+
+    //#endregion
+    //#region 租借種類排行前五
+    charItTop5();
+
+    async function charItTop5() {
+        const data = await getDataTop5();
+
+        const myChart = document.getElementById("chartTop5").getContext("2d");
+        const myChart1 = new Chart(myChart, {
+            type: 'bar',
+            data: {
+                labels: data.xs,
+                datasets: [{
+                    label: '數量',
+                    data: data.ys,
+                    backgroundColor: ["#d862ae", "#d862ae", "#d862ae", "#d862ae", "#d862ae"]
+                }
+
+                ]
+            }
+            ,
+            options: {
+                responsive: true,
+                title: {
+                    text: "租借種類數量排行",
+                    display: true
+                }
+            }
+        });
+    }
+
+    async function getDataTop5() {
+        const xs = [];
+        const ys = [];
+        const response = await fetch('/ChartApi/EquipmentCategoryTop5/');
+        const data = await response.json();
+        data.forEach(x => {
+            const name = x.chartEquipCate;
+            xs.push(name);
+            const amt = x.chartEquipCateAmt;
+            console.log(name, amt);
+            ys.push(amt);
+        })
+        return { xs, ys };
+    }
+
+
+
+    //#endregion
+
+    //#region 種類損壞分布
+    charItBroken();
+
+    async function charItBroken() {
+        const data = await getDataBroken();
+        const myChart = document.getElementById("chartBroken").getContext("2d");
+        const myChart1 = new Chart(myChart, {
+            type: 'pie',
+            data: {
+                labels: data.xs,
+                datasets: [{
+                    label: '租借種類損壞分布',
+                    data: data.ys,
+                    backgroundColor: ["#a52a1c", "#eada41", "#f19354", "#7fc6bf", "#5e77cb", "#004f4f", "#e8b76b", "#e8c739"]
+                }]
+            }
+            ,
+            options: {
+                responsive: true,
+                title: {
+                    text: "租借種類損壞分布",
+                    display: true
+                }
+            }
+        });
+    }
+
+    async function getDataBroken() {
+        const xs = [];
+        const ys = [];
+        const response = await fetch('/ChartApi/EquipmentCategoryBroken/');
+        const data = await response.json();
+        data.forEach(x => {
+            const name = x.chartEquipCate;
+            xs.push(name);
+            const amt = x.chartEquipCateAmt;
+            console.log(name, amt);
+            ys.push(amt);
+        })
+        return { xs, ys };
+
+
+    }
+
+    //#endregion
+    //#region 種類損壞排行
+    charItBrokenTop5();
+
+    async function charItBrokenTop5() {
+        const data = await getDataBroken();
+        const myChart = document.getElementById("chartBrokenTop5").getContext("2d");
+        const myChart1 = new Chart(myChart, {
+            type: 'bar',
+            data: {
+                labels: data.xs,
+                datasets: [{
+                    label: '數量',
+                    data: data.ys,
+                    backgroundColor: ["#4e88b8", "#4e88b8", "#4e88b8", "#4e88b8", "#4e88b8"]
+                }]
+            }
+            ,
+            options: {
+                responsive: true,
+                title: {
+                    text: "租借種類損壞排行",
+                    display: true
+                }
+            }
+        });
+    }
+
+    async function getDataBroken() {
+        const xs = [];
+        const ys = [];
+        const response = await fetch('/ChartApi/EquipmentCategoryBrokenTop5/');
+        const data = await response.json();
+        data.forEach(x => {
+            const name = x.chartEquipCate;
+            xs.push(name);
+            const amt = x.chartEquipCateAmt;
+            console.log(name, amt);
+            ys.push(amt);
+        })
+        return { xs, ys };
+
+
+    }
+
+    //#endregion  
+
+    //#region 租借種類問題反映分布
+    charItReport();
+
+    async function charItReport() {
+        const data = await getDataReport();
+
+        const myChart = document.getElementById("chartReport").getContext("2d");
+        const myChart1 = new Chart(myChart, {
+            type: 'doughnut',
+            data: {
+                labels: data.xs,
+                datasets: [{
+                    label: '問題反映分布',
+                    data: data.ys,
+                    backgroundColor: ["#004f4f", "#4e88cb", "#e8b76b", "#e8c739", "#f19354", "#eada41", "#a52a1c", "#c14c37", "#7fc6bf", "#5e77cb"]
+                }
+
+
+                ]
+            }
+            ,
+            options: {
+                responsive: true,
+                title: {
+                    text: "問題反映分布",
+                    display: true
+                }
+            }
+        });
+    }
+
+    async function getDataReport() {
+        const xs = [];
+        const ys = [];
+        const response = await fetch('/ChartApi/EquipmentCategoryReport/');
+        const data = await response.json();
+        data.forEach(x => {
+            const name = x.chartEquipCate;
+            xs.push(name);
+            const amt = x.chartEquipCateAmt;
+            console.log(name, amt);
+            ys.push(amt);
+        })
+        return { xs, ys };
+    }
+
+
+
+    //#endregion
+    //#region 租借種類問題反映排行
+    charItReportTop5();
+
+    async function charItReportTop5() {
+        const data = await getDataReportTop5();
+
+        const myChart = document.getElementById("chartReportTop5").getContext("2d");
+        const myChart1 = new Chart(myChart, {
+            type: 'bar',
+            data: {
+                labels: data.xs,
+                datasets: [{
+                    label: '數量',
+                    data: data.ys,
+                    backgroundColor: ["	#bd8dbf", "	#bd8dbf", "	#bd8dbf", "	#bd8dbf", "	#bd8dbf"]
+                }
+
+
+                ]
+            }
+            ,
+            options: {
+                responsive: true,
+                title: {
+                    text: "問題反映排行",
+                    display: true
+                }
+            }
+        });
+    }
+
+    async function getDataReportTop5() {
+        const xs = [];
+        const ys = [];
+        const response = await fetch('/ChartApi/EquipmentCategoryReportTop5/');
+        const data = await response.json();
+        data.forEach(x => {
+            const name = x.chartEquipCate;
+            xs.push(name);
+            const amt = x.chartEquipCateAmt;
+            console.log(name, amt);
+            ys.push(amt);
+        })
+        return { xs, ys };
+    }
+
+
+
+    //#endregion
+
+
+
+    
+</script>
+
+
+

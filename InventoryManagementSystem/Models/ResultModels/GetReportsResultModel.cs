@@ -17,5 +17,6 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string Note { get; set; }
         public DateTime? ReportTime { get; set; }
         public DateTime? CloseTime { get; set; }
+        public string AdminUsername { get; set; }
     }
 }

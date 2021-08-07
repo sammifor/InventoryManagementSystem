@@ -82,6 +82,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             Admin admin = new Admin
             {
+                AdminId = Guid.NewGuid(),
                 RoleId = model.RoleId,
                 Username = model.Username,
                 HashedPassword = hasher.HashedPassword,
