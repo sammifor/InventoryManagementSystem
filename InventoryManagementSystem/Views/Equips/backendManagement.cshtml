@@ -65,7 +65,7 @@
                     <td>
                         <input aria-label="Checkbox" type="checkbox" v-model="deletItems" :value="item.itemId"><i class="form-icon"></i>
                     </td>
-                    <td>{{selectCateName}}</td>
+                    <td>{{item.categoryName}}</td>
                     @*<td><select class="btn btn-light dropdown-toggle" v-if="updateItem.includes(item.itemId)" v-on:change="changeEquip($event)">
                         <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}},{{ename.equipmentSn}}</option>
                         </select><span v-else>{{item.equipmentName}},{{item.equipmentSn}}</span></td>*@

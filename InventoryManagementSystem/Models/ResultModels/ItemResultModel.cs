@@ -16,5 +16,7 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string EquipmentName { get; set; }
         public string EquipmentSn { get; set; }
         public string Condition { get; set; }
+        // From EquipCategory table
+        public string CategoryName { get; set; }
     }
 }
