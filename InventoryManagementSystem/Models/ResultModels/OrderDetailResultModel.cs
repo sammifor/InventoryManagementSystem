@@ -18,5 +18,8 @@ namespace InventoryManagementSystem.Models.ResultModels
 
         // From ItemLog
         public string ItemStatus { get; set; }
+
+        // From ExtraFee
+        public decimal Fee { get; set; }
     }
 }
