@@ -73,85 +73,70 @@
     "#e2924a", "#6e8f5f", "#8e83a6", "#618bac", "#5676af"*@
 
 <script>
-    //#region 租借種類排行
-    charIt();
+    //#region 設備種類狀態排行
+    charItStatus();
 
-    async function charIt() {
-        const data = await getData();
-        const myChart = document.getElementById("chart").getContext("2d");
-        const myChart1 = new Chart(myChart, {
-            type: 'doughnut',
-            data: {
-                labels: data.xs,
-                datasets: [{
-                    label: '租借種類數量分布',
-                    data: data.ys,
-                    backgroundColor: ["#f19354", "#e8c739", "#7fc6bf", "#5e77cb", "#e8b76b", "#a52a1c", "#004f4f", "#eada41", "#c14c37"]
-                }]
-            }
-            ,
-            options: {
-                responsive: true,
-                title: {
-                    text: "租借種類數量分布",
-                    display: true
-                }
-            }
-        });
-    }
+    async function charItStatus() {
+        const data = await getDataStatus("I");
+        const dataO = await getDataStatus("O");
+        const dataP = await getDataStatus("P");
 
-    async function getData() {
-        const xs = [];
-        const ys = [];
-        const response = await fetch('/ChartApi/EquipmentCategoryPiechart/');
-        const data = await response.json();
-        data.forEach(x => {
-            const name = x.chartEquipCate;
-            xs.push(name);
-            const amt = x.chartEquipCateAmt;
-            console.log(name, amt);
-            ys.push(amt);
-        })
-        return { xs, ys };
-
-
-    }
-
-    //#endregion
-    //#region 租借種類排行前五
-    charItTop5();
-
-    async function charItTop5() {
-        const data = await getDataTop5();
-
-        const myChart = document.getElementById("chartTop5").getContext("2d");
+        const myChart = document.getElementById("chartStatus").getContext("2d");
         const myChart1 = new Chart(myChart, {
             type: 'bar',
             data: {
                 labels: data.xs,
-                datasets: [{
-                    label: '數量',
-                    data: data.ys,
-                    backgroundColor: ["#d862ae", "#d862ae", "#d862ae", "#d862ae", "#d862ae"]
-                }
+                datasets: [
+                    {
+                        label: '在庫中',
+                        data: data.ys,
+                        backgroundColor: ["	#4e88b8", " #4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8"]
+                    },
+                    {
+                        label: '租借中',
+                        data: dataO.ys,
+                        backgroundColor: ["#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468"]
+                    },
+                    {
+                        label: '待領取',
+                        data: dataP.ys,
+                        backgroundColor: ["#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555"]
+                    }
+
 
                 ]
-            }
-            ,
+            },
             options: {
-                responsive: true,
                 title: {
-                    text: "租借種類數量排行",
-                    display: true
-                }
+                    display: true,
+                    text: '設備種類狀態數量'
+                },
+
+                responsive: true,
+                scales: {
+                    xAxes: [{
+                        stacked: true,
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }]
+                },
+                legend: {
+                    display: true,
+                },
+                maintainAspectRatio: true
             }
         });
     }
 
-    async function getDataTop5() {
+    async function getDataStatus(status) {
+        const validInputs = ["I", "O", "P"];
+        if (!validInputs.includes(status))
+            return;
         const xs = [];
         const ys = [];
-        const response = await fetch('/ChartApi/EquipmentCategoryTop5/');
+        const response = await fetch(`/ChartApi/EquipmentCategoryStatus/${status}`);
+
         const data = await response.json();
         data.forEach(x => {
             const name = x.chartEquipCate;
@@ -164,8 +149,7 @@
     }
 
 
-
-    //#endregion
+//#endregion
 
     //#region 租借種類訂單金額分布
     charItOrder();
@@ -266,41 +250,37 @@
 
     //#endregion
 
-    //#region 租借種類問題反映分布
-    charItReport();
+    //#region 租借種類排行
+    charIt();
 
-    async function charItReport() {
-        const data = await getDataReport();
-
-        const myChart = document.getElementById("chartReport").getContext("2d");
+    async function charIt() {
+        const data = await getData();
+        const myChart = document.getElementById("chart").getContext("2d");
         const myChart1 = new Chart(myChart, {
             type: 'doughnut',
             data: {
                 labels: data.xs,
                 datasets: [{
-                    label: '問題反映分布',
+                    label: '租借種類數量分布',
                     data: data.ys,
-                    backgroundColor: ["#004f4f", "#4e88cb", "#e8b76b", "#e8c739", "#f19354", "#eada41", "#a52a1c", "#c14c37", "#7fc6bf", "#5e77cb"]
-                }
-
-
-                ]
+                    backgroundColor: ["#f19354", "#e8c739", "#7fc6bf", "#5e77cb", "#e8b76b", "#a52a1c", "#004f4f", "#eada41", "#c14c37"]
+                }]
             }
             ,
             options: {
                 responsive: true,
                 title: {
-                    text: "問題反映分布",
+                    text: "租借種類數量分布",
                     display: true
                 }
             }
         });
     }
 
-    async function getDataReport() {
+    async function getData() {
         const xs = [];
         const ys = [];
-        const response = await fetch('/ChartApi/EquipmentCategoryReport/');
+        const response = await fetch('/ChartApi/EquipmentCategoryPiechart/');
         const data = await response.json();
         data.forEach(x => {
             const name = x.chartEquipCate;
@@ -310,18 +290,18 @@
             ys.push(amt);
         })
         return { xs, ys };
+
+
     }
 
-
-
     //#endregion
-    //#region 租借種類問題反映排行
-    charItReportTop5();
+    //#region 租借種類排行前五
+    charItTop5();
 
-    async function charItReportTop5() {
-        const data = await getDataReportTop5();
+    async function charItTop5() {
+        const data = await getDataTop5();
 
-        const myChart = document.getElementById("chartReportTop5").getContext("2d");
+        const myChart = document.getElementById("chartTop5").getContext("2d");
         const myChart1 = new Chart(myChart, {
             type: 'bar',
             data: {
@@ -329,9 +309,8 @@
                 datasets: [{
                     label: '數量',
                     data: data.ys,
-                    backgroundColor: ["	#bd8dbf", "	#bd8dbf", "	#bd8dbf", "	#bd8dbf", "	#bd8dbf"]
+                    backgroundColor: ["#d862ae", "#d862ae", "#d862ae", "#d862ae", "#d862ae"]
                 }
-
 
                 ]
             }
@@ -339,17 +318,17 @@
             options: {
                 responsive: true,
                 title: {
-                    text: "問題反映排行",
+                    text: "租借種類數量排行",
                     display: true
                 }
             }
         });
     }
 
-    async function getDataReportTop5() {
+    async function getDataTop5() {
         const xs = [];
         const ys = [];
-        const response = await fetch('/ChartApi/EquipmentCategoryReportTop5/');
+        const response = await fetch('/ChartApi/EquipmentCategoryTop5/');
         const data = await response.json();
         data.forEach(x => {
             const name = x.chartEquipCate;
@@ -454,72 +433,43 @@
 
     }
 
-    //#endregion
+    //#endregion  
 
-    //#region 設備種類狀態排行
-    charItStatus();
+    //#region 租借種類問題反映分布
+    charItReport();
 
-    async function charItStatus() {
-        const data = await getDataStatus("I");
-        const dataO = await getDataStatus("O");
-        const dataP = await getDataStatus("P");
+    async function charItReport() {
+        const data = await getDataReport();
 
-        const myChart = document.getElementById("chartStatus").getContext("2d");
+        const myChart = document.getElementById("chartReport").getContext("2d");
         const myChart1 = new Chart(myChart, {
-            type: 'bar',
+            type: 'doughnut',
             data: {
                 labels: data.xs,
-                datasets: [
-                    {
-                        label: '在庫中',
-                        data: data.ys,
-                        backgroundColor: ["	#4e88b8", " #4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8", "	#4e88b8"]
-                    },
-                    {
-                        label: '租借中',
-                        data: dataO.ys,
-                        backgroundColor: ["#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468", "#b4c468"]
-                    },
-                    {
-                        label: '待領取',
-                        data: dataP.ys,
-                        backgroundColor: ["#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555", "#ed5555"]
-                    }
+                datasets: [{
+                    label: '問題反映分布',
+                    data: data.ys,
+                    backgroundColor: ["#004f4f", "#4e88cb", "#e8b76b", "#e8c739", "#f19354", "#eada41", "#a52a1c", "#c14c37", "#7fc6bf", "#5e77cb"]
+                }
 
 
                 ]
-            },
+            }
+            ,
             options: {
-                title: {
-                    display: true,
-                    text: '設備種類狀態數量'
-                },
-
                 responsive: true,
-                scales: {
-                    xAxes: [{
-                        stacked: true,
-                    }],
-                    yAxes: [{
-                        stacked: true
-                    }]
-                },
-                legend: {
-                    display: true,
-                },
-                maintainAspectRatio: true
+                title: {
+                    text: "問題反映分布",
+                    display: true
+                }
             }
         });
     }
 
-    async function getDataStatus(status) {
-        const validInputs = ["I", "O", "P"];
-        if (!validInputs.includes(status))
-            return;
+    async function getDataReport() {
         const xs = [];
         const ys = [];
-        const response = await fetch(`/ChartApi/EquipmentCategoryStatus/${status}`);
-
+        const response = await fetch('/ChartApi/EquipmentCategoryReport/');
         const data = await response.json();
         data.forEach(x => {
             const name = x.chartEquipCate;
@@ -532,7 +482,61 @@
     }
 
 
-//#endregion
+
+    //#endregion
+    //#region 租借種類問題反映排行
+    charItReportTop5();
+
+    async function charItReportTop5() {
+        const data = await getDataReportTop5();
+
+        const myChart = document.getElementById("chartReportTop5").getContext("2d");
+        const myChart1 = new Chart(myChart, {
+            type: 'bar',
+            data: {
+                labels: data.xs,
+                datasets: [{
+                    label: '數量',
+                    data: data.ys,
+                    backgroundColor: ["	#bd8dbf", "	#bd8dbf", "	#bd8dbf", "	#bd8dbf", "	#bd8dbf"]
+                }
+
+
+                ]
+            }
+            ,
+            options: {
+                responsive: true,
+                title: {
+                    text: "問題反映排行",
+                    display: true
+                }
+            }
+        });
+    }
+
+    async function getDataReportTop5() {
+        const xs = [];
+        const ys = [];
+        const response = await fetch('/ChartApi/EquipmentCategoryReportTop5/');
+        const data = await response.json();
+        data.forEach(x => {
+            const name = x.chartEquipCate;
+            xs.push(name);
+            const amt = x.chartEquipCateAmt;
+            console.log(name, amt);
+            ys.push(amt);
+        })
+        return { xs, ys };
+    }
+
+
+
+    //#endregion
+
+
+
+    
 </script>
 
 
