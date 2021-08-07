@@ -61,7 +61,7 @@ namespace InventoryManagementSystem.Controllers
                 ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                 ClaimsPrincipal principal = new ClaimsPrincipal(identity);
                 await HttpContext.SignInAsync(principal);
-                return RedirectToAction("","dashboard");
+                return RedirectToAction("Dashboard", "Dashboard");
             }
             else
             {
