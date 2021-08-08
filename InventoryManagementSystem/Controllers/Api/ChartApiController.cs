@@ -166,6 +166,7 @@ namespace InventoryManagementSystem.Controllers.Api
                 {
                     ChartEquipCate = ec.CategoryName,
                     ChartEquipCateAmt = ec.Equipment
+                    .Where(e => !e.Deleted)
                     .SelectMany(e => e.Items)
                     .Count(i => i.ConditionId == status)
                 })
