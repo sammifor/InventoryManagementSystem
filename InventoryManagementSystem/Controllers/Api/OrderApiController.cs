@@ -456,8 +456,8 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> CancelOrder(CancelOrderViewModel model)
         {
             Order order = await _dbContext.Orders
-                .Where(o => o.OrderId == model.OrderID &&
-                    o.OrderDetails.All(od => od.OrderDetailStatusId != "T")) // 此訂單的物品仍有東西應還能還但未還。
+                .Where(o => o.OrderId == model.OrderID)
+                .Where(o => o.PaymentOrder == null) //尚未付款才能取消
                 .FirstOrDefaultAsync();
 
 
