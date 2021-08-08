@@ -44,12 +44,11 @@ namespace InventoryManagementSystem.Controllers.Api
                 .Where(c => c.PaymentOrder.Payment.PaymentSn != null)
                 .Where(c => !c.Equipment.Deleted)
                 .GroupBy(c => c.Equipment.EquipmentCategory.CategoryName)
-                .Take(5)
                 .Select(c => new {
                     ChartEquipCate = c.Key,
                     ChartEquipCateAmt = c.Sum(a => a.Quantity)
                 })
-                .OrderByDescending(c=>c.ChartEquipCateAmt)
+                .OrderByDescending(c=>c.ChartEquipCateAmt).Take(5)
                 .ToList();
 
             return Ok(results);
