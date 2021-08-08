@@ -619,14 +619,29 @@
 
 
             addNewEquipRequired: function () {
-                return this.addEquipName == "" || this.addEquipSN == "" || this.addEquipPrice == 0
+
+                let equipName = this.addEquipName.trim();
+                let equipSn = this.addEquipSN.trim();
+                return equipName == "" || equipSn == "" || this.addEquipPrice == 0
 
 
             },
 
             checkEquipBrand: function () {
 
-                if (this.selectEquipBrand == "") {
+                let brand = ""
+
+                if (this.selectEquipBrand !== null) {
+
+                    brand = "";
+
+                } else {
+
+                    brand = this.selectEquipBrand.trim();
+                }
+
+
+                if (brand == "") {
 
                     return "未填寫"
                 } else {
@@ -639,7 +654,18 @@
 
             checkEquipModel: function () {
 
-                if (this.selectEquipModel == "") {
+                let equipModel = ""
+
+                if (this.selectEquipModel !== null) {
+
+                    equipModel = "";
+
+                } else {
+
+                    equipModel = this.selectEquipModel.trim();
+                }
+
+                if (equipModel == "") {
 
                     return "未填寫"
                 } else {
@@ -652,7 +678,19 @@
 
             checkEquipDescri: function () {
 
-                if (this.selectEquipDescri == "") {
+                let Descri = ""
+
+                if (this.selectEquipDescri == null) {
+
+                    Descri = "";
+
+                } else {
+
+                    Descri = this.selectEquipDescri.trim();
+                }
+
+
+                if (Descri == "") {
 
                     return "未填寫"
                 } else {
