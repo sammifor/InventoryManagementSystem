@@ -394,6 +394,7 @@
                             app.selectName = '';
                             app.selectVal = '';
                             view.items = '';
+                            view.checkedEquips = [];
                             this.show = false;
                         });
                 }
@@ -444,6 +445,7 @@
                             this.items = response;
                             this.show = false;
                             this.checkedItems = [];
+                            this.checkedEquips = [];
                         })
                 },
                 btnDelEquip: function () {
