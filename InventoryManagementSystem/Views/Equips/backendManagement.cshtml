@@ -194,7 +194,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                            <button type="button" class="btn btn-primary" v-on:click="addNewEquip">儲存</button>
+                            <button type="button" class="btn btn-primary" v-on:click="addNewEquip" :disabled="addNewEquipRequired">確認</button>
                         </div>
                     </div>
                 </div>
@@ -444,6 +444,8 @@
                 },
 
                 addNewEquip: function () {
+
+                   
                     let requestData = {
                         equipmentCategoryId: this.addEquipCateId,
                         equipmentSn: this.addEquipSN,
@@ -610,6 +612,16 @@
                     } else {
                         return false;
                     };
+                }
+            },
+
+            computed: {
+
+
+                addNewEquipRequired: function(){
+                   return this.addEquipName == "" || this.addEquipSN == "" || this.addEquipPrice == 0
+
+                   
                 }
             }
         })
