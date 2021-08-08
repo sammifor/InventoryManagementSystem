@@ -466,6 +466,7 @@
                             if (data === 0) {
                                 alert("刪除失敗!!!");
                                 this.show = false;
+                                view.checkedEquips = [];
                             } else {
                                 alert("刪除" + data + "筆");
                                 this.show = false;
@@ -476,7 +477,7 @@
                                         return y.equipmentId == x.equipmentId
                                     })
                                 });
-
+                                view.checkedEquips = [];
                                 /*window.location.reload(true);*/
                             }
                         })
@@ -500,6 +501,7 @@
                             if (data === 0) {
                                 alert("刪除失敗!!!");
                                 this.show = false;
+                                view.checkedItems = [];
                             } else {
                                 alert("刪除" + data + "筆");
                                 this.show = false;
