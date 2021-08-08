@@ -93,7 +93,7 @@
 
         <div class="button">
             <button type="button" class="btn btn-primary" v-on:click="addNewAdmin" :disabled="btnOk">新增</button>
-            <button type="button" class="btn btn-danger" onclick="window.location.href='/Admin/adminManage'">返回</button>
+            <button type="button" class="btn btn-danger" onclick="window.location.href='/admin'">返回</button>
         </div>
     </form>
 </div>
@@ -124,7 +124,6 @@
                 })
                 .then(response => {
                     this.roles = response;
-                    console.log(this.roles);
                 })
                 .catch(error => {
                     console.log(error);
@@ -171,12 +170,9 @@
 
             //密碼必填
             password: function (data) {
-                if (data.target.value.length == 0) {
+                if (data.target.value.length < 6) {
                     this.passwordValid = true;
-                    this.passwordError = '未填寫密碼';
-                } else if (data.target.value.length > 6) {
-                    this.passwordValid = true;
-                    this.passwordError = '請勿超過6個字';
+                    this.passwordError = '請勿低於6個字';
                 } else {
                     this.passwordValid = false;
                 }

@@ -254,7 +254,7 @@ namespace InventoryManagementSystem.Controllers.Api
             // 判斷這些 equip 底下有沒有任何 item 未刪
             bool hasItems = await _dbContext.Items
                 .Where(i => ids.Contains(i.EquipmentId))
-                .AnyAsync(i => i.ConditionId == "D");
+                .AnyAsync(i => i.ConditionId != "D");
 
             if (hasItems)
             {
