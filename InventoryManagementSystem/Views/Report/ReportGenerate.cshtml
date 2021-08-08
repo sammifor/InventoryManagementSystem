@@ -214,7 +214,6 @@
                     .then(response => {
                         if (response.ok) {
                             console.log("資料庫連線成功");
-
                             return response.json();
 
                         } else {
@@ -229,13 +228,10 @@
                         this.orders = response;
                         this.orders_filtered = this.orders;
                         this.loading = false;
-                        if (this.orders.length == 0) {
-
-                            alert("查無資料");
-                        } else {
+                       
                             this.getFilterOption(this.orders);
                             this.filterTab = true;
-                        }
+                   
                     }).catch(error => {
                         this.loading = false;
                         alert("資料庫連線失敗");
