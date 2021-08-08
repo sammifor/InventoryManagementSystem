@@ -39,7 +39,10 @@ namespace InventoryManagementSystem.Controllers.Api
         // 查詢order報表
         public async Task<IActionResult> GetOrderReport(DateTime StartDate, DateTime EndDate)
         {
-
+            if (StartDate > EndDate) {
+                return BadRequest();
+            
+            }
             IQueryable<Order> tempOrders = null;
             tempOrders = _dbContext.Orders.Select(o => o);
 
