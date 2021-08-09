@@ -1,11 +1,13 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.NotificationModels;
 using InventoryManagementSystem.Models.Password;
+using InventoryManagementSystem.Models.reCAPTCHA;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,10 +22,12 @@ namespace InventoryManagementSystem.Controllers
     public class UserController : Controller
     {
         private readonly InventoryManagementSystemContext _dbContext;
+        private readonly IConfiguration Config;
 
-        public UserController(InventoryManagementSystemContext dbContext)
+        public UserController(InventoryManagementSystemContext dbContext, IConfiguration config)
         {
             _dbContext = dbContext;
+            Config = config;
         }
 
         [HttpGet("login")]
@@ -109,6 +113,7 @@ namespace InventoryManagementSystem.Controllers
         [HttpGet("password/forget")]
         public IActionResult ForgetPassword()
         {
+            ViewData["reCAPTCHASiteKey"] = Config.GetSection("reCAPTCHA").Get<reCAPTCHAConfig>().SiteKey;
             return View();
         }
         
