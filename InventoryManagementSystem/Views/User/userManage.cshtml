@@ -22,11 +22,6 @@
         font-size: 20px;
     }
 
-    .button {
-        padding-left: 150px;
-        padding-right: 150px;
-    }
-
     .editBtn {
         width: 100%;
         height: 100%;
@@ -73,6 +68,10 @@
         <tr>
             <th class="field">LINE 帳號：</th>
             <td>{{user.lineAccount}}</td>
+        </tr>
+        <tr>
+            <th class="field">LINE 綁定</th>
+            <td>{{user.lineEnabled}}</td>
         </tr>
         <tr>
             <th class="field">允許收到通知：</th>
@@ -241,6 +240,19 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="lineEnabled" class="col-form-label">LINE 綁定：</label>
+                            <input type="checkbox"
+                                   id="lineEnabled"
+                                   class="form-control"
+                                   v-if="tempUpdate.lineEnabled==true">
+                            <div v-else>
+                                {{lineEnabledMessage}}
+                                <br />
+                                <a href="https://lin.ee/uJWV5ek"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label class="col-form-label">允許收到通知：</label>
                             <input type="checkbox"
                                    class="form-control"
@@ -269,7 +281,9 @@
             user: {
                 dateOfBirth: ''
             },
-            tempUpdate: {},
+            tempUpdate: {
+                lineEnabled: ''
+            },
             genders: [
                 {
                     value: "M",
@@ -293,7 +307,8 @@
             emailValid: false,
             emailError: '',
             phoneNumberValid: false,
-            phoneNumberError: ''
+            phoneNumberError: '',
+            lineEnabledMessage: '您尚未綁定LINE'
         },
 
         created: function () {
@@ -303,7 +318,6 @@
                 })
                 .then(response => {
                     this.user = response[0];
-                    console.log(this.user);
                 })
                 .catch(error => {
                     console.log(error);
@@ -361,9 +375,6 @@
                 if (data.length == 0) {
                     this.oldPasswordValid = true;
                     this.oldPasswordError = '未填寫密碼';
-                } else if (data.length > 6) {
-                    this.oldPasswordValid = true;
-                    this.oldPasswordError = '請勿超過6個字';
                 } else {
                     this.oldPasswordValid = false;
                 }
@@ -371,9 +382,9 @@
 
             //新密碼
             password: function (data) {
-                if (data.length > 6) {
+                if (data.length < 6) {
                     this.passwordValid = true;
-                    this.passwordError = '請勿超過6個字';
+                    this.passwordError = '請勿低於6個字';
                 } else {
                     this.passwordValid = false;
                 }
