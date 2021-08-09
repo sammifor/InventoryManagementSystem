@@ -7,161 +7,171 @@
     <div class="col-xl-8 col-12">
         <div class="card">
             <h1 class="card-header h3 text-center">會員註冊</h1>
-            <form method="post" class="card-body">
-                <label for="email">電子信箱</label>
-                <div class="form-group">
-                    <input v-model="info.email"
-                           @@input="uniqueFieldInput(timers.email, emailValidationClass, $event, 'email')"
-                           :class="['form-control', emailValidationClass]"
-                           type="email"
-                           name="email"
-                           id="email"
-                           placeholder="必填"
-                           required />
-                </div>
-
-                <div class="form-group">
-                    <label for="phoneNumber">手機</label>
-                    <input v-model="info.phoneNumber"
-                           @@input="uniqueFieldInput(timers.phoneNumber, phoneNumberValidationClass, $event, 'phoneNumber')"
-                           :class="['form-control', phoneNumberValidationClass]"
-                           type="tel"
-                           name="phoneNumber"
-                           id="phoneNumber"
-                           placeholder="必填"
-                           required />
-                </div>
-
-                <div class="form-group">
-                    <label for="username">使用者名稱</label>
-                    <input v-model="info.username"
-                           @@input="uniqueFieldInput(timers.username, usernameValidationClass, $event, 'username')"
-                           :class="['form-control', usernameValidationClass]"
-                           type="text"
-                           name="username"
-                           id="username"
-                           placeholder="必填"
-                           required />
-                </div>
-
-                <div class="form-group">
-                    <label for="password">密碼</label>
-                    <input v-model="info.password"
-                           @@input="validatePw"
-                           :class="['form-control', pwClass]"
-                           type="password"
-                           name="password"
-                           id="password"
-                           placeholder="必填"
-                           required />
-                </div>
-
-                <div class="form-group">
-                    <label for="pw-check">確認密碼</label>
-                    <input v-model="pwCheck"
-                           @@input="validatePw"
-                           :class="['form-control', pwCheckClass]"
-                           type="password"
-                           id="pw-check"
-                           placeholder="必填"
-                           required />
-                </div>
-
-                <div class="form-group">
-                    <label for="fullName">全名</label>
-                    <input v-model="info.fullName"
-                           @@input="normalizeAndValidateName(fullNameValidationClass, $event)"
-                           :class="['form-control', fullNameValidationClass]"
-                           type="text"
-                           name="fullName"
-                           id="fullName"
-                           placeholder="必填"
-                           required />
-                </div>
-
-                <div class="form-group">
-                    <label for="gender">性別</label>
-                    <select class="form-control"
-                            v-model="info.gender"
-                            name="gender"
-                            id="gender">
-                        <option v-for="gender in genders"
-                                :value="gender.value">
-                            {{gender.text}}
-                        </option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="dateOfBirth">生日</label>
-                    <vuejs-datepicker :language="zh"
-                                      v-model="info.dateOfBirth"
-                                      bootstrap-styling="true"
-                                      :input-class="dateValidationClass"
-                                      :format="'yyyy 年 MM 月 dd 日'"
-                                      id="dateOfBirth"
-                                      name="dateOfBirth"
-                                      clear-button="true"
-                                      @@input="validateDate"
-                                      @@cleared="dateCleared">
-                    </vuejs-datepicker>
-                </div>
-
-                <div class="form-group">
-                    <label for="address">地址</label>
-                    <input v-model="info.address"
-                           class="form-control"
-                           type="text"
-                           name="address"
-                           id="address" />
-                </div>
-
-                <div class="form-group">
-                    <div class="form-check">
-                        <input v-model="info.allowNotification"
-                               class="form-check-input"
-                               type="checkbox"
-                               name="allowNotification"
-                               id="allowNotification" />
-                        <label class="form-check-label"
-                               for="allowNotification">
-                            我要接收逾期提醒
-                        </label>
-                    </div>
-                </div>
-
-                <div class="from-group">
-                    <div class="form-check">
-                        <input class="form-check-input"
-                               v-model="agreeToToc"
-                               type="checkbox"
-                               name="agreeToToC"
-                               id="agreeToToC"
+            <div class="card-body">
+                <form method="post"
+                      :hidden="!messageHidden">
+                    <label for="email">電子信箱</label>
+                    <div class="form-group">
+                        <input v-model="info.email"
+                               @@input="uniqueFieldInput(timers.email, emailValidationClass, $event, 'email')"
+                               :class="['form-control', emailValidationClass]"
+                               type="email"
+                               name="email"
+                               id="email"
+                               placeholder="必填"
                                required />
-                        <label class="form-check-label"
-                               for="agreeToToC">
-                            我已閱讀並同意<a href="#">服務條款</a>（必選）
-                        </label>
+                        <div class="invalid-feedback">已被註冊、或您輸入的格式不正確</div>
                     </div>
-                </div>
 
-                <div class="form-group text-center">
-                    <button @@click="clickSignUp"
-                            :class="['btn', 'btn-block', submitBtnClass]"
-                            :disabled="btnIsDisabled" @*Not wrong. VS has no idea that this is Vue.js syntax.*@
-                            type="button">
-                        註冊
-                    </button>
-                </div>
-            </form>
-            <div class="card-footer text-center">
-                <p class="card-text"
-                   :hidden="!messageHidden">
-                    <a asp-controller="User" asp-action="Authenticate">回到登入頁</a>
-                </p>
-                <p class="card-text"
-                   :hidden="messageHidden"> @*Not wrong. VS has no idea that this is Vue.js syntax.*@
+                    <div class="form-group">
+                        <label for="phoneNumber">手機</label>
+                        <input v-model="info.phoneNumber"
+                               @@input="uniqueFieldInput(timers.phoneNumber, phoneNumberValidationClass, $event, 'phoneNumber')"
+                               :class="['form-control', phoneNumberValidationClass]"
+                               type="tel"
+                               name="phoneNumber"
+                               id="phoneNumber"
+                               placeholder="必填"
+                               required />
+                        <div class="invalid-feedback">已被註冊、或您輸入的格式不正確</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">使用者名稱</label>
+                        <input v-model="info.username"
+                               @@input="uniqueFieldInput(timers.username, usernameValidationClass, $event, 'username')"
+                               :class="['form-control', usernameValidationClass]"
+                               type="text"
+                               name="username"
+                               id="username"
+                               placeholder="必填"
+                               required />
+                        <div class="invalid-feedback">已被註冊或您輸入的格式不正確。僅能輸入英文字母大小寫、數字、底線。最多不超過 50 個字元。</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">密碼</label>
+                        <input v-model="info.password"
+                               @@input="validatePw"
+                               :class="['form-control', pwClass]"
+                               type="password"
+                               name="password"
+                               id="password"
+                               placeholder="必填"
+                               required />
+                        <div class="invalid-feedback">最少需填寫 6 碼</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pw-check">確認密碼</label>
+                        <input v-model="pwCheck"
+                               @@input="validatePw"
+                               :class="['form-control', pwCheckClass]"
+                               type="password"
+                               id="pw-check"
+                               placeholder="必填"
+                               required />
+                        <div class="invalid-feedback">與密碼不符</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullName">全名</label>
+                        <input v-model="info.fullName"
+                               @@input="normalizeAndValidateName(fullNameValidationClass, $event)"
+                               :class="['form-control', fullNameValidationClass]"
+                               type="text"
+                               name="fullName"
+                               id="fullName"
+                               placeholder="必填"
+                               required />
+                        <div class="invalid-feedback">不可為空、不可超過 50 個字元</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">性別</label>
+                        <select class="form-control"
+                                v-model="info.gender"
+                                name="gender"
+                                id="gender">
+                            <option v-for="gender in genders"
+                                    :value="gender.value">
+                                {{gender.text}}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dateOfBirth">生日</label>
+                        <vuejs-datepicker :language="zh"
+                                          v-model="info.dateOfBirth"
+                                          bootstrap-styling="true"
+                                          :input-class="dateValidationClass"
+                                          :format="'yyyy 年 MM 月 dd 日'"
+                                          id="dateOfBirth"
+                                          name="dateOfBirth"
+                                          clear-button="true"
+                                          @@input="validateDate"
+                                          @@cleared="dateCleared">
+                        </vuejs-datepicker>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">地址</label>
+                        <input v-model="info.address"
+                               class="form-control"
+                               type="text"
+                               name="address"
+                               id="address" />
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input v-model="info.allowNotification"
+                                   class="form-check-input"
+                                   type="checkbox"
+                                   name="allowNotification"
+                                   id="allowNotification" />
+                            <label class="form-check-label"
+                                   for="allowNotification">
+                                我要接收逾期提醒
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="from-group">
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   v-model="agreeToToc"
+                                   type="checkbox"
+                                   name="agreeToToC"
+                                   id="agreeToToC"
+                                   required />
+                            <label class="form-check-label"
+                                   for="agreeToToC">
+                                我已閱讀並同意<a href="#">服務條款</a>（必選）
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <button @@click="clickSignUp"
+                                :class="['btn', 'btn-block', submitBtnClass]"
+                                :disabled="btnIsDisabled" @*Not wrong. VS has no idea that this is Vue.js syntax.*@
+                                type="button">
+                            註冊
+                        </button>
+                    </div>
+                </form>
+                <p class="card-text text-center"
+                   :hidden="messageHidden">
+                    @*Not wrong. VS has no idea that this is Vue.js syntax.*@
                     註冊成功，請等待跳轉。若 5 秒後沒有跳轉，請<a :href="redirectURL">按此連結跳轉</a>。
+                </p>
+            </div>
+            <div class="card-footer text-center"
+                 :hidden="!messageHidden">
+                <p class="card-text">
+                    <a asp-controller="User" asp-action="Authenticate">回到登入頁</a>
                 </p>
             </div>
         </div>
@@ -301,7 +311,8 @@
                         emailIsValid = emailRule.test(value);
                         break;
                     case "username":
-                        // TODO username validation logic
+                        let usernameRule = /^\w{1,50}$/;
+                        usernameIsValid = usernameRule.test(value);
                         break;
                     case "phoneNumber":
                         let phoneRule = /^09[0-9]{8}$/;
@@ -342,19 +353,17 @@
                 this.pwCheckClass["is-valid"] = false;
                 this.pwCheckClass["is-invalid"] = false;
 
-                // 驗證密碼符合規則
-                if (this.info.password.length < 6)
+                if (this.info.password.length < 6) {
                     this.pwClass["is-invalid"] = true;
-                else
-                    this.pwClass["is-valid"] = true;
+                    return;
+                }
 
-                // 驗證確認密碼與密碼一致
+                this.pwClass["is-valid"] = true;
+
                 if (this.pwCheck !== this.info.password)
                     this.pwCheckClass["is-invalid"] = true;
                 else
                     this.pwCheckClass["is-valid"] = true;
-
-
             },
             // 每次在不得重覆的欄位輸入時，停止上次的 timer，並開始新的 timer
             uniqueFieldInput(timer, validationClass, e, fieldName) {
@@ -374,7 +383,7 @@
 
                 let name = this.info.fullName = e.target.value.trim();
 
-                if (name.length <= 0)
+                if (name.length <= 0 || name.length > 50)
                     validationClass["is-invalid"] = true;
                 else
                     validationClass["is-valid"] = true;

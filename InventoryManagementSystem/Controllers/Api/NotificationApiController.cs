@@ -1,6 +1,7 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.LINE;
 using InventoryManagementSystem.Models.NotificationModels;
+using InventoryManagementSystem.Models.Password;
 using InventoryManagementSystem.Models.reCAPTCHA;
 using InventoryManagementSystem.Models.ResultModels;
 using MailKit.Net.Smtp;
@@ -47,16 +48,14 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostNotification()
+        public async Task<IActionResult> PostNotification([FromForm] string apikey)
         {
-            string authString = HttpContext.Request.Headers["Authorization"];
 
-            if(authString == null || !authString.StartsWith("basic"))
-                return Unauthorized();
+            byte[] salt = Convert.FromBase64String(_notificaionConfig.ApiSalt);
+            byte[] hashedBytes = Convert.FromBase64String(_notificaionConfig.HashedApiKey);
 
-            string authKey = authString.Substring("basic ".Length).Trim();
-
-            if(authKey != _notificaionConfig.ApiKey)
+            PBKDF2 hasher = new PBKDF2(apikey, salt);
+            if(!hasher.HashedPassword.SequenceEqual(hashedBytes))
                 return Unauthorized();
 
             var usersWithOverdueOrder = await _dbContext.Users

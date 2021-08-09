@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -13,13 +15,18 @@ namespace NotifyFunction
         {
             string target = Environment.GetEnvironmentVariable("TargetServer");
             string apiKey = Environment.GetEnvironmentVariable("ApiKey");
+
             ILogger logger = context.GetLogger("Notify");
             using(HttpClient client = new HttpClient())
             {
-                client.BaseAddress = new Uri(target);
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("basic", apiKey);
-                //await client.PostAsync("", null);
-                HttpResponseMessage msg = await client.PostAsync("", null);
+                HttpRequestMessage request = new HttpRequestMessage();
+                request.RequestUri = new Uri(target);
+                request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    {"apikey", apiKey }
+                });
+
+                HttpResponseMessage msg = await client.SendAsync(request);
                 logger.LogInformation(msg.StatusCode.ToString());
             }
         }
