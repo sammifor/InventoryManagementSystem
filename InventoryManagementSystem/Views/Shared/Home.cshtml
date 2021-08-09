@@ -20,8 +20,7 @@
     <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="/css/site.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
-    
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     @*<script type="application/ld+json">        {
                 "@context": "http://schema.org",
@@ -37,7 +36,7 @@
     <meta property="og:title" content="Home">
     <meta property="og:type" content="website">
     <style>
-        body{
+        body {
             margin: 0;
         }
     </style>
@@ -167,10 +166,17 @@
                                             <label for="message-0cec" class="u-form-control-hidden u-label">Feedback</label>
                                             <textarea placeholder="Enter here" rows="4" cols="50" v-model="contactInfo.feedback" id="message-0cec" name="feedback" class="u-border-no-bottom u-border-no-left u-border-no-right u-border-no-top u-input u-input-rectangle u-white" required=""></textarea>
                                         </div>
+                                        <div class="u-form-group">
+                                            <div class="g-recaptcha" 
+                                                 data-callback="getValidationResponse"
+                                                 data-sitekey="@ViewData["reCAPTCHASiteKey"]"></div>
+                                        </div>
                                         <div class="u-form-group u-form-submit">
                                             <button class="u-border-none u-btn u-btn-submit u-button-style u-hover-grey-75 u-palette-5-dark-3 u-btn-1"
                                                     @@click="submitFeedback($event)"
-                                                    :disabled="!canSubmit">{{isSending ? 'Sending...' : 'Submit'}}</button>
+                                                    :disabled="!canSubmit">
+                                                {{isSending ? 'Sending...' : 'Submit'}}
+                                            </button>
                                         </div>
                                         <div class="u-form-send-message u-form-send-success">#FormSendSuccess</div>
                                         <div class="u-form-send-error u-form-send-message">#FormSendError</div>
@@ -300,6 +306,11 @@
 <script>
     $("#topBar").hide();
 
+    function getValidationResponse(response) {
+        console.log(response);
+        contactus.contactInfo.recaptchatoken = response;
+    }
+
     let contactus = new Vue({
         el: "#contactus",
         data() {
@@ -307,7 +318,8 @@
                 contactInfo: {
                     name: "",
                     email: "",
-                    feedback: ""
+                    feedback: "",
+                    recaptchatoken: ""
                 },
                 isSending: false
             }
@@ -328,6 +340,8 @@
                     alert("送出成功");
                 }
                 this.isSending = false;
+                this.contactInfo.recaptchatoken = "";
+                grecaptcha.reset();
             }
         },
         computed: {
@@ -336,7 +350,8 @@
                 return this.contactInfo.name.length > 0 &&
                     emailRule.test(this.contactInfo.email) &&
                     this.contactInfo.feedback.length > 0 &&
-                    !this.isSending;
+                    !this.isSending &&
+                    this.contactInfo.recaptchatoken;
             }
         }
     });
