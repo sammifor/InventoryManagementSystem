@@ -20,7 +20,7 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         [HttpGet]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult EquipmentCategoryPiechart()
         {
             var results = _dbContext.Orders
@@ -37,25 +37,24 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok(results);
         }
         [HttpGet]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult EquipmentCategoryTop5()
         {
             var results = _dbContext.Orders
                 .Where(c => c.PaymentOrder.Payment.PaymentSn != null)
                 .Where(c => !c.Equipment.Deleted)
                 .GroupBy(c => c.Equipment.EquipmentCategory.CategoryName)
-                .Take(5)
                 .Select(c => new {
                     ChartEquipCate = c.Key,
                     ChartEquipCateAmt = c.Sum(a => a.Quantity)
                 })
-                .OrderByDescending(c=>c.ChartEquipCateAmt)
+                .OrderByDescending(c=>c.ChartEquipCateAmt).Take(5)
                 .ToList();
 
             return Ok(results);
         }
         [HttpGet]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult EquipmentCategoryOrders()
         {
             var results = _dbContext.EquipCategories
@@ -81,7 +80,7 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         [HttpGet]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult EquipmentCategoryOrdersTop5()
         {
             var results = _dbContext.EquipCategories
@@ -108,7 +107,7 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         [HttpGet]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult EquipmentCategoryReport()
         {
             var results = _dbContext.Reports
@@ -131,10 +130,11 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         [HttpGet]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult EquipmentCategoryReportTop5()
         {
             var results = _dbContext.EquipCategories
+                .Where(ec=>!ec.Deleted)
                 .Select(ec => new
                 {
                     ChartEquipCate = ec.CategoryName,
@@ -152,24 +152,22 @@ namespace InventoryManagementSystem.Controllers.Api
 
         //設備種類狀態
         [HttpGet("{status}")]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult EquipmentCategoryStatus(string status)
         {
             string[] validInputs = { "I", "O", "P"};
             if (!validInputs.Contains(status))
                 return BadRequest();
 
-            var results = _dbContext.Items
-                .Select(i => new
+            var results = _dbContext.EquipCategories
+                .Where(ec => !ec.Deleted)
+                .Select(ec => new
                 {
-                    ChartEquipCate = i.Equipment.EquipmentCategory.CategoryName,
-                    ChartEquipStatus =  i.ConditionId
-                })
-                .GroupBy(i => i.ChartEquipCate)
-                .Select(o => new 
-                {
-                    ChartEquipCate = o.Key,
-                    ChartEquipCateAmt = o.Count(i => i.ChartEquipStatus == status)
+                    ChartEquipCate = ec.CategoryName,
+                    ChartEquipCateAmt = ec.Equipment
+                    .Where(e => !e.Deleted)
+                    .SelectMany(e => e.Items)
+                    .Count(i => i.ConditionId == status)
                 })
                 .ToList();
 
@@ -178,7 +176,7 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         [HttpGet]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult EquipmentCategoryBroken()
         {
             var results = _dbContext.Items
@@ -187,20 +185,21 @@ namespace InventoryManagementSystem.Controllers.Api
                     ChartEquipCate = i.Equipment.EquipmentCategory.CategoryName,
                     ChartEquipStatus = i.ConditionId
                 })
-                .ToList()
                 .GroupBy(i => i.ChartEquipCate)
                 .Select(g => new
                 {
                     ChartEquipCate = g.Key,
                     ChartEquipCateAmt = g.Count(i => i.ChartEquipStatus == "F")
                 })
-                .OrderByDescending(g => g.ChartEquipCateAmt);
+                .Where(b => b.ChartEquipCateAmt > 0)
+                .OrderByDescending(b => b.ChartEquipCateAmt)
+                .ToList();
 
             return Ok(results);
         }
 
         [HttpGet]
-        //[Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult EquipmentCategoryBrokenTop5()
         {
             var results = _dbContext.Items

@@ -1,5 +1,7 @@
 ﻿using InventoryManagementSystem.Models;
+using InventoryManagementSystem.Models.reCAPTCHA;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,14 +14,17 @@ namespace InventoryManagementSystem.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IConfiguration Config;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IConfiguration config)
         {
             _logger = logger;
+            Config = config;
         }
 
         public IActionResult Index()
         {
+            ViewData["reCAPTCHASiteKey"] = Config.GetSection("reCAPTCHA").Get<reCAPTCHAConfig>().SiteKey;
             return View();
         }
 

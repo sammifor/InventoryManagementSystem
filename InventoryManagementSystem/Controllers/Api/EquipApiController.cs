@@ -35,6 +35,7 @@ namespace InventoryManagementSystem.Controllers.Api
         {
             var results = await _dbContext.Equipment
                 .Where(e => e.EquipmentCategoryId == id)
+                .Where(e => !e.Deleted)
                 .Select(e => e.EquipmentName)
                 .Distinct()
                 .ToArrayAsync();
@@ -254,7 +255,7 @@ namespace InventoryManagementSystem.Controllers.Api
             // 判斷這些 equip 底下有沒有任何 item 未刪
             bool hasItems = await _dbContext.Items
                 .Where(i => ids.Contains(i.EquipmentId))
-                .AnyAsync(i => i.ConditionId == "D");
+                .AnyAsync(i => i.ConditionId != "D");
 
             if (hasItems)
             {
@@ -325,7 +326,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
             if (!string.IsNullOrWhiteSpace(name))
             {
-                results = results.Where(e => e.EquipmentName == name);
+                results = results.Where(e => !e.Deleted).Where(e => e.EquipmentName == name);
             }
 
             return await results.Select(e => new EquipResultModel

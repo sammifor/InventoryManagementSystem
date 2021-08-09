@@ -9,11 +9,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+<script src="https://unpkg.com/vue-json-excel"></script>
 
 
 <div id="app">
     <b-overlay :show="loading" rounded="lg">
-        <h1 style="font-size:30px;font-weight:bold">&ensp;租借紀錄報表</h1>
+        <p style="font-size: 30px; font-weight: bold;">&ensp;租借紀錄報表</p>
         <div :show="!loading">
             <b-card header-tag="header">
                 <div class="row">
@@ -45,23 +46,48 @@
                     <div class="form-group col-md-3">
                         <b-btn @@click="orderReportQuery">查詢</b-btn>
                     </div>
-                    @*<div class="form-group col-md-3">
-            <b-input v-model="filter" placeholder="Filter table.."></b-input>
-        </div>*@
+                    <div class="form-group col-md-3" v-show="filterTab">
+                        <label>使用者</label>
+                        <select class="btn btn-light dropdown-toggle" v-model="selectUser" @@change="filterOrderFunction">
+                            <option :value="null">全選</option>
+                            <option v-for="user in filter_username" :value="user">{{user}}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-3" v-show="filterTab">
+                        <label>設備名稱</label>
+                        <select class="btn btn-light dropdown-toggle" v-model="selectEquipmentName" @@change="filterOrderFunction">
+                            <option :value="null">全選</option>
+                            <option v-for="ename in filter_equipmentName" :value="ename">{{ename}}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-3" v-show="filterTab">
+                        <label>額外費用</label>
+                        <select class="btn btn-light dropdown-toggle" v-model="selectExtraFee" @@change="filterOrderFunction">
+                            <option :value="null">全選</option>
+                            <option v-for="fee in filter_extraFee" :value="fee">{{fee}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-3" v-show="filterTab">
+                        <download-excel :data="orders_organized">
+                            <b-button variant="primary" @@click="organizedData">下載</b-button>
+                        </download-excel>
+                    </div>
 
                     <div>
                         <b-table id="my-table"
-                                 :items="items_order"
+                                 show-empty
+                                 :items="orders_filtered"
                                  :fields="fields_order"
                                  :sort-by.sync="sortBy"
                                  :sort-desc.sync="sortDesc"
                                  sort-icon-left
-                                 responsive="sm" striped
-                                 :filter="filter">
-
+                                 responsive="sm" striped>
                             <template #cell(show_details)="row">
                                 <i class="bi bi-justify-left" style="font-size: 20px;" @@click="showOdModal(row.item)"></i>
                             </template>
+                        </b-table>
 
 
                     </div>
@@ -99,139 +125,197 @@
             <br />
             <br />
         </div>
-    </b-overlay>   
+    </b-overlay> 
 </div>
- 
+
 
 <script>
-    Vue.filter('timeString', function (value, myFormat) {
-                    return moment(value).format(myFormat || 'YYYY-MM-DD, HH:mm:ss');
-                });
+    
+    Vue.component("downloadExcel", JsonExcel);
     var app = new Vue({
-
         el: '#app',
         data: {
-                filter: '',
-                sortBy: 'orderSn',
-                sortDesc: false,
-                tabIndex: 0,
-                loading: false,
-                selectedYear: '',
-                beginMonth: '',
-                endMonth: '',
-                modalShow: [],
-                fields_order: [
-                    { key: 'orderSn', label: '訂單編號', sortable: true },
-                    { key: 'username', label: '使用者', sortable: true },
-                    { key: 'equipmentSn', label: '設備編號', sortable: true },
-                    { key: 'equipmentName', label: '設備名稱', sortable: true },
-                    { key: 'quantity', label: '租借數量', sortable: true },
-                    { key: 'estimatedPickupTime', label: '租借時間', sortable: true, formatter:value=>value.substring(0,10)},
-                    { key: 'totalRentalFee', label: '租借費用', sortable: true },
-                    { key: 'totalExtraFee', label: '額外費用', sortable: true },
-                    { key: 'show_details', label: '訂單明細' }
-                ],
-                items_order: [],
-                select_month_start: [
-                    { month: "1月", data: "01-01T00:00:00.00" },
-                    { month: "2月", data: "02-01T00:00:00.00" },
-                    { month: "3月", data: "03-01T00:00:00.00" },
-                    { month: "4月", data: "04-01T00:00:00.00" },
-                    { month: "5月", data: "05-01T00:00:00.00" },
-                    { month: "6月", data: "06-01T00:00:00.00" },
-                    { month: "7月", data: "07-01T00:00:00.00" },
-                    { month: "8月", data: "08-01T00:00:00.00" },
-                    { month: "9月", data: "09-01T00:00:00.00" },
-                    { month: "10月", data: "10-01T00:00:00.00" },
-                    { month: "11月", data: "11-01T00:00:00.00" },
-                    { month: "12月", data: "12-01T00:00:00.00" }
-                ],
-                select_month_end: [
-                    { month: "1月", data: "01-31T00:00:00.00" },
-                    { month: "2月", data: "02-28T00:00:00.00" },
-                    { month: "3月", data: "03-31T00:00:00.00" },
-                    { month: "4月", data: "04-30T00:00:00.00" },
-                    { month: "5月", data: "05-31T00:00:00.00" },
-                    { month: "6月", data: "06-30T00:00:00.00" },
-                    { month: "7月", data: "07-31T00:00:00.00" },
-                    { month: "8月", data: "08-31T00:00:00.00" },
-                    { month: "9月", data: "09-30T00:00:00.00" },
-                    { month: "10月", data: "10-31T00:00:00.00" },
-                    { month: "11月", data: "11-30T00:00:00.00" },
-                    { month: "12月", data: "12-31T00:00:00.00" }
-                ],
 
-            
-            
+            sortBy: 'orderSn',
+            sortDesc: false,
+            tabIndex: 0,
+            loading: false,
+            selectedYear: '',
+            beginMonth: '',
+            endMonth: '',
+            startTime: "",
+            endTime: "",
+            modalShow: [],
+            fields_order: [
+                { key: 'orderSn', label: '訂單編號', sortable: true },
+                { key: 'username', label: '使用者', sortable: true },
+                { key: 'equipmentSn', label: '設備編號', sortable: true },
+                { key: 'equipmentName', label: '設備名稱', sortable: true },
+                { key: 'quantity', label: '租借數量', sortable: true },
+                { key: 'estimatedPickupTime', label: '租借時間', sortable: true, formatter: value => value.substring(0, 10) },
+                { key: 'totalRentalFee', label: '租借費用', sortable: true },
+                { key: 'totalExtraFee', label: '額外費用', sortable: true },
+                { key: 'show_details', label: '訂單明細' }
+            ],
+            orders: [],
+            orders_filtered: [],
+            orders_organized:[],
+            select_month_start: [
+                { month: "1月", data: "01-01T00:00:00.00" },
+                { month: "2月", data: "02-01T00:00:00.00" },
+                { month: "3月", data: "03-01T00:00:00.00" },
+                { month: "4月", data: "04-01T00:00:00.00" },
+                { month: "5月", data: "05-01T00:00:00.00" },
+                { month: "6月", data: "06-01T00:00:00.00" },
+                { month: "7月", data: "07-01T00:00:00.00" },
+                { month: "8月", data: "08-01T00:00:00.00" },
+                { month: "9月", data: "09-01T00:00:00.00" },
+                { month: "10月", data: "10-01T00:00:00.00" },
+                { month: "11月", data: "11-01T00:00:00.00" },
+                { month: "12月", data: "12-01T00:00:00.00" }
+            ],
+            select_month_end: [
+                { month: "1月", data: "01-31T00:00:00.00" },
+                { month: "2月", data: "02-28T00:00:00.00" },
+                { month: "3月", data: "03-31T00:00:00.00" },
+                { month: "4月", data: "04-30T00:00:00.00" },
+                { month: "5月", data: "05-31T00:00:00.00" },
+                { month: "6月", data: "06-30T00:00:00.00" },
+                { month: "7月", data: "07-31T00:00:00.00" },
+                { month: "8月", data: "08-31T00:00:00.00" },
+                { month: "9月", data: "09-30T00:00:00.00" },
+                { month: "10月", data: "10-31T00:00:00.00" },
+                { month: "11月", data: "11-30T00:00:00.00" },
+                { month: "12月", data: "12-31T00:00:00.00" }
+            ],
+            filterTab: false,
+            filter_username: [],
+            filter_equipmentName: [],
+            filter_extraFee: [],
+            selectUser: null,
+            selectEquipmentName: null,
+            selectExtraFee: null
+
 
         },
 
         methods: {
-                 orderReportQuery: function () {
 
-                            let startTime = this.selectedYear + this.beginMonth;
-                            let endTime = this.selectedYear + this.endMonth;
-                            console.log(startTime);
-                            console.log(endTime);
+            orderReportQuery: function () {
 
-                            let url = '/ReportGenerateApi/GetOrderReport/' + startTime + "/" + endTime;
-                            let request = {
-                                method: "GET"
-                            };
-                            fetch(url, request)
-                                .then(response => {
-                                    if (response.ok) {
-                                        console.log("資料庫連線成功");
-                                        return response.json();
+                this.loading = true;
+                this.startTime = this.selectedYear + this.beginMonth;
+                this.endTime = this.selectedYear + this.endMonth;
 
-                                    } else {
-
-                                        console.log("資料擷取失敗");
-
-                                    }
-                                }).then(response => {
-                                    this.items_order = response;
-
-
-                                }).catch(error => {
-
-                                    alert("資料庫連線失敗");
-                                    console.log(error);
-                                })
-                  },
-
-                showOdModal: function (order) {
-
-                    
-                    console.log(order);
-                    this.modalShow = order.orderDetails.map(x => x)
-                    console.log(this.modalShow);
-                    this.$bvModal.show("orderDetailModal");
+                if (this.startTime > this.endTime) {
+                    alert("請選取有效時間");
                 }
 
-                  
+                let url = '/ReportGenerateApi/GetOrderReport/' + this.startTime + "/" + this.endTime;
+                let request = {
+                    method: "GET"
+                };
+                fetch(url, request)
+                    .then(response => {
+                        if (response.ok) {
+                            console.log("資料庫連線成功");
+                            return response.json();
 
+                        } else {
+
+                            this.loading = false;
+                            alert("資料擷取失敗");
+
+                        }
+                    }).then(response => {
+
+
+                        this.orders = response;
+                        this.orders_filtered = this.orders;
+                        this.loading = false;
+
+                        this.getFilterOption(this.orders);
+                        this.filterTab = true;
+
+                    }).catch(error => {
+                        this.loading = false;
+                        alert("資料庫連線失敗");
+                        console.log(error);
+                    })
+            },
+
+            showOdModal: function (order) {
+
+                this.modalShow = order.orderDetails.map(x => x)
+                this.$bvModal.show("orderDetailModal");
+            },
+
+            getFilterOption: function () {
+
+                var arr_username = []
+                var arr_equipmentName = []
+                var arr_extraFee = []
+                this.orders.forEach(od => {
+                    arr_username.push(od.username);
+                    arr_equipmentName.push(od.equipmentName);
+                    arr_extraFee.push(od.totalExtraFee);
+                })
+                this.filter_username = this.filterDuplicateElement(arr_username);
+                this.filter_equipmentName = this.filterDuplicateElement(arr_equipmentName);
+                this.filter_extraFee = this.filterDuplicateElement(arr_extraFee);
+
+
+            },
+
+            filterDuplicateElement: function (arr) {
+
+                let newarr = arr.filter((element, index, self) => {
+                    return self.indexOf(element) == index
+                })
+                return newarr
+            },
+
+            filterOrderFunction: function () {
+
+                this.orders_filtered = this.orders;
+                if (this.selectUser != null) {
+                    this.orders_filtered = this.orders_filtered.filter(od => od.username == this.selectUser);
+                }
+                if (this.selectEquipmentName != null) {
+                    this.orders_filtered = this.orders_filtered.filter(od => od.equipmentName == this.selectEquipmentName);
+                }
+                if (this.selectExtraFee != null) {
+                    this.orders_filtered = this.orders_filtered.filter(od => od.totalExtraFee == this.selectExtraFee);
+                    
+                }
+
+                
+
+            },
+
+            organizedData: function () {
+
+                this.orders_filtered.forEach(od => {
+
+                    od.estimatedPickupTime = od.estimatedPickupTime.substring(0, 10);
+
+                    const allowed = ['orderSn', 'username', 'equipmentSn', 'equipmentName',
+                        'quantity','estimatedPickupTime', 'totalRentalFee', 'totalExtraFee']
+
+                    const filtered = Object.keys(od)
+                        .filter(key => allowed.includes(key))
+                        .reduce((obj, key) => {
+                            obj[key] = od[key];
+                            return obj;
+                        }, {});
+
+                    this.orders_organized.push(filtered);
+                })
+
+
+            }
         }
     })
 
 
 </script>
-
-<style>
-
-
-    .tableFixHead {
-        overflow: auto;
-        height: 350px;
-    }
-
-        .tableFixHead thead th {
-            position: sticky;
-            top: 0;
-            background-color: #F5F5F5;
-        }
-
-    .active_row {
-        background-color: #F5F5F5
-    }
-</style>

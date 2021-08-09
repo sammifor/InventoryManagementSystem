@@ -1,13 +1,17 @@
 ﻿using InventoryManagementSystem.Models.EF;
 using InventoryManagementSystem.Models.LINE;
 using InventoryManagementSystem.Models.NotificationModels;
+using InventoryManagementSystem.Models.Password;
+using InventoryManagementSystem.Models.reCAPTCHA;
 using InventoryManagementSystem.Models.ResultModels;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +29,7 @@ namespace InventoryManagementSystem.Controllers.Api
         private readonly InventoryManagementSystemContext _dbContext;
         private readonly NotificationService _notificationService;
         private readonly NotificationConfig _notificaionConfig;
+        private readonly IConfiguration Config;
         private readonly LineConfig _lineConfig;
         private static HttpClient Client = new HttpClient();
 
@@ -32,25 +37,25 @@ namespace InventoryManagementSystem.Controllers.Api
             InventoryManagementSystemContext dbContext,
             IOptions<NotificationConfig> notificationConfig,
             IOptions<LineConfig> lineConfig,
-            NotificationService notificationService)
+            NotificationService notificationService,
+            IConfiguration config)
         {
             _dbContext = dbContext;
             _notificationService = notificationService;
             _notificaionConfig = notificationConfig.Value;
             _lineConfig = lineConfig.Value;
+            Config = config;
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostNotification()
+        public async Task<IActionResult> PostNotification([FromForm] string apikey)
         {
-            string authString = HttpContext.Request.Headers["Authorization"];
 
-            if(authString == null || !authString.StartsWith("basic"))
-                return Unauthorized();
+            byte[] salt = Convert.FromBase64String(_notificaionConfig.ApiSalt);
+            byte[] hashedBytes = Convert.FromBase64String(_notificaionConfig.HashedApiKey);
 
-            string authKey = authString.Substring("basic ".Length).Trim();
-
-            if(authKey != _notificaionConfig.ApiKey)
+            PBKDF2 hasher = new PBKDF2(apikey, salt);
+            if(!hasher.HashedPassword.SequenceEqual(hashedBytes))
                 return Unauthorized();
 
             var usersWithOverdueOrder = await _dbContext.Users
@@ -124,8 +129,31 @@ namespace InventoryManagementSystem.Controllers.Api
         public async Task<IActionResult> ContactUs(
             [FromForm] string name,
             [FromForm] string email,
-            [FromForm] string feedback)
+            [FromForm] string feedback,
+            [FromForm] string recaptchatoken)
         {
+
+            var recaptchaConfig = Config.GetSection("reCAPTCHA").Get<reCAPTCHAConfig>();
+
+            HttpRequestMessage request = new HttpRequestMessage();
+            request.Method = new HttpMethod("POST");
+            request.RequestUri = new Uri("https://www.google.com/recaptcha/api/siteverify");
+            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                {"secret", recaptchaConfig.SecretKey },
+                {"response", recaptchatoken }
+            });
+            HttpResponseMessage response = await Client.SendAsync(request);
+
+            if(!response.IsSuccessStatusCode)
+                return BadRequest();
+
+            string responseDataString = await response.Content.ReadAsStringAsync();
+            var responseData = JsonConvert.DeserializeObject<reCAPTCHAValidationResponse>(responseDataString);
+
+            if(!responseData.success)
+                return BadRequest();
+
             StringBuilder builder = new StringBuilder(feedback);
             builder.Replace("\n", "<br>");
             builder.Append($"<br>聯絡信箱：{email}");

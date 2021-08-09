@@ -1,91 +1,98 @@
 ﻿<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+<link type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+<link type="text/css"
+      rel="stylesheet"
+      href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+<script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+
 
 <div id="addItem">
     <!-- Qry Colum -->
-    <div class="card">
-        <div class="card-header">物品新增</div>
-        <div class="card-body">
-            <div class="row">
-                <div class="form-group col-md-3">
-                    <label>設備種類</label>
-                    <br />
-                    <select class="btn btn-light dropdown-toggle" v-on:change="onCategoryChange($event)" v-model="selectCateId">
-                        <option disabled selected>請先選擇種類</option>
-                        <option v-for="cname in category" :value="cname.equipCategoryId">{{cname.categoryName}}</option>
-                    </select>
-                    <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#addNewCate">新增種類</button>
-                </div>
+    <b-overlay :show="loading" rounded="lg">
+        <div :show="!loading">
+            <div class="card">
+                <div class="card-header" style="font-weight: bold;">物品新增</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label>設備種類&nbsp;&nbsp;&nbsp;</label>
+                            <select class="btn btn-light dropdown-toggle" v-on:change="onCategoryChange($event)" v-model="selectCateId">
+                                <option disabled selected>請先選擇種類</option>
+                                <option v-for="cname in category" :value="cname.equipCategoryId">{{cname.categoryName}}</option>
+                            </select>&nbsp;&nbsp;&nbsp;
+                            <i class="bi bi-plus-circle-dotted" style="font-size:30px;" data-toggle="modal" data-target="#addNewCate"></i>
+                            &nbsp;&nbsp;&nbsp;<i class="bi bi-dash-circle-dotted" style="font-size: 30px;" @@click="deletCateModal"></i>
+                        </div>
 
-                <div class="form-group col-md-5">
-                    <label>設備名稱</label>
-                    <br />
-                    <select class="btn btn-light dropdown-toggle" v-on:change="onEquipNameChange($event)" v-model="selectEquipId">
-                        <option disabled selected>請選擇名稱</option>
-                        <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}}-{{ename.equipmentSn}}</option>
-                    </select>
-                    <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#addNewEquip">新增設備</button>
+                        <div class="form-group col-md-4">
+                            <label>設備名稱&nbsp;&nbsp;&nbsp;</label>
+                            <select class="btn btn-light dropdown-toggle" style="width:144px;" v-on:change="onEquipNameChange($event)" v-model="selectEquipId">
+                                <option disabled selected>請選擇名稱</option>
+                                <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}}-{{ename.equipmentSn}}</option>
+                            </select>&nbsp;&nbsp;&nbsp;
+                            <i class="bi bi-plus-circle-dotted" style="font-size: 30px;" data-toggle="modal" data-target="#addNewEquip"></i>
+                            &nbsp;&nbsp;&nbsp;<i class="bi bi-dash-circle-dotted" style="font-size:30px;" @@click="deletEquipModal"></i>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label>物品序號</label>
+                            <span> <input type="text" class="form-control" m-r-0 v-model="addItemSN" /></span>
+
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>物品描述</label>
+                            <span><input type="text" class="form-control" m-r-0 v-model="addItemDiscrip" /></span>
+                        </div>
+                    </div>
                 </div>
+                <button type="button" class="btn btn btn-primary btn-block" v-on:click="addNewItem" :disabled="itemAdddisabled">新增</button>
             </div>
-            <div class="row">
-                <div class="form-group col-md-2">
-                    <label>物品序號</label>
-                    <input type="text" class="form-control" v-model="addItemSN" />
-                </div>
-
-
-                <div class="form-group col-md-2">
-                    <label>物品描述</label>
-                    <input type="text" class="form-control" v-model="addItemDiscrip" />
-                </div>
-
+            <br />
+            <br />
+            <!-- View Table -->
+            <div class="card">
+                <div class="card-header" style="font-weight: bold;">物品序號管理</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input aria-label="Checkbox" type="checkbox" v-model="deletAll_checkbox" @@click="deletAllSelect($event)"><i class="form-icon"></i>
+                            </th>
+                            <th scope="col" style="font-weight: normal;">設備種類</th>
+                            <th scope="col" style="font-weight: normal;">設備名稱</th>
+                            <th scope="col" style="font-weight: normal;">物品序號</th>
+                            <th scope="col" style="font-weight: normal;">物品描述</th>
+                            <th scope="col" style="font-weight: normal;">修改</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in items">
+                            <td>
+                                <input aria-label="Checkbox" type="checkbox" v-model="deletAllItem_checkbox" :value="item.itemId" @@change="updateDeletAll"><i class="form-icon"></i>
+                            </td>
+                            <td>{{item.categoryName}}</td>
+                            <td>{{item.equipmentName}}-{{item.equipmentSn}}</td>
+                            <td><input v-if="updateItem.includes(item.itemId)" v-model="item.itemSn" class="form-control" size="1" /><span v-else>{{item.itemSn}}</span></td>
+                            <td><input v-if="updateItem.includes(item.itemId)" v-model="item.description" class="form-control" size="1" /><span v-else>{{item.description}}</span></td>
+                            <td>
+                                <i class="bi bi-trash-fill" @@click="btnDelItem(item.itemId)" style="font-size: 20px;"></i>
+                                <span v-if="updateItem.includes(item.itemId)">
+                                    <i class="bi bi-check-square fa-3x" @@click="btnUpdConfirm(item)" style="font-size: 20px;"></i>
+                                </span>
+                                <span v-else>
+                                    <i class="bi bi-pencil-square fa-10x" @@click="btnUpdItem(item.itemId)" style="font-size: 20px;"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <buttion v-if="deletAllItem_checkbox.length>0" type="button" class="btn btn-danger" @@click="deletAllAction($event)">一次刪除</buttion>
             </div>
-            <button class="btn btn-primary" v-on:click="addNewItem">新增</button>
         </div>
-    </div>
-    <br />
-    <br />
-    <!-- View Table -->
-    <div class="card">
-        <div class="card-header">物品序號管理</div>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        <input aria-label="Checkbox" type="checkbox" v-model="deletAll" @@click="deletAllSelect($event)"><i class="form-icon"></i>
-                    </th>
-                    <th scope="col">設備種類</th>
-                    <th scope="col">設備名稱</th>
-                    <th scope="col">物品序號</th>
-                    <th scope="col">物品描述</th>
-                    <th scope="col">修改</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in items">
-                    <td>
-                        <input aria-label="Checkbox" type="checkbox" v-model="deletItems" :value="item.itemId"><i class="form-icon"></i>
-                    </td>
-                    <td>{{item.categoryName}}</td>
-                    @*<td><select class="btn btn-light dropdown-toggle" v-if="updateItem.includes(item.itemId)" v-on:change="changeEquip($event)">
-                        <option v-for="ename in equips" :value="ename.equipmentId">{{ename.equipmentName}},{{ename.equipmentSn}}</option>
-                        </select><span v-else>{{item.equipmentName}},{{item.equipmentSn}}</span></td>*@
-                    <td>{{item.equipmentName}}-{{item.equipmentSn}}</td>
-                    <td><input v-if="updateItem.includes(item.itemId)" v-model="item.itemSn" class="form-control" size="1" /><span v-else>{{item.itemSn}}</span></td>
-                    <td><input v-if="updateItem.includes(item.itemId)" v-model="item.description" class="form-control" size="1" /><span v-else>{{item.description}}</span></td>
-                    <td>
-                        <i class="bi bi-trash-fill" @@click="btnDelItem(item.itemId)" style="font-size: 20px;"></i>
-                        <span v-if="updateItem.includes(item.itemId)">
-                            <i class="bi bi-check-square fa-3x" @@click="btnUpdConfirm(item)" style="font-size: 20px;"></i>
-                        </span>
-                        <span v-else>
-                            <i class="bi bi-pencil-square fa-10x" @@click="btnUpdItem(item.itemId)" style="font-size: 20px;"></i>
-                        </span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <buttion v-if="deletItems.length>1" type="button" class="btn btn-danger" @@click="deletAllAction($event)">一次刪除</buttion>
-    </div>
+    </b-overlay>
     <br />
     <br />
     <br />
@@ -110,11 +117,38 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" v-on:click="addNewCate">儲存</button>
+                        <button type="button" class="btn btn-primary" v-on:click="addNewCate" :disabled="addCateDisabled">新增</button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+      
+
+    <div>
+        <b-modal id="deletCate">
+            <template #modal-title>
+                <i class="bi bi-trash"></i>
+                <span><a class="font-weight-bold">確認刪除設備種類</a></span>
+            </template>
+            <b-table-simple caption-top stacked>
+                <b-thead head-variant="dark">
+                    <b-tr>
+                        <b-th class="text-left">設備種類</b-th>
+                    </b-tr>
+                </b-thead>
+                <b-tbody>
+                    <b-tr>
+                        <b-td stacked-heading="設備種類">{{selectCateName}}</b-td>
+                    </b-tr>
+                </b-tbody>
+            </b-table-simple>
+            <template #modal-footer>
+                <div>
+                    <button type="button" class="btn btn-danger" v-on:click="deletCate" style="text-align:right;">刪除</button>
+                </div>
+            </template>
+        </b-modal>
     </div>
 
     <!-- addNewEquipModal -->
@@ -133,8 +167,7 @@
                         <div class="form-group col-md-4">
                             <label class="col-form-label">設備種類</label>
                             <select class="form-control" v-model="addEquipCateId" required>
-                                <option v-for="cname in category"
-                                        :value="cname.equipCategoryId">
+                                <option v-for="cname in category" :value="cname.equipCategoryId">
                                     {{cname.categoryName}}
                                 </option>
                             </select>
@@ -169,12 +202,54 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" v-on:click="addNewEquip">儲存</button>
+                        <button type="button" class="btn btn-primary" v-on:click="addNewEquip" :disabled="addNewEquipRequired">確認</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- deletEquipModal -->
+    <div>
+        <b-modal id="deletEquip" scrollable>
+            <template #modal-title>
+                <i class="bi bi-trash"></i>
+                <span><a class="font-weight-bold">確認刪除設備</a></span>
+            </template>
+            <b-table-simple caption-top stacked>
+                <b-thead head-variant="dark">
+                    <b-tr>
+                        <b-th class="text-left">設備種類</b-th>
+                        <b-th class="text-left">設備序號</b-th>
+                        <b-th class="text-left">設備名稱</b-th>
+                        <b-th class="text-left">設備品牌</b-th>
+                        <b-th class="text-left">設備型號</b-th>
+                        <b-th class="text-left">設備單價</b-th>
+                        <b-th class="text-left">設備描述</b-th>
+
+                    </b-tr>
+                </b-thead>
+                <b-tbody>
+                    <b-tr>
+                        <b-td stacked-heading="設備種類">{{selectCateName}}</b-td>
+                        <b-td stacked-heading="設備序號">{{selectEquipSn}}</b-td>
+                        <b-td stacked-heading="設備名稱">{{selectEquipName}}</b-td>
+                        <b-td stacked-heading="設備品牌">{{checkEquipBrand}}</b-td>
+                        <b-td stacked-heading="設備型號">{{checkEquipModel}}</b-td>
+                        <b-td stacked-heading="設備單價">{{selectEquipPrice}}</b-td>
+                        <b-td stacked-heading="設備描述">{{checkEquipDescri}}</b-td>
+                    </b-tr>
+                </b-tbody>
+            </b-table-simple>
+            <template #modal-footer>
+                <div>
+                    <button type="button" class="btn btn-danger" v-on:click="deletEquip" style="text-align:right;">刪除</button>
+                </div>
+            </template>
+        </b-modal>
+    </div>
+
+</div>
 
 </div>
 
@@ -182,12 +257,19 @@
     var addItem = new Vue({
         el: '#addItem',
         data: {
-            equips: {},
-            category: {},
+            loading: true,
+            equips: [],
+            category: [],
             items: [],
             selectCateId: '',
             selectCateName: '',
             selectEquipId: '',
+            selectEquipSn: '',
+            selectEquipName: '',
+            selectEquipBrand: '',
+            selectEquipModel: '',
+            selectEquipPrice: '',
+            selectEquipDescri: '',
             addItemSN: "",
             addItemDiscrip: "",
             addNewCateName: "",
@@ -199,13 +281,17 @@
             addEquipModel: "",
             addEquipPrice: 0,
             addEquipDiscrip: "",
-            deletItems: [],
-            deletAll:false,
+            deletItems_send: [],
+            deletAll_checkbox: false,
+            deletAllItem_checkbox:[],
             deletItemId: '',
-            updateItem: []
+            updateItem: [],
+            deletEquipIds: []
         },
 
         beforeCreate: function () {
+
+            
             fetch('/EquipCategoryApi/GetCates', { method: 'GET' })
                 .then(response => {
                     if (response.ok) {
@@ -214,16 +300,23 @@
                 })
                 .then(response => {
                     this.category = response;
+                    this.loading= false;
+
                 });
 
         },
+
         methods: {
+
             onCategoryChange: function (data) {
-
+                this.loading= true;
+                this.deletAll_checkbox = false;
+                this.deletAllItem_checkbox = [];
+                this.selectEquipId = "";
+                this.items = [];
                 this.selectCateId = data.target.value;
-
-                let index = this.category.findIndex(element => element.equipCategoryId === this.selectCateId);
-                this.selectCateName = this.category[index].categoryName;
+                let catePackage = this.category.find(e => e.equipCategoryId === this.selectCateId);
+                this.selectCateName = catePackage.categoryName;
 
                 fetch('/equipapi/GetEquipByCateId/' + data.target.value, { method: 'GET' })
                     .then(response => {
@@ -233,21 +326,32 @@
                     })
                     .then(response => {
                         this.equips = response;
-
+                        this.loading= false;
                     })
             },
 
             onEquipNameChange: function () {
+                this.loading = true;
+                this.deletAll_checkbox = false;
+                this.deletAllItem_checkbox = [];
                 this.getdata();
+                this.loading = false;
+                let selectEquipPackage = this.equips.find(x => x.equipmentId == this.selectEquipId)
+                this.selectEquipSn = selectEquipPackage.equipmentSn;
+                this.selectEquipName = selectEquipPackage.equipmentName;
+                this.selectEquipBrand = selectEquipPackage.brand;
+                this.selectEquipModel = selectEquipPackage.model;
+                this.selectEquipPrice = selectEquipPackage.unitPrice;
+                this.selectEquipDescri = selectEquipPackage.description;
             },
 
             addNewItem: function () {
+                this.loading = true;
                 let requestData = {
                     adminId: 1,
                     equipmentId: this.selectEquipId,
-                    itemSn: this.addItemSN,
+                    itemSn: this.addItemSN.trim(),
                     description: this.addItemDiscrip
-
                 };
 
                 let url = "/ItemApi/InsertItem";
@@ -261,30 +365,28 @@
                 fetch(url, request)
                     .then(r => {
                         if (r.ok) {
+                            this.loading = false;
                             alert("新增成功");
-                            let index=this.equips.findIndex(eq => eq.equipmentId == this.selectEquipId)
-                            let updateData = {
-                                categoryName: this.equips[index].categoryName,
-                                equipmentName:this.equips[index].equipmentName,
-                                equipmentSn: this.equips[index].equipmentSn,
-                                itemSn: this.addItemSN,
-                                description: this.addItemDiscrip
-                            }
-                            this.items.push(updateData);
-                  
-                        } else {
-                            alert("資料有誤");
+                            this.getdata();
+                            this.addItemSN = "";
+                            
+                        } else if (r.status == 409){
+                            this.loading = false;
+                            alert("新增失敗, 請確認是否物品序號重複, 若無請洽網站管理員");
+
                         }
                     })
                     .catch(error => {
-
-                        alert("新增失敗");
+                        
                         console.log(error);
+                        this.loading = false;
+                        alert("新增失敗,請確認是否物品序號重複,若無請洽網站管理員");
+                        
                     })
-
-
-
             },
+
+
+        
 
             getdata: function () {
                 fetch('/ItemApi/GetItemsByEquipId/' + this.selectEquipId, { method: 'GET' })
@@ -300,28 +402,69 @@
             },
 
             addNewCate: function () {
-                console.log("按下按鈕");
-                let url = "https://imms.azurewebsites.net/EquipCategoryApi/InsertCate?Name=" + this.addNewCateName;
+                this.loading = true;
+                let url = "/EquipCategoryApi/InsertCate?Name=" + this.addNewCateName;
                 let request = {
                     method: "POST"
                 };
 
                 fetch(url, request)
                     .then(r => {
+                        
                         if (r.ok) {
                             alert("新增成功");
                             location.reload(true);
+
                         }
-                        else {
-                            alert("資料有誤");
-                        }
+                        
                     })
                     .catch(error => {
-                        alert("新增失敗");
+                        alert("新增失敗,請確認該種類名稱是否重複,若無請洽網站管理員");
                     })
             },
 
+            deletCate: function () {
+                
+                let url = "/EquipcategoryApi/DeleteCate/" + this.selectCateId;
+                let request = {
+                    method: 'Delete',
+                    headers: { 'content-type': 'application/json' },
+                };
+                let msg = "是否確定刪除？";
+                if (confirm(msg) == true) {
+                    this.loading = true;
+                    fetch(url, request)
+                        .then(r => {
+                            if (r.ok) {
+                                this.loading = false;
+                                alert("刪除成功");
+                                location.reload(true);
+
+                            } else if (r.status == 400) {
+                                this.loading = false;
+                                alert("刪除失敗, 請確認該種類底下是否已登錄設備與物品資料");
+
+                            } else if (r.status == 404) {
+                                this.loading = false;
+                                alert("刪除失敗,找不到此種類")
+
+                            } 
+                        })
+                        .catch(error => {
+                            this.loading = false;
+                            console.log(error);
+                            alert("刪除失敗,資料庫端發生錯誤");
+
+                        })
+                } else {
+                    return false;
+                };
+
+            },
+
             addNewEquip: function () {
+
+                this.loading = true;
                 let requestData = {
                     equipmentCategoryId: this.addEquipCateId,
                     equipmentSn: this.addEquipSN,
@@ -345,47 +488,141 @@
                         if (r.ok) {
                             alert("新增成功");
                             location.reload(true);
-
-                        } else {
-                            alert("資料有誤");
-                        }
+                        } 
                     })
                     .catch(error => {
-
+                        this.loading = false;
                         console.log(error);
-                        alert("新增失敗");
+                        alert("新增失敗,請確認是否設備序號重複,若無請洽網站管理員");
                     })
 
             },
 
-            btnDelItem: function (data) {
-            this.deletItemId = data;
-            this.deletItems.push(this.deletItemId);
-            let url = '/ItemApi/RemoveItemsByIds/';
-            let request = {
+            deletEquipModal: function () {
+
+                this.$bvModal.show("deletEquip");
+
+            },
+
+            deletCateModal: function () {
+
+                this.$bvModal.show("deletCate");
+
+            },
+
+            deletEquip: function () {
+
+                
+                this.deletEquipIds.push(this.selectEquipId);
+                let url = '/EquipApi/RemoveEquipByIds';
+                let request = {
                     method: 'Delete',
-                    headers: { 'content-type': 'application/json'},
-                    body: JSON.stringify(this.deletItems)
-                }; 
-            let msg = "是否確定刪除？";
-            if (confirm(msg) == true) {
-                fetch(url, request)
-                    .then(response => {
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data === 0) {
-                            alert("刪除失敗!!!");
-                        } else {
-                            alert("刪除" + data + "筆");
-                            this.items = this.items.filter(x =>x.itemId !== this.deletItemId);
-                            this.deletItems = [];
-                        }
-                    })
-            } else
-             {
-                return false;
-             };
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(this.deletEquipIds)
+                };
+                let msg = "是否確定刪除？";
+                if (confirm(msg) == true) {
+                    this.loading = true;
+                    fetch(url, request)
+                        .then(r => {
+                            if (r.status == 404) {
+                                this.loading = false;
+                                alert("刪除失敗,找不到該筆設備資料")
+                            } else if (r.status == 400) {
+                                this.loading = false;
+                                alert("刪除失敗,請確認該設備底下是否已登錄物品資料");
+                            } else if (r.status == 409) {
+                                this.loading = false;
+                                alert("刪除失敗,資料庫端發生錯誤");
+
+                            } else {
+
+                                return r.json();
+                            }
+                        })
+                        .then(data => {
+
+                            if (data === 0) {
+                                this.loading = false;
+                                alert("刪除失敗,資料庫端發生錯誤");
+                            } else if (data > 0) {
+                                this.loading = false;
+                                alert("刪除成功");
+                                this.deletItems_send = [];
+                                location.reload(true);
+                            } else {
+
+                                return data;
+                            }
+                        }).catch(error => {
+                            this.loading = false;
+                            console.log(error);
+                            alert("刪除失敗,資料庫端發生錯誤");
+
+                        })
+                } else {
+                    return false;
+                }
+
+            },
+
+
+            btnDelItem: function (data) {
+               
+                this.deletItemId = data;
+                this.deletItems_send.push(this.deletItemId);
+                let url = '/ItemApi/RemoveItemsByIds/';
+                let request = {
+                    method: 'Delete',
+                    headers: { 'content-type': 'application/json' },
+                    body: JSON.stringify(this.deletItems_send)
+                };
+                let msg = "是否確定刪除？";
+                if (confirm(msg) == true) {
+                    this.loading = true;
+                    fetch(url, request)
+                        .then(response => {
+
+                            if (response.status == 404) {
+                                this.loading = false;
+                                alert("刪除失敗,找不到該筆物品資料")
+                            } else if (response.status == 400) {
+                                this.loading = false;
+                                alert("刪除失敗,請確認該物品是否已借出或已刪除");
+                            } else if (response.status == 409) {
+                                this.loading = false;
+                                alert("刪除失敗,資料庫端發生錯誤");
+
+                            } else {
+
+                                return response.json();
+                            }
+                            
+                        })
+                        .then(data => {
+
+                            if (data === 0) {
+                                this.loading = false;
+                                alert("刪除失敗,資料庫端發生錯誤");
+
+                            } else if (data>0) {
+                                this.loading = false;
+                                alert("刪除成功");
+                                this.items = this.items.filter(x => x.itemId !== this.deletItemId);
+                                this.deletItems_send = [];
+                            } else {
+
+                                return data;
+                            }
+                        }).catch(error => {
+                            this.loading = false;
+                            console.log(error);
+                            alert("刪除失敗,資料庫端發生錯誤");
+
+                        })
+                } else {
+                    return false;
+                };
 
             },
 
@@ -393,7 +630,9 @@
                 this.updateItem = []
                 this.updateItem.push(itemId);
             },
+
             btnUpdConfirm: function (item) {
+                this.loading = true;
                 this.updateItem = [];
                 let temp = {
                     itemId: item.itemId,
@@ -403,60 +642,203 @@
 
                 let url = '/ItemApi/EditItem/' + item.itemId;
                 let request = {
-                    method: 'PUT', 
+                    method: 'PUT',
                     headers: { 'content-type': 'application/json' },
                     body: JSON.stringify(temp)
                 }
                 fetch(url, request)
                     .then(response => {
                         if (response.ok) {
+                            this.loading = false;
                             alert("修改成功");
 
+                        } else if (response.status == 404) {
+                            this.loading = false;
+                            alert("修改失敗,找不到該物品資料")
 
-                        } else {
-                            alert("修改失敗");
-                            this.getdata();
-                        }
+                        } 
+                    }).catch(error => {
+                        this.loading = false;
+                        console.log(error);
+                        alert("修改失敗,請確認序號是否重複,若無請洽網站管理員");
+                        this.getdata();
+                        
                     })
             },
+
             deletAllSelect: function () {
-                this.deletItems=[];
-                if (!this.deletAll) {
+                this.deletAllItem_checkbox = [];
+                if (!this.deletAll_checkbox) {
                     for (let i = 0; i < this.items.length; i++) {
-                        this.deletItems.push(this.items[i].itemId);
+                        this.deletAllItem_checkbox.push(this.items[i].itemId);
                     }
                 }
             },
 
             deletAllAction: function () {
-
+                
+                this.deletItems_send = this.deletAllItem_checkbox.map(x => x);
                 let url = '/ItemApi/RemoveItemsByIds/';
                 let request = {
                     method: 'Delete',
                     headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify(this.deletItems)
+                    body: JSON.stringify(this.deletItems_send)
                 };
 
                 let msg = "是否確定刪除？";
                 if (confirm(msg) == true) {
+                    this.loading = true;
                     fetch(url, request)
                         .then(response => {
-                            return response.json();
+                            if (response.status == 404) {
+                                this.loading = false;
+                                alert("刪除失敗,找不到該筆物品資料")
+                            } else if (response.status == 400) {
+                                this.loading = false;
+                                alert("刪除失敗,請確認該物品是否已借出或已刪除");
+                            } else if (response.status == 409) {
+                                this.loading = false;
+                                alert("刪除失敗,資料庫端發生錯誤");
+
+                            } else {
+
+                                return response.json();
+                            }
+
                         })
                         .then(data => {
                             if (data === 0) {
+                                this.loading = false;
                                 alert("刪除失敗!!!");
+                            } else if (data > 0) {
+                                this.loading = false;
+                                alert("刪除成功");
+                                this.items = this.items.filter(x => !this.deletItems_send.includes(x.itemId));
+                                this.deletItems_send = [];
+                                this.deletAllItem_checkbox= []
+                                this.deletAll_checkbox = false;
                             } else {
-                                alert("刪除" + data + "筆");
-                                this.items = this.items.filter(x => !this.deletItems.includes(x.itemId));
-                                this.deletItems = [];
-                                this.deletAllAction = false;
+
+                                return data;
                             }
+                        }).catch(error => {
+                            this.loading = false;
+                            console.log(error);
+                            alert("刪除失敗,資料庫端發生錯誤")
+
                         })
                 } else {
                     return false;
                 };
+            },
+
+            updateDeletAll: function () {
+                console.log("我被點了");
+                if (this.deletAllItem_checkbox.length < this.items.length) {
+
+                    return this.deletAll_checkbox = false;
+                }
+
+            }
+        },
+
+        computed: {
+
+
+            addNewEquipRequired: function () {
+
+                let equipName = this.addEquipName.trim();
+                let equipSn = this.addEquipSN.trim();
+                if (equipName == "" || equipSn == "" || this.addEquipPrice == 0)
+                    return true;
+
+            },
+
+            checkEquipBrand: function () {
+
+                let brand = ""
+
+                if (this.selectEquipBrand !== null) {
+
+                    brand = "";
+
+                } else {
+
+                    brand = this.selectEquipBrand.trim();
+                }
+
+
+                if (brand == "") {
+
+                    return "未填寫"
+                } else {
+
+                    return this.selectEquipBrand;
+
+                }
+
+            },
+
+            checkEquipModel: function () {
+
+                let equipModel = ""
+
+                if (this.selectEquipModel !== null) {
+
+                    equipModel = "";
+
+                } else {
+
+                    equipModel = this.selectEquipModel.trim();
+                }
+
+                if (equipModel == "") {
+
+                    return "未填寫"
+                } else {
+
+                    return this.selectEquipModel;
+
+                }
+
+            },
+
+            checkEquipDescri: function () {
+
+                let Descri = ""
+
+                if (this.selectEquipDescri == null) {
+
+                    Descri = "";
+
+                } else {
+
+                    Descri = this.selectEquipDescri.trim();
+                }
+
+
+                if (Descri == "") {
+
+                    return "未填寫"
+                } else {
+
+                    return this.selectEquipDescri;
+
+                }
+            },
+
+            itemAdddisabled() {
+
+                return this.addItemSN.trim() == "";
+
+            },
+            addCateDisabled() {
+
+                return this.addNewCateName.trim() == "";
+
             }
         }
+
+      
     })
 </script>

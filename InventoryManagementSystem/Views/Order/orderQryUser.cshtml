@@ -83,6 +83,7 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            <b-button  variant="danger" href="/payment">前往付款</b-button>
                         </div>
                     </b-tab>
 
@@ -214,7 +215,7 @@
                                             <td>{{order.unitPrice * order.day * order.quantity}}</td>
                                             <td>已逾期</td>
                                             <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                            <td>{{order.totalExtraFee}}<br><a v-if="order.totalExtraFee !== 0" href="/payment" style="color:red; font-size:80%;">請前往付款頁面確認是否結清<i class="bi bi-arrow-up-right-square-fill" href="Payment/PaymentResultView"></i></a></td>
+                                            <td>{{order.totalExtraFee}}<br><a v-if="order.totalExtraFee !== 0" href="/payment" style="color:red; font-size:80%;">請前往付款頁面確認是否結清<i class="bi bi-arrow-up-right-square-fill" href="/payment"></i></a></td>
                                         </tr>
                                         <tr v-if="opened.includes(order.orderId)">
                                             <td colspan="11" class="p-3 mb-2 bg-light text-dark">
@@ -228,6 +229,7 @@
                                     </template>
                                 </tbody>
                             </table>
+                         <b-button variant="danger" href="/payment">前往付款</b-button>
                         </div>
                     </b-tab>
 
@@ -281,6 +283,9 @@
                     </b-tab>
                 </b-tabs>
             </b-card>
+            <br />
+            <br />
+            <br />
 
 
             <!-- 問題反映Modal -->
@@ -670,7 +675,7 @@
 
     .tableFixHead {
         overflow: auto;
-        height: 300px;
+        height: 350px;
     }
 
     .tableFixHead thead th {
