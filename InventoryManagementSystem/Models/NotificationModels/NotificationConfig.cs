@@ -12,6 +12,7 @@ namespace InventoryManagementSystem.Models.NotificationModels
         public int Port { get; set; }
         public string User { get; set; }
         public string Pass { get; set; }
-        public string ApiKey { get; set; }
+        public string HashedApiKey { get; set; }
+        public string ApiSalt { get; set; }
     }
 }
