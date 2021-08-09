@@ -90,11 +90,15 @@
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">LINE 綁定：</label>
-                            <p class="form-control">{{tempUser.lineEnabled}}</p>
+                            <p class="form-control"
+                               v-if="tempUser.lineEnabled==true">綁定</p>
+                            <p class="form-control" v-else>未綁定</p>
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">允許收到通知：</label>
-                            <p class="form-control">{{tempUser.allowNotification}}</p>
+                            <p class="form-control"
+                               v-if="tempUser.allowNotification==true">允許</p>
+                            <p class="form-control" v-else>不允許</p>
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">違規次數：</label>
@@ -234,7 +238,11 @@
 <script>
     //生日格式過濾
     Vue.filter('dateOfBirthFormat', function (dateOfBirth, myDateOfBirth) {
-        return moment(dateOfBirth).format(myDateOfBirth || 'YYYY-MM-DD');
+        if (dateOfBirth == null) {
+            return '';
+        } else {
+            return moment(dateOfBirth).format(myDateOfBirth || 'YYYY-MM-DD');
+        }
     });
 
     var app = new Vue({
@@ -243,7 +251,10 @@
             users: [],
             tempUser: {},
             search: '',
-            tempUpdate: {},
+            tempUpdate: {
+                lineEnabled: '',
+                allowNotification: ''
+            },
             genders: [
                 {
                     value: "M",
@@ -271,7 +282,6 @@
                 })
                 .then(response => {
                     this.users = response;
-                    console.log(this.users);
                 })
                 .catch(error => {
                     console.log(error);

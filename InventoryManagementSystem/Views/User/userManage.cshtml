@@ -2,7 +2,7 @@
 
 <style>
     table {
-        max-width: 500px;
+        max-width: 700px;
         width: 100%;
         padding: 10px;
         border-radius: 5px;
@@ -13,21 +13,38 @@
         font-size: 40px;
         font-weight: 400;
         text-align: center;
-        background-color: #808080;
+        background: linear-gradient(135deg,#33398d,#808080,#000000);
         color: #ffffff;
+        border-radius: 10px;
     }
 
-    .field {
+    table tr {
+        border-bottom: solid 2px white;
+    }
+
+    table th {
+        position: relative;
         width: 30%;
-        font-size: 20px;
+        background-color: #7d7d7d;
+        color: white;
+        text-align: center;
+        padding: 5px 0;
+    }
+
+    table td {
+        text-align: left;
+        width: 70%;
+        text-align: center;
+        background-color: #eee;
+        padding: 10px 0;
     }
 
     .editBtn {
-        width: 100%;
+        width: 50%;
         height: 100%;
         color: #ffffff;
         font-weight: bold;
-        background: #0026ff;
+        background: linear-gradient(135deg,#33398d,#808080,#000000);
         font-size: 20px;
     }
 </style>
@@ -38,55 +55,57 @@
             <th colspan="2" class="title">個人資訊</th>
         </tr>
         <tr>
-            <th class="field">使用者名稱：</th>
+            <th>使用者名稱：</th>
             <td>{{user.username}}</td>
         </tr>
         <tr>
-            <th class="field">全名：</th>
+            <th>全名：</th>
             <td>{{user.fullName}}</td>
         </tr>
         <tr>
-            <th class="field">電子信箱：</th>
+            <th>電子信箱：</th>
             <td>{{user.email}}</td>
         </tr>
         <tr>
-            <th class="field">手機：</th>
+            <th>手機：</th>
             <td>{{user.phoneNumber}}</td>
         </tr>
         <tr>
-            <th class="field">性別：</th>
+            <th>性別：</th>
             <td>{{user.gender}}</td>
         </tr>
         <tr>
-            <th class="field">生日：</th>
+            <th>生日：</th>
             <td>{{user.dateOfBirth | dateOfBirthFormat}}</td>
         </tr>
         <tr>
-            <th class="field">地址：</th>
+            <th>地址：</th>
             <td>{{user.address}}</td>
         </tr>
         <tr>
-            <th class="field">LINE 帳號：</th>
+            <th>LINE 帳號：</th>
             <td>{{user.lineAccount}}</td>
         </tr>
         <tr>
-            <th class="field">LINE 綁定</th>
-            <td>{{user.lineEnabled}}</td>
+            <th>LINE 綁定</th>
+            <td v-if="user.lineEnabled==true">綁定</td>
+            <td v-else>未綁定</td>
         </tr>
         <tr>
-            <th class="field">允許收到通知：</th>
-            <td>{{user.allowNotification}}</td>
+            <th>允許收到通知：</th>
+            <td v-if="user.allowNotification==true">允許</td>
+            <td v-else>不允許</td>
         </tr>
         <tr>
-            <th class="field">違規時間：</th>
+            <th>違規次數：</th>
             <td>{{user.violationTimes}}</td>
         </tr>
         <tr>
-            <th class="field">禁止：</th>
+            <th>禁止：</th>
             <td>{{user.banned}}</td>
         </tr>
         <tr>
-            <td colspan="2" class="button">
+            <td colspan="2">
                 <button type="button" class="btn btn-primary editBtn" data-toggle="modal" data-target="#userUpdate" v-on:click="userEdit(user)">資料修改</button>
             </td>
         </tr>
@@ -272,7 +291,11 @@
 <script>
     //生日格式過濾
     Vue.filter('dateOfBirthFormat', function (dateOfBirth, myDateOfBirth) {
-        return moment(dateOfBirth).format(myDateOfBirth || 'YYYY-MM-DD');
+        if (dateOfBirth == null) {
+            return '';
+        } else {
+            return moment(dateOfBirth).format(myDateOfBirth || 'YYYY-MM-DD');
+        }
     });
 
     var app = new Vue({
