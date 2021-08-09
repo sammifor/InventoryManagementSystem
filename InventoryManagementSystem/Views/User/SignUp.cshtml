@@ -7,7 +7,9 @@
     <div class="col-xl-8 col-12">
         <div class="card">
             <h1 class="card-header h3 text-center">會員註冊</h1>
-            <form method="post" class="card-body">
+            <form method="post" 
+                  class="card-body"
+                  :hidden="!messageHidden">
                 <label for="email">電子信箱</label>
                 <div class="form-group">
                     <input v-model="info.email"
@@ -18,6 +20,7 @@
                            id="email"
                            placeholder="必填"
                            required />
+                    <div class="invalid-feedback">已被註冊、或您輸入的格式不正確</div>
                 </div>
 
                 <div class="form-group">
@@ -30,6 +33,7 @@
                            id="phoneNumber"
                            placeholder="必填"
                            required />
+                    <div class="invalid-feedback">已被註冊、或您輸入的格式不正確</div>
                 </div>
 
                 <div class="form-group">
@@ -42,6 +46,7 @@
                            id="username"
                            placeholder="必填"
                            required />
+                    <div class="invalid-feedback">已被註冊或您輸入的格式不正確。僅能輸入英文字母大小寫、數字、底線。最多不超過 50 個字元。</div>
                 </div>
 
                 <div class="form-group">
@@ -54,6 +59,7 @@
                            id="password"
                            placeholder="必填"
                            required />
+                    <div class="invalid-feedback">最少需填寫 6 碼</div>
                 </div>
 
                 <div class="form-group">
@@ -65,6 +71,7 @@
                            id="pw-check"
                            placeholder="必填"
                            required />
+                    <div class="invalid-feedback">與密碼不符</div>
                 </div>
 
                 <div class="form-group">
@@ -77,6 +84,7 @@
                            id="fullName"
                            placeholder="必填"
                            required />
+                    <div class="invalid-feedback">不可為空、不可超過 50 個字元</div>
                 </div>
 
                 <div class="form-group">
@@ -301,7 +309,8 @@
                         emailIsValid = emailRule.test(value);
                         break;
                     case "username":
-                        // TODO username validation logic
+                        let usernameRule = /^\w{1,50}$/;
+                        usernameIsValid = usernameRule.test(value);
                         break;
                     case "phoneNumber":
                         let phoneRule = /^09[0-9]{8}$/;
@@ -342,19 +351,17 @@
                 this.pwCheckClass["is-valid"] = false;
                 this.pwCheckClass["is-invalid"] = false;
 
-                // 驗證密碼符合規則
-                if (this.info.password.length < 6)
+                if (this.info.password.length < 6) {
                     this.pwClass["is-invalid"] = true;
-                else
-                    this.pwClass["is-valid"] = true;
+                    return;
+                }
 
-                // 驗證確認密碼與密碼一致
+                this.pwClass["is-valid"] = true;
+
                 if (this.pwCheck !== this.info.password)
                     this.pwCheckClass["is-invalid"] = true;
                 else
                     this.pwCheckClass["is-valid"] = true;
-
-
             },
             // 每次在不得重覆的欄位輸入時，停止上次的 timer，並開始新的 timer
             uniqueFieldInput(timer, validationClass, e, fieldName) {
@@ -374,7 +381,7 @@
 
                 let name = this.info.fullName = e.target.value.trim();
 
-                if (name.length <= 0)
+                if (name.length <= 0 || name.length > 50)
                     validationClass["is-invalid"] = true;
                 else
                     validationClass["is-valid"] = true;
