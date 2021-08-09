@@ -153,7 +153,7 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                                    <button type="button" class="btn btn-primary" v-on:click="btnDelEquip">確認</button>
+                                    <b-button variant="primary" v-on:click="btnDelEquip" :disabled="checkDeleteValid">確認</b-button>
                                 </div>
                             </div>
                         </div>
@@ -175,7 +175,8 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                                    <button type="button" class="btn btn-primary" v-on:click="btnDelItem">確認</button>
+                                    <b-button variant="primary" v-on:click="btnDelItem" :disabled="checkDeleteValidItems">確認</b-button>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -466,7 +467,7 @@
                         .then(data => {
 
                             if (data === 0) {
-                                alert("刪除失敗!!!");
+                                alert("刪除失敗,請確認該設備底下是否還有物品!!!");
                                 this.show = false;
                                 view.checkedEquips = [];
                             } else {
@@ -554,7 +555,7 @@
 
                                 console.log(view.equips);
                             } else {
-                                alert("修改失敗");
+                                alert("修改失敗,請檢查序號是否重複!!!");
                                 this.show = false;
                             }
 
@@ -602,7 +603,7 @@
                                 view.$forceUpdate();
 
                             } else {
-                                alert("修改失敗");
+                                alert("修改失敗,請檢查序號是否重複!!!");
                                 this.show = false;
                             }
                         })
@@ -642,7 +643,20 @@
                     return this.checkedItems.map((x) => {
                         return x.itemSn
                     })
+                },
+                checkDeleteValid() {
+                    if (this.showDeleteEquips == null || this.showDeleteEquips == '') {
+                        return true;
+                    }
+                    return false;
+                },
+                checkDeleteValidItems() {
+                    if (this.showDeleteItems == null || this.showDeleteItems == '') {
+                        return true;
+                    }
+                    return false;
                 }
+
             }
         })
     </script>
