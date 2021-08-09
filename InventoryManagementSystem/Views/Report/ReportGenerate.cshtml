@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+<script src="https://unpkg.com/vue-json-excel"></script>
 
 
 <div id="app">
@@ -68,6 +69,11 @@
                             <option v-for="fee in filter_extraFee" :value="fee">{{fee}}</option>
                         </select>
                     </div>
+                    <div class="form-group col-md-3" v-show="filterTab">
+                        <download-excel :data="orders_organized">
+                            <b-button variant="primary" @@click="organizedData">下載</b-button>
+                        </download-excel>
+                    </div>
 
                     <div>
                         <b-table id="my-table"
@@ -119,16 +125,14 @@
             <br />
             <br />
         </div>
-    </b-overlay>
+    </b-overlay> 
 </div>
- 
+
 
 <script>
-    Vue.filter('timeString', function (value, myFormat) {
-                    return moment(value).format(myFormat || 'YYYY-MM-DD, HH:mm:ss');
-                });
+    
+    Vue.component("downloadExcel", JsonExcel);
     var app = new Vue({
-
         el: '#app',
         data: {
 
@@ -155,6 +159,7 @@
             ],
             orders: [],
             orders_filtered: [],
+            orders_organized:[],
             select_month_start: [
                 { month: "1月", data: "01-01T00:00:00.00" },
                 { month: "2月", data: "02-01T00:00:00.00" },
@@ -186,10 +191,10 @@
             filterTab: false,
             filter_username: [],
             filter_equipmentName: [],
-            filter_extraFee:[],
+            filter_extraFee: [],
             selectUser: null,
             selectEquipmentName: null,
-            selectExtraFee:null
+            selectExtraFee: null
 
 
         },
@@ -214,7 +219,6 @@
                     .then(response => {
                         if (response.ok) {
                             console.log("資料庫連線成功");
-
                             return response.json();
 
                         } else {
@@ -229,13 +233,10 @@
                         this.orders = response;
                         this.orders_filtered = this.orders;
                         this.loading = false;
-                        if (this.orders.length == 0) {
 
-                            alert("查無資料");
-                        } else {
-                            this.getFilterOption(this.orders);
-                            this.filterTab = true;
-                        }
+                        this.getFilterOption(this.orders);
+                        this.filterTab = true;
+
                     }).catch(error => {
                         this.loading = false;
                         alert("資料庫連線失敗");
@@ -253,7 +254,7 @@
 
                 var arr_username = []
                 var arr_equipmentName = []
-                var arr_extraFee=[]
+                var arr_extraFee = []
                 this.orders.forEach(od => {
                     arr_username.push(od.username);
                     arr_equipmentName.push(od.equipmentName);
@@ -285,7 +286,33 @@
                 }
                 if (this.selectExtraFee != null) {
                     this.orders_filtered = this.orders_filtered.filter(od => od.totalExtraFee == this.selectExtraFee);
-s                }
+                    
+                }
+
+                
+
+            },
+
+            organizedData: function () {
+
+                this.orders_filtered.forEach(od => {
+
+                    od.estimatedPickupTime = od.estimatedPickupTime.substring(0, 10);
+
+                    const allowed = ['orderSn', 'username', 'equipmentSn', 'equipmentName',
+                        'quantity','estimatedPickupTime', 'totalRentalFee', 'totalExtraFee']
+
+                    const filtered = Object.keys(od)
+                        .filter(key => allowed.includes(key))
+                        .reduce((obj, key) => {
+                            obj[key] = od[key];
+                            return obj;
+                        }, {});
+
+                    this.orders_organized.push(filtered);
+                })
+
+
             }
         }
     })
