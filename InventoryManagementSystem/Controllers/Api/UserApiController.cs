@@ -2,6 +2,7 @@
 using InventoryManagementSystem.Models.LINE;
 using InventoryManagementSystem.Models.NotificationModels;
 using InventoryManagementSystem.Models.Password;
+using InventoryManagementSystem.Models.reCAPTCHA;
 using InventoryManagementSystem.Models.ResultModels;
 using InventoryManagementSystem.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
@@ -34,15 +35,18 @@ namespace InventoryManagementSystem.Controllers.Api
         private readonly InventoryManagementSystemContext _dbContext;
         private readonly NotificationService notificationService;
         private readonly LineConfig _lineConfig;
+        private readonly IConfiguration Config;
 
         public UserApiController(
-            InventoryManagementSystemContext dbContext, 
-            IOptions<LineConfig> lineConfig, 
-            NotificationService notificationService)
+            InventoryManagementSystemContext dbContext,
+            IOptions<LineConfig> lineConfig,
+            NotificationService notificationService, 
+            IConfiguration config)
         {
             _dbContext = dbContext;
             this.notificationService = notificationService;
             _lineConfig = lineConfig.Value;
+            Config = config;
         }
 
         /* method: GET
@@ -586,8 +590,34 @@ namespace InventoryManagementSystem.Controllers.Api
         }
 
         [HttpPost("sendresetlink")]
-        public async Task<IActionResult> SendResetLink([FromForm] string email)
+        public async Task<IActionResult> SendResetLink([FromForm] string email, [FromForm] string recaptchatoken)
         {
+
+
+            var recaptchaConfig = Config.GetSection("reCAPTCHA").Get<reCAPTCHAConfig>();
+
+            HttpRequestMessage request = new HttpRequestMessage();
+            request.Method = new HttpMethod("POST");
+            request.RequestUri = new Uri("https://www.google.com/recaptcha/api/siteverify");
+            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                {"secret", recaptchaConfig.SecretKey },
+                {"response", recaptchatoken }
+            });
+            using(HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage response = await client.SendAsync(request);
+
+                if(!response.IsSuccessStatusCode)
+                    return BadRequest();
+
+                string responseDataString = await response.Content.ReadAsStringAsync();
+                var responseData = JsonConvert.DeserializeObject<reCAPTCHAValidationResponse>(responseDataString);
+
+                if(!responseData.success)
+                    return BadRequest();
+            }
+
             #region 確認此 User 真的存在
             var user = await _dbContext.Users
                 .Where(u => u.Email == email)
