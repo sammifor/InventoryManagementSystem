@@ -83,10 +83,6 @@
             <td>{{user.address}}</td>
         </tr>
         <tr>
-            <th>LINE 帳號：</th>
-            <td>{{user.lineAccount}}</td>
-        </tr>
-        <tr>
             <th>LINE 綁定</th>
             <td v-if="user.lineEnabled==true">綁定</td>
             <td v-else>未綁定</td>
@@ -252,22 +248,22 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="col-form-label">LINE 帳號：</label>
-                            <input type="text"
-                                   class="form-control"
-                                   v-model.trim="tempUpdate.lineAccount">
-                        </div>
-
-                        <div class="form-group">
                             <label for="lineEnabled" class="col-form-label">LINE 綁定：</label>
-                            <input type="checkbox"
-                                   id="lineEnabled"
-                                   class="form-control"
-                                   v-if="tempUpdate.lineEnabled==true">
-                            <div v-else>
+                            <div v-if="user.lineEnabled==true">
+                                <input type="checkbox"
+                                       id="lineEnabled"
+                                       class="form-control"
+                                       v-bind:class="{'is-invalid': lineEnabledValid }"
+                                       @@change="lineEnabled(tempUpdate.lineEnabled)"
+                                       v-model="tempUpdate.lineEnabled">
+                                <div class="invalid-feedback">
+                                    {{lineEnabledCancel}}
+                                </div>
+                            </div>
+                            <div v-if="user.lineEnabled==false">
                                 {{lineEnabledMessage}}
                                 <br />
-                                <a href="https://lin.ee/uJWV5ek"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>
+                                <a href="https://lin.ee/uJWV5ek" target="_blank"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="36" border="0"></a>
                             </div>
                         </div>
 
@@ -275,7 +271,7 @@
                             <label class="col-form-label">允許收到通知：</label>
                             <input type="checkbox"
                                    class="form-control"
-                                   v-model.trim="tempUpdate.allowNotification">
+                                   v-model="tempUpdate.allowNotification">
                         </div>
                     </form>
                 </div>
@@ -304,9 +300,7 @@
             user: {
                 dateOfBirth: ''
             },
-            tempUpdate: {
-                lineEnabled: ''
-            },
+            tempUpdate: {},
             genders: [
                 {
                     value: "M",
@@ -331,6 +325,8 @@
             emailError: '',
             phoneNumberValid: false,
             phoneNumberError: '',
+            lineEnabledValid: false,
+            lineEnabledCancel: '',
             lineEnabledMessage: '您尚未綁定LINE'
         },
 
@@ -467,6 +463,16 @@
                     console.log(this.phoneNumberValid)
                 }
             },
+
+            //Line綁定
+            lineEnabled: function (data) {
+                if (data == false) {
+                    this.lineEnabledValid = true;
+                    this.lineEnabledCancel = '您已解除 LINE 綁定，將不再收到 LINE 通知。';
+                } else {
+                    this.lineEnabledValid = false;
+                }
+            }
 
         },
 

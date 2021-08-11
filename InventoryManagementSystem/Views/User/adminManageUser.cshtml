@@ -13,7 +13,6 @@
                 <th>使用者名稱</th>
                 <th>全名</th>
                 <th>電子信箱</th>
-                <th>LINE 帳號</th>
                 <th>違規次數</th>
                 <th>禁止</th>
                 <th>使用者資料</th>
@@ -26,7 +25,6 @@
                 <td>{{user.username}}</td>
                 <td>{{user.fullName}}</td>
                 <td>{{user.email}}</td>
-                <td>{{user.lineAccount}}</td>
                 <td>{{user.violationTimes}}</td>
                 <td>{{user.banned}}</td>
                 <td>
@@ -83,10 +81,6 @@
                         <div class="form-group">
                             <label class="col-form-label">地址：</label>
                             <p class="form-control">{{tempUser.address}}</p>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-form-label">LINE 帳號：</label>
-                            <p class="form-control">{{tempUser.lineAccount}}</p>
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">LINE 綁定：</label>
@@ -211,12 +205,6 @@
                             <input type="text"
                                    class="form-control"
                                    v-model.trim="tempUpdate.address">
-                        </div>
-                        <div class="form-group">
-                            <label class="col-form-label">LINE 帳號：</label>
-                            <input type="text"
-                                   class="form-control"
-                                   v-model.trim="tempUpdate.lineAccount">
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">允許收到通知：</label>
