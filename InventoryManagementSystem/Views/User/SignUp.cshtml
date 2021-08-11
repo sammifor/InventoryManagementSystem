@@ -330,9 +330,13 @@
 
                 if (emailIsValid && usernameIsValid && phoneNumberIsvalid) {
                     console.log("connecting to db...", field);
-                    let validationURL = apiURLs.validate + `?validatedField=${field}&value=${value}`;
+                    let validationURL = apiURLs.validate;
                     let response = await fetch(validationURL, {
-                        method: "GET"
+                        method: "POST",
+                        body: new URLSearchParams({
+                            "validatedField": field,
+                            "value": value
+                        })
                     });
                     if (!response.ok)
                         throw new Error(`HTTP error! status: ${response.status}`);
