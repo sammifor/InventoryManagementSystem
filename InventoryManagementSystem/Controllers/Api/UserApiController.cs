@@ -59,8 +59,8 @@ namespace InventoryManagementSystem.Controllers.Api
          *         False if the field value is not available.
          */
         // 驗證 username、email、phoneNumber 是否可被註冊
-        [HttpGet("validate")]
-        public async Task<IActionResult> ValidateUser(string validatedField, string value)
+        [HttpPost("validate")]
+        public async Task<IActionResult> ValidateUser([FromForm] string validatedField, [FromForm] string value)
         {
             if (string.IsNullOrEmpty(value))
             {
@@ -363,8 +363,8 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok();
         }
 
-        [HttpGet("checkunbound/{idToken}")]
-        public async Task<IActionResult> CheckUnbound(string idToken)
+        [HttpPost("checkunbound")]
+        public async Task<IActionResult> CheckUnbound([FromForm] string idToken)
         {
             string lineID = string.Empty;
 

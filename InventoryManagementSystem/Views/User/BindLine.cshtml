@@ -107,8 +107,11 @@
                 .then(async () => {
                     // start to use LIFF's api
                     this.userInfo.idToken = liff.getIDToken();
-                    let response = await fetch("/api/user/checkunbound/" + this.userInfo.idToken, {
-                        method: "GET"
+                    let response = await fetch("/api/user/checkunbound/", {
+                        method: "POST",
+                        body: new URLSearchParams({
+                            "idToken": this.userInfo.idToken
+                        })
                     }).catch(err => alert(err));
 
                     if (!response.ok) {

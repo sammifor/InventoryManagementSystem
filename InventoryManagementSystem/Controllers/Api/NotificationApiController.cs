@@ -155,11 +155,27 @@ namespace InventoryManagementSystem.Controllers.Api
                 return BadRequest();
 
             StringBuilder builder = new StringBuilder(feedback);
+
+            #region Send the email to the system
             builder.Replace("\n", "<br>");
             builder.Append($"<br>聯絡信箱：{email}");
             builder.Insert(0, "<p>");
             builder.Append("</p>");
             await _notificationService.SendEmailNotification(_notificaionConfig.Name, _notificaionConfig.User, $"來自「{name}」的意見反映", "html", builder.ToString());
+            #endregion
+
+            #region Notify the sender that they've just sent an email
+            builder.Clear();
+            builder.Append("<p>");
+            builder.Append($"{name}您好：<br>");
+            builder.Append($"本系統已收到您傳的訊息，請耐心等候回覆。<br>");
+            builder.Append($"以下是您傳的訊息：<blockquote style='border-left: 3px #525c44 solid; padding-left: 3px'>{feedback}</blockquote>");
+            builder.Append($"若您不記得傳送過這則訊息，請忽略此信即可。若有疑問歡迎聯絡我們，謝謝。");
+            builder.Append("</p>");
+            builder.Replace("\n", "<br>");
+            await _notificationService.SendEmailNotification(name, email, $"我們已收到您的意見反映", "html", builder.ToString());
+            #endregion
+
             return Ok();
         }
     }

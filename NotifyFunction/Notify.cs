@@ -20,6 +20,7 @@ namespace NotifyFunction
             using(HttpClient client = new HttpClient())
             {
                 HttpRequestMessage request = new HttpRequestMessage();
+                request.Method = new HttpMethod("POST");
                 request.RequestUri = new Uri(target);
                 request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
