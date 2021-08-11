@@ -363,8 +363,8 @@ namespace InventoryManagementSystem.Controllers.Api
             return Ok();
         }
 
-        [HttpGet("checkunbound/{idToken}")]
-        public async Task<IActionResult> CheckUnbound(string idToken)
+        [HttpPost("checkunbound")]
+        public async Task<IActionResult> CheckUnbound([FromForm] string idToken)
         {
             string lineID = string.Empty;
 
