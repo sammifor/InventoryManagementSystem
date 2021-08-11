@@ -163,24 +163,63 @@ namespace InventoryManagementSystem.Controllers.Api
                         .OrderByDescending(il => il.CreateTime)
                         .Select(il => il.Condition.ConditionName)
                         .FirstOrDefault()
-                })
-                        .ToArray(),
+
+                }).ToArray(),
 
                 PaymentId = o.PaymentOrder.PaymentId,
 
+                TotalRentalFee = o.Equipment.UnitPrice * o.Quantity * o.Day,
 
                 TotalExtraFee = o.OrderDetails
-                            .SelectMany(od => od.ExtraFees)
-                            .Select(f =>f.Fee)
-                            .ToArray()
-                            .Sum()
-            })
-                .ToArrayAsync();
+                                .SelectMany(od => od.ExtraFees)
+                                .Select(f => f.Fee)
+                                .ToArray()
+                                .Sum(),
 
+                SamePaymentOrder=o.PaymentOrder.Payment.PaymentOrders
+                                 .Select(po=>po.OrderId)
+                                 .ToArray(),
+
+                PaymentReceived=o.PaymentOrder.Payment.PaymentDetails
+                                .Select(pd=>pd.AmountPaid)
+                                .ToArray()
+                                .Sum(),
+
+                
+                                
+
+
+            }).ToArrayAsync();
+
+            foreach (OrderResultModel od in orders)
+            {
+               
+                decimal[] extraFee = new decimal[od.SamePaymentOrder.Length];
+                decimal[] rentalFee = new decimal[od.SamePaymentOrder.Length];
+                
+                var extraList = extraFee.ToList();
+                var rentalList = rentalFee.ToList();
+                
+                for (var i = 0; i < od.SamePaymentOrder.Length; i++)
+                {
+                   
+                    decimal odExtraFee = Array.Find(orders, o => o.OrderId == od.SamePaymentOrder[i]).TotalExtraFee;
+                    decimal odRentalFee = Array.Find(orders, o => o.OrderId == od.SamePaymentOrder[i]).TotalRentalFee;
+                   
+
+                    extraList.Add(odExtraFee);
+                    rentalList.Add(odRentalFee);
+                    
+                }
+
+                od.TotalPaymentFee = extraList.Sum() + rentalList.Sum();
+            }
+            
+            
             IEnumerable<OrderResultModel> orderResults = new OrderResultModel[0];
 
             //"待核可"
-            if(!noPending)
+            if (!noPending)
             {
                 OrderResultModel[] pendingOrders = orders.Where(o =>
                     o.OrderStatusId == "P" && // Pending
@@ -264,7 +303,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPost]
         [Consumes("application/json")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> RespondOrder(RespondOrderViewModel model)
+         async Task<IActionResult> RespondOrder(RespondOrderViewModel model)
         {
             var order = await _dbContext.Orders
                 .FirstOrDefaultAsync(o => o.OrderId == model.OrderID &&
@@ -453,7 +492,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPost]
         [Consumes("application/json")]
         [Authorize]
-        public async Task<IActionResult> CancelOrder(CancelOrderViewModel model)
+         async Task<IActionResult> CancelOrder(CancelOrderViewModel model)
         {
             Order order = await _dbContext.Orders
                 .Where(o => o.OrderId == model.OrderID)
@@ -555,7 +594,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPost]
         [Route("{id}")]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> CompleteOrder(Guid id)
+         async Task<IActionResult> CompleteOrder(Guid id)
         {
             Order order = await _dbContext.Orders
                 .Where(o => o.OrderId == id &&
