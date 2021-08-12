@@ -20,6 +20,7 @@ namespace InventoryManagementSystem.Models.ResultModels
         public string OrderStatusId { get; set; }
         public DateTime? OrderTime { get; set; }
 
+
         // From Equipment table
         public string EquipmentSn { get; set; }
         public string EquipmentName { get; set; }
@@ -30,19 +31,33 @@ namespace InventoryManagementSystem.Models.ResultModels
 
         // From User table
         public string Username { get; set; }
-        
+
         // From OrderStatus table
         public string StatusName { get; set; }
 
         public string TabName { get; set; }
 
         public OrderDetailResultModel[] OrderDetails { get; set; }
+
+        public decimal TotalRentalFee{ get; set; }
         public int OpenReportCount { get; set; }
 
         // From Payment table
         public Guid? PaymentId { get; set; }
 
+        public Guid[] SamePaymentOrder { get; set; }
+
         // From ExtraFee table
         public decimal TotalExtraFee { get; set; }
+
+        //From Payment Table
+        public decimal PaymentReceived { get; set; }
+
+
+        //After Caculated 
+        public decimal TotalPaymentFee { get; set; }
+
+
+
     }
 }

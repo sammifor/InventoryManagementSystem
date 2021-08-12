@@ -1,7 +1,7 @@
 ﻿<div id="app">
     <div>
         <label>查詢：</label>
-        <input type="text" placeholder="請輸入姓名" v-model="search" />
+        <input type="text" placeholder="請輸入全名" v-model="search" />
     </div>
     <div class="float-lg-right">
         <button type="button" class="btn btn-success" onclick="window.location.href='/addadmin'">新增</button>
@@ -118,8 +118,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
                     <button type="button" class="btn btn-primary" v-on:click="updateAdmin" :disabled="btnOk">儲存</button>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">取消</button>
                 </div>
             </div>
         </div>
@@ -200,17 +200,19 @@
 
             //管理員刪除
             deleteAdmin: function (admin) {
-                confirm("確定要刪除：" + admin.fullName + "?");
-                fetch('/api/admin/' + admin.adminId, {
-                    method: 'DELETE',
-                    headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify(admin)
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            location.href = '/admin';
-                        }
+                if (confirm("確定要刪除：" + admin.fullName + "?") == true) {
+                    fetch('/api/admin/' + admin.adminId, {
+                        method: 'DELETE',
+                        headers: { 'content-type': 'application/json' },
+                        body: JSON.stringify(admin)
                     })
+                        .then(response => {
+
+                            if (response.ok) {
+                                location.href = '/admin';
+                            }
+                        })
+                }
             },
 
             //使用者名稱未填寫
