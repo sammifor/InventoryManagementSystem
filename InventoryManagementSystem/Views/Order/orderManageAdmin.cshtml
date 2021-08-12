@@ -169,7 +169,7 @@
                              :ok-disabled="distributionInvalid"
                              cancel-title="返回">
                         <template #modal-title>
-                            請選擇要分配的物品
+                            <p class="font-weight-bold">請選擇要分配的物品</p>
                         </template>
                         <form>
                             <p>應要分配 {{itemsToBeDistributed.quantity}} 個</p>
@@ -190,7 +190,10 @@
                              @@ok="distributeFailed"
                              ok-title="返回"
                              ok-variant="secondary">
-                        分配失敗
+                        <template #modal-title>
+                            <p class="font-weight-bold">分配失敗</p>
+                        </template>
+                        請重整頁面確認訂單資料為最新狀態
                     </b-modal>
 
                     <!-- 分配 item 成功 modal -->
@@ -198,7 +201,10 @@
                              ok-only
                              @@ok="resetDistributionData(); distributionSuccess()"
                              ok-title="完成">
-                        分配成功
+                        <template #modal-title>
+                            <p class="font-weight-bold">分配成功</p>
+                        </template>
+                        已分配物品成功，系統已同步通知使用者付款
                     </b-modal>
                 </div>
                 <!--#endregion-->
@@ -222,7 +228,10 @@
                              ok-only
                              ok-title="返回"
                              ok-variant="secondary">
-                        拒絕失敗
+                        <template #modal-title>
+                            <p class="font-weight-bold">拒絕失敗</p>
+                        </template>
+                        請重整頁面確認訂單資料為最新狀態
                     </b-modal>
 
                     <!-- 拒絕成功 modal -->
@@ -230,7 +239,10 @@
                              ok-only
                              @@ok="deniedSuccessfully()"
                              ok-title="完成">
-                        拒絕成功
+                        <template #modal-title>
+                            <p class="font-weight-bold">拒絕成功</p>
+                        </template>
+                        已拒絕該訂單成功，系統已同步通知使用者
                     </b-modal>
                 </div>
                 <!--#endregion-->
@@ -389,7 +401,10 @@
                              ok-only
                              ok-title="返回"
                              ok-variant="secondary">
-                        領取失敗
+                        <template #modal-title>
+                            <p class="font-weight-bold">領取失敗</p>
+                        </template>
+                        請重整頁面確認訂單資料為最新狀態
                     </b-modal>
 
                     <!--領取成功 modal -->
@@ -397,7 +412,10 @@
                              ok-only
                              @@ok="pickupedSuccessfully()"
                              ok-title="完成">
-                        領取成功
+                        <template #modal-title>
+                            <p class="font-weight-bold">領取成功</p>
+                        </template>
+                        已確認該使用者領取物品成功
                     </b-modal>
                 </div>
                 <!--#endregion-->
@@ -455,7 +473,7 @@
                                                 <b-col>{{ item.itemDescription }}</b-col>
                                                 <b-col>{{ item.orderDetailStatus }}</b-col>
                                                 <b-col>
-                                                    <span v-if="item.orderDetailStatus !='已歸還'">
+                                                    <span v-if="item.orderDetailStatus !='已歸還' && item.orderDetailStatus !='遺失'">
                                                         <b-icon-box size="sm" @@click="showReturnModal(item)"></b-icon-box>
                                                         /
                                                         <b-icon-question-circle size="sm" @@click="showLostModal(item)"></b-icon-question-circle>
@@ -517,7 +535,10 @@
                              ok-only
                              ok-title="返回"
                              ok-variant="secondary">
-                        歸還失敗
+                        <template #modal-title>
+                            <p class="font-weight-bold">歸還失敗</p>
+                        </template>
+                        請重整頁面確認訂單資料為最新狀態
                     </b-modal>
 
                     <!--歸還成功 modal -->
@@ -525,7 +546,10 @@
                              ok-only
                              @@ok="returnedSuccessfully()"
                              ok-title="完成">
-                        歸還成功
+                        <template #modal-title>
+                            <p class="font-weight-bold">歸還成功</p>
+                        </template>
+                        已確認該使用者歸還物品成功
                     </b-modal>
                 </div>
                 <!--#endregion-->
@@ -554,7 +578,10 @@
                              ok-only
                              ok-title="返回"
                              ok-variant="secondary">
-                        遺失登記失敗
+                        <template #modal-title>
+                            <p class="font-weight-bold">遺失登記失敗</p>
+                        </template>
+                        請重整頁面確認訂單資料為最新狀態
                     </b-modal>
 
                     <!--遺失登記成功 modal -->
@@ -562,8 +589,12 @@
                              ok-only
                              @@ok="lostSuccessfully()"
                              ok-title="完成">
-                        遺失登記成功
+                        <template #modal-title>
+                            <p class="font-weight-bold">遺失登記成功</p>
+                        </template>
+                        已確認該物品遺失登記成功
                     </b-modal>
+                    
                 </div>
                 <!--#endregion-->
                 <!--#endregion-->
@@ -626,7 +657,7 @@
                                                 <b-col>{{ item.itemDescription }}</b-col>
                                                 <b-col>{{ item.orderDetailStatus }}</b-col>
                                                 <b-col>
-                                                    <span v-if="item.orderDetailStatus !='已歸還'">
+                                                    <span v-if="item.orderDetailStatus !='已歸還' && item.orderDetailStatus !='遺失'">
                                                         <b-icon-box size="sm" @@click="showReturnModal(item)"></b-icon-box>
                                                         /
                                                         <b-icon-question-circle size="sm" @@click="showLostModal(item)"></b-icon-question-circle>
@@ -692,7 +723,10 @@
                              ok-only
                              ok-title="返回"
                              ok-variant="secondary">
-                        輸入罰金失敗
+                        <template #modal-title>
+                            <p class="font-weight-bold">輸入罰金資訊失敗</p>
+                        </template>
+                        請重整頁面確認訂單資料為最新狀態
                     </b-modal>
 
                     <!--輸入罰金成功 modal-->
@@ -700,7 +734,10 @@
                              ok-only
                              @@ok="extraFeeSuccess()"
                              ok-title="完成">
-                        輸入罰金成功
+                        <template #modal-title>
+                            <p class="font-weight-bold">輸入罰金資訊成功</p>
+                        </template>
+                        已確認該訂單輸入罰金成功，系統已同步通知該使用者
                     </b-modal>
                 </div>
                 <!--#endregion-->
@@ -877,7 +914,10 @@
                              ok-only
                              ok-title="返回"
                              ok-variant="secondary">
-                        結案失敗
+                        <template #modal-title>
+                            結案失敗
+                        </template>
+                        請重整頁面確認訂單資料為最新狀態
                     </b-modal>
 
                     <!--結案成功 modal-->
@@ -885,7 +925,10 @@
                              ok-only
                              @@ok="closedSuccessfully()"
                              ok-title="完成">
-                        結案成功
+                        <template #modal-title>
+                            結案成功
+                        </template>
+                        已經結案成功！
                     </b-modal>
                 </div>
                 <!--#endregion-->
@@ -1199,6 +1242,7 @@
             //#endregion
             //#region 分配 Item 開始
             async showDataAndModal(data) {
+                this.show = true;
                 let response = await fetch("/itemapi/getavailableitemsbyequipid/" + data.equipmentId, {
                     method: "GET"
                 });
@@ -1209,7 +1253,7 @@
                 this.distributionData.orderId = data.orderId;
                 this.itemsToBeDistributed.quantity = data.quantity;
                 this.itemsToBeDistributed.items = await response.json();
-
+                this.show = false;
                 this.$bvModal.show("distribute-item-modal");
             },
             selectDistributedItems(id, e) {
@@ -1281,8 +1325,10 @@
             //#endregion
             //#region 拒絕
             showDenialModal(data) {
+                this.show = true;
                 this.distributionData.orderId = data;
                 console.log(data);
+                this.show = false;
                 this.$bvModal.show("deny-modal");
             },
             async confirmDenial() {
