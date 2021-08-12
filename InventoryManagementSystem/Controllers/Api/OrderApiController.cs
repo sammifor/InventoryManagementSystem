@@ -303,7 +303,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPost]
         [Consumes("application/json")]
         [Authorize(Roles = "admin")]
-         async Task<IActionResult> RespondOrder(RespondOrderViewModel model)
+        public async Task<IActionResult> RespondOrder(RespondOrderViewModel model)
         {
             var order = await _dbContext.Orders
                 .FirstOrDefaultAsync(o => o.OrderId == model.OrderID &&
@@ -492,7 +492,7 @@ namespace InventoryManagementSystem.Controllers.Api
         [HttpPost]
         [Consumes("application/json")]
         [Authorize]
-         async Task<IActionResult> CancelOrder(CancelOrderViewModel model)
+        public async Task<IActionResult> CancelOrder(CancelOrderViewModel model)
         {
             Order order = await _dbContext.Orders
                 .Where(o => o.OrderId == model.OrderID)
