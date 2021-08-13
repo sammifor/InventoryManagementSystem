@@ -515,14 +515,12 @@
                         </template>
                         <div>
                             <label>請確認是否損壞:</label>
-                            <b-form-checkbox id="returnData.functionsNormally"
-                                             v-model="returnData.functionsNormally"
-                                             value=true>
+                            <b-form-checkbox v-model="returnData.functionsNormally"
+                                             :value=true>
                                 無損
                             </b-form-checkbox>
-                            <b-form-checkbox id="returnData.functionsNormally"
-                                             v-model="returnData.functionsNormally"
-                                             value=false>
+                            <b-form-checkbox v-model="returnData.functionsNormally"
+                                             :value=false>
                                 損壞
                             </b-form-checkbox>
 
