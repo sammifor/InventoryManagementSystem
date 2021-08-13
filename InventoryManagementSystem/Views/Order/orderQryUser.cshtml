@@ -218,7 +218,9 @@
                                             <td>{{order.unitPrice * order.day * order.quantity}}</td>
                                             <td>{{order.totalExtraFee}}</td>
                                             <td>{{order.orderTime | timeString('YYYY-MM-DD')}}</td>
-                                            <td><span v-if="order.paymentReceived != order.totalPaymentFee">因逾期產生逾期費用,請盡速繳清</span><span v-else>已繳清逾期費用,請盡速歸還</span></td>
+                                            <td><span v-if="order.totalExtraFee!=0 && order.paymentReceived != order.totalPaymentFee">產生逾期費用,請盡速繳清並歸還</span>
+                                                <span v-if="order.totalExtraFee==0 && order.paymentReceived == order.totalPaymentFee">即將產生逾期費用, 請盡速歸還</span>
+                                                <span v-if="order.totalExtraFee!=0 && order.paymentReceived == order.totalPaymentFee">已繳清逾期費用,請盡速歸還</span></td>
 
                                         </tr>
                                         <tr v-if="opened.includes(order.orderId)">
@@ -728,7 +730,7 @@
 
             tab6_title() {
 
-                return "已結清" + " " + "(" + this.orders_6.length.toString() + ")";
+                return "已結案" + " " + "(" + this.orders_6.length.toString() + ")";
 
             }
         }
