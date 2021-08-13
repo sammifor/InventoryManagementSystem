@@ -714,11 +714,15 @@
                             </b-form-invalid-feedback>
 
                         </div>
+                        <br/>
                         <div>
                             <label :for="extraFeeData.description">請輸入罰款備註:</label>
-                            <b-form-input :id="extraFeeData.description"
-                                          type="text"
-                                          v-model="extraFeeData.description"></b-form-input>
+                            
+                                <b-form-input :id="extraFeeData.description"
+                                              type="text"
+                                              :state="nameState1"                                              
+                                              placeholder="必填"                                  
+                                              v-model="extraFeeData.description"></b-form-input>
                         </div>
                     </b-modal>
                     <!--輸入罰金失敗 modal-->
@@ -1682,7 +1686,7 @@
                 return this.itemsToBeDistributed.quantity - this.distributionData.itemIDs.length !== 0;
             },
             checkInputValid() {
-                if (this.extraFeeData.fee > 0) {
+                if (this.extraFeeData.fee > 0 && this.extraFeeData.description.length > 0) {
                     return false;
                 }
                 return true;
@@ -1692,6 +1696,9 @@
             },
             nameState() {
                 return this.extraFeeData.fee > 0 ? true : false
+            },
+            nameState1() {
+                return this.extraFeeData.description.length > 0 ? true : false
             }
 
         }
