@@ -358,7 +358,7 @@ namespace InventoryManagementSystem.Controllers.Api
 
                     request.Content = JsonContent.Create(new
                     {
-                        to = "U4ba3f21ed2374e0164d0a802ea81991c",
+                        to = rentalInfo.LineId,
                         messages = new[]
                         {
                         new
