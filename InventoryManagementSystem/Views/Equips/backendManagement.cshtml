@@ -372,6 +372,7 @@
                             alert("新增成功");
                             this.getdata();
                             this.addItemSN = "";
+                            this.addItemDiscrip = "";
                             
                         } else if (r.status == 409){
                             this.loading = false;
@@ -571,7 +572,7 @@
 
 
             btnDelItem: function (data) {
-               
+                
                 this.deletItemId = data;
                 this.deletItems_send.push(this.deletItemId);
                 let url = '/ItemApi/RemoveItemsByIds/';
@@ -736,7 +737,7 @@
             },
 
             updateDeletAll: function () {
-                console.log("我被點了");
+
                 if (this.deletAllItem_checkbox.length < this.items.length) {
 
                     return this.deletAll_checkbox = false;
