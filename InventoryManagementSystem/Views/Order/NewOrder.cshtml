@@ -93,7 +93,7 @@
 
             },
             orderDate: "",
-            time: new Date(),
+            time: null,
             orderDays: 0,
             queries: {}
 
@@ -178,18 +178,16 @@
 
             verifyDate: function (orderDate) {
 
-
-                if (moment(this.orderDate).isBefore(this.time)) {
+                let now = new Date();
+                let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                console.log("today", today);
+                console.log("this.orderDate", this.orderDate);
+                if (this.orderDate < today) {
+                //if (moment(this.orderDate).isBefore(now)) {
                     this.orderDate = "";
                     alert("請選擇正確日期");
-                    this.orderDate = "";
-
-
                 }
-
-
             }
-
         },
 
         computed: {
