@@ -7,7 +7,7 @@
 <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
-<div id="order">
+<div id="order" v-cloak>
     <b-card no-body class="overflow-hidden" style="max-width: 1200px;">
         <b-row no-gutters>
             <b-col md="6">
@@ -93,7 +93,7 @@
 
             },
             orderDate: "",
-            time: new Date(),
+            time: null,
             orderDays: 0,
             queries: {}
 
@@ -178,18 +178,16 @@
 
             verifyDate: function (orderDate) {
 
-
-                if (moment(this.orderDate).isBefore(this.time)) {
+                let now = new Date();
+                let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                console.log("today", today);
+                console.log("this.orderDate", this.orderDate);
+                if (this.orderDate < today) {
+                //if (moment(this.orderDate).isBefore(now)) {
                     this.orderDate = "";
                     alert("請選擇正確日期");
-                    this.orderDate = "";
-
-
                 }
-
-
             }
-
         },
 
         computed: {
