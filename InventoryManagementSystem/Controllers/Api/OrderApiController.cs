@@ -305,7 +305,7 @@ namespace InventoryManagementSystem.Controllers.Api
             var order = await _dbContext.Orders
                 .FirstOrDefaultAsync(o => o.OrderId == model.OrderID &&
                     o.OrderStatusId == "P" && // 待審核的 order
-                    o.EstimatedPickupTime > DateTime.Now && // 尚未過期
+                    o.EstimatedPickupTime >= DateTime.Today && // 尚未過期
                     o.PaymentOrder == null); // 尚未付款
 
             // 找不到訂單
