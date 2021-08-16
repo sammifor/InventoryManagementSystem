@@ -216,7 +216,7 @@ namespace InventoryManagementSystem.Controllers.Api
                     .Where(o => model.OrderIDs.Contains(o.OrderId))
                     .Where(o => o.OrderStatusId == "A")
                     .Where(o => o.PaymentOrder == null)
-                    .Where(o => o.EstimatedPickupTime > DateTime.Now)
+                    .Where(o => o.EstimatedPickupTime >= DateTime.Today)
                     .ToArrayAsync();
 
                 // 訂單不合法
